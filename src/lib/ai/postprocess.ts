@@ -139,7 +139,7 @@ function overlap(a: number[], b: number[]): number {
  * Transforme les détections brutes en éléments d'inventaire.
  * Dédoublonnage :
  * - dans une pièce, le modèle regroupe déjà un même objet vu sur plusieurs images ; si deux entrées
- *   restent avec la même référence et des images largement communes (≥ 50 %), la seconde est marquée
+ *   restent avec la même référence et au moins une image commune, la seconde est marquée
  *   « doublon possible » (non comptée, décision humaine) ;
  * - entre pièces, un objet rarement présent deux fois (réfrigérateur, lave-linge, piano…) vu dans
  *   deux pièces, ou signalé par le modèle (« may_be_same_as »), est marqué « doublon possible ».
@@ -181,7 +181,7 @@ export function buildItems(rooms: RoomDetections[], catalog: Map<string, Catalog
       };
 
       const twin = roomItems.find(
-        (other) => !other.possibleDuplicate && other.catalogKey !== null && other.catalogKey === item.catalogKey && overlap(other.imageIndexes, item.imageIndexes) >= 0.5,
+        (other) => !other.possibleDuplicate && other.catalogKey !== null && other.catalogKey === item.catalogKey && overlap(other.imageIndexes, item.imageIndexes) > 0,
       );
       if (twin) {
         item.possibleDuplicate = true;

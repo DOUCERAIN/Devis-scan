@@ -80,3 +80,19 @@ La tâche `/api/taches/purge-videos` (Vercel Cron, chaque jour) supprime réelle
 - `supabase/tests/database/public_request.test.sql` : parcours sans compte (jeton, limites, verrouillage après envoi, fonctions serveur).
 - `supabase/tests/database/customer_flow.test.sql` : modification du brouillon, pièces, vidéos, images, abandons, isolation.
 - Lancer : `npm run test:db` (Supabase local démarré).
+
+## Phase 4 (migrations `20261126090000_catalog_ai_quotes.sql`, `20261126090100_furniture_catalog_data.sql`)
+
+| Élément | Rôle |
+| --- | --- |
+| `catalog_sources`, `furniture_catalog` | Registre des sources et catalogue mobilier (lecture publique, aucune écriture hors migrations) |
+| `inventory_items` (+ colonnes) | Référence catalogue, fourchette de volume, volume géométrique, origine du volume, visibilité, proposition d'origine de l'IA (`ai_proposal`), modification humaine |
+| `inventory_item_changes` | Journal des corrections (avant/après, auteur, date, impact volume), lecture et ajout par les membres de l'entreprise |
+| `analysis_runs` (+ colonnes) | Étape, pièces traitées, images, jetons, coût, `simulated` ; une seule analyse active par demande |
+| `pricing_settings.configured_at`, `trip_type` | Grille enregistrée par l'entreprise (déclencheur), type de voyage |
+| `companies.reserves_terms`, `liability_terms` | Mentions rédigées par l'entreprise |
+| `quote_requests.selected_options`, `distance_method`, `view_token_hash` | Options du client, méthode de calcul de la distance, lien de suivi |
+| `quotes` (+ colonnes) | Version, nature (estimation/devis), origine, instantanés, hypothèses, montants en centimes ; figé par `freeze_quote`, jamais supprimé |
+| Fonctions publiques | `get_public_company_options`, `set_public_options`, `get_public_selected_options`, `submit_public_request` (renvoie le jeton de suivi), `get_public_quote_view`, `respond_public_quote` |
+
+Tests : `supabase/tests/database/phase4_quotes.test.sql`.
