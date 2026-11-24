@@ -32,6 +32,8 @@ export function PricingSettingsForm({ settings, disabled }: { settings: Settings
             <TextField id="price_per_m3" label="Prix au m³ (€ HT)" inputMode="decimal" {...f("price_per_m3")} />
             <TextField id="minimum_price" label="Prix minimum (€ HT)" inputMode="decimal" help="Montant plancher d'un devis." {...f("minimum_price")} />
             <TextField id="vat_rate" label="Taux de TVA (%)" inputMode="decimal" {...f("vat_rate")} />
+            <SelectField id="trip_type" label="Type de voyage" optional options={[{ value: "", label: "Non précisé" }, { value: "dedie", label: "Véhicule dédié" }, { value: "groupage", label: "Groupage" }]}
+              help="Indiqué sur les devis." {...fieldProps(state, "trip_type", settings.trip_type ?? "")} />
           </div>
         </div>
         <div className="flex flex-col gap-3">

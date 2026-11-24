@@ -52,7 +52,7 @@ async function mover(label) {
   const { data: company, error: e2 } = await client.rpc("create_company", { company_name: `${label} ${stamp}` });
   if (e2) throw e2;
   await admin.from("companies").update({ brand_color: "#1f6e55", phone: "04 78 00 00 00" }).eq("id", company.id);
-  return { email, password, company };
+  return { email, password, company, client };
 }
 
 async function shot(page, name) {
@@ -90,6 +90,14 @@ async function requestRow(email) {
   const pro = await mover("demenageur-a");
   const other = await mover("demenageur-b");
   const slug = pro.company.slug;
+  // Phase 4 : grille tarifaire enregistrée par l'entreprise, une option, identité légale complète.
+  {
+    const { error: e1 } = await pro.client.from("pricing_settings").update({ price_per_m3: 80, minimum_price: 300, price_per_extra_km: 0 }).eq("company_id", pro.company.id);
+    assert.equal(e1, null);
+    const { error: e2 } = await pro.client.from("pricing_options").insert({ company_id: pro.company.id, name: "Protection renforcée des meubles", pricing_mode: "per_m3", price: 10 });
+    assert.equal(e2, null);
+    await admin.from("companies").update({ legal_name: "Déménagements A SARL", siret: "12345678900012", address_line1: "1 rue du Test", postal_code: "69001", city: "Lyon", insurance_info: "Assureur Exemple, contrat n° 42" }).eq("id", pro.company.id);
+  }
   const errors = [];
 
   const browser = await chromium.launch({
@@ -262,6 +270,9 @@ async function requestRow(email) {
   await page.waitForURL(/recapitulatif$/);
   await text(page, "1 pièce sans vidéo");
   await text(page, "Escalier étroit au 3e");
+  await page.getByLabel("Protection renforcée des meubles").check();
+  await page.getByRole("button", { name: "Enregistrer mes options" }).click();
+  await text(page, "Options enregistrées.");
   await page.locator("#customer_notes").fill("Piano droit dans le salon.");
   await shot(page, "c05-recapitulatif");
   const submit = page.getByRole("button", { name: /Envoyer ma demande/ });
@@ -269,17 +280,19 @@ async function requestRow(email) {
   // Second clic immédiat : le bouton est désactivé pendant l'envoi.
   assert.equal(await submit.isDisabled().catch(() => true), true, "bouton désactivé pendant l'envoi");
   await submit.click({ timeout: 1500 }).catch(() => undefined);
-  await page.waitForURL(/envoyee$/, { timeout: 30000 });
-  await text(page, "Demande envoyée");
-  await shot(page, "c06-envoyee");
+  await page.waitForURL(/\/devis\/[0-9a-f]{64}$/, { timeout: 30000 });
+  const quoteUrl = page.url();
+  await text(page, "Votre demande de devis");
+  await shot(page, "c06-suivi");
+  log("Envoi : redirection vers le lien secret de suivi (aucun identifiant de demande dans l'adresse)");
   const row = await requestRow(`lina-${stamp}@example.com`);
-  assert.equal(row.status, "submitted");
+  assert.ok(["submitted", "analyzing", "to_review"].includes(row.status), row.status);
   assert.ok(row.submitted_at);
   const { data: events } = await admin.from("request_events").select("id").eq("request_id", row.id).eq("to_status", "submitted");
   assert.equal(events.length, 1, "un seul envoi enregistré");
   // Renvoi du formulaire depuis l'historique du navigateur : la demande reste unique.
   await page.goBack();
-  await page.waitForURL(/(envoyee|recapitulatif)$/);
+  await page.waitForURL(/(envoyee|recapitulatif|devis\/[0-9a-f]{64})$/);
   await page.goto(`${APP}/d/${slug}/demande/recapitulatif`);
   await page.waitForURL(/envoyee$/);
   const { data: events2 } = await admin.from("request_events").select("id").eq("request_id", row.id).eq("to_status", "submitted");
@@ -289,6 +302,26 @@ async function requestRow(email) {
   await page.goto(`${APP}/d/${slug}/demande/pieces`);
   await page.waitForURL(/envoyee$/);
   log("Après l'envoi, le particulier ne peut plus modifier sa demande");
+
+  // Phase 4 : analyse (simulateur de test), estimation automatique, PDF
+  await page.goto(quoteUrl);
+  await text(page, "Détail du prix", 90000);
+  await text(page, "Environnement de test");
+  await text(page, "Estimation indicative");
+  await text(page, "Protection renforcée des meubles");
+  const { data: run } = await admin.from("analysis_runs").select("status, simulated, provider, rooms_total, rooms_done").eq("request_id", row.id).single();
+  assert.deepEqual(run, { status: "succeeded", simulated: true, provider: "simulation", rooms_total: 2, rooms_done: 2 });
+  const { data: q1 } = await admin.from("quotes").select("version, status, kind, total_ttc_cents, pricing_snapshot").eq("request_id", row.id).order("version");
+  assert.equal(q1.length, 1);
+  assert.equal(q1[0].status, "generated");
+  assert.equal(q1[0].kind, "estimate");
+  assert.equal(q1[0].pricing_snapshot.settings.price_per_m3, 80);
+  const pdf = await page.request.get(`${quoteUrl}/pdf`);
+  assert.equal(pdf.status(), 200);
+  assert.equal((await pdf.body()).subarray(0, 5).toString(), "%PDF-");
+  assert.equal((await page.request.get(`${APP}/d/${slug}/devis/${"0".repeat(64)}`)).status(), 404);
+  await shot(page, "c06b-estimation");
+  log(`Analyse simulée (signalée comme telle), estimation V1 calculée avec la grille de l'entreprise : ${(q1[0].total_ttc_cents / 100).toFixed(2)} € TTC ; PDF téléchargeable ; faux lien refusé`);
 
   // 9. Espace déménageur : demande visible, vidéos lisibles, images
   const proCtx = await browser.newContext({ viewport: { width: 1360, height: 900 } });
@@ -321,6 +354,52 @@ async function requestRow(email) {
   assert.ok(images.length >= 3 && images.every(Boolean), JSON.stringify(images));
   await shot(p, "c07-fiche-pro");
   log(`Espace pro : demande reçue, ${playable.length} vidéos dont ${playable.filter((v) => v.duration > 0).length} lisibles dans ce navigateur, ${images.length} images affichées`);
+
+  // Phase 4 : inventaire corrigé par le déménageur, nouvelle version, envoi, acceptation
+  await text(p, "Analyse simulée (environnement de test)");
+  await text(p, "Canapé 3 places");
+  const fridge = p.locator("li", { hasText: "Réfrigérateur" }).first();
+  await fridge.locator("summary").click();
+  await fridge.getByLabel("Quantité").fill("2");
+  await fridge.getByRole("button", { name: "Enregistrer et valider" }).click();
+  await text(p, "Inventaire mis à jour");
+  await text(p, "Corrections de l'inventaire");
+  const { data: change } = await admin.from("inventory_item_changes").select("action, changes, volume_before_m3, volume_after_m3, changed_by").eq("request_id", row.id).single();
+  assert.equal(change.action, "update");
+  assert.deepEqual(change.changes.quantity, { avant: 1, apres: 2 });
+  assert.ok(Number(change.volume_after_m3) > Number(change.volume_before_m3));
+  assert.ok(change.changed_by);
+  const { data: proposal } = await admin.from("inventory_items").select("quantity, ai_proposal, validated_by_human").eq("request_id", row.id).eq("name", "Réfrigérateur").single();
+  assert.equal(proposal.quantity, 2);
+  assert.equal(proposal.ai_proposal.quantity, 1, "proposition de l'IA conservée");
+  assert.equal(proposal.validated_by_human, true);
+  log("Correction d'un objet : historique (avant, après, auteur, impact sur le volume), proposition de l'IA conservée");
+
+  await p.getByRole("button", { name: "Recalculer (nouvelle version)" }).click();
+  await text(p, "Version 2 calculée.");
+  await p.getByRole("button", { name: "Valider et envoyer au client" }).click();
+  await text(p, "Devis V3 envoyé");
+  const { data: versions } = await admin.from("quotes").select("version, status, kind, total_ttc_cents, changes_summary").eq("request_id", row.id).order("version");
+  assert.deepEqual(versions.map((v) => [v.version, v.status, v.kind]), [[1, "superseded", "estimate"], [2, "superseded", "estimate"], [3, "sent", "formal"]]);
+  assert.ok(versions[1].total_ttc_cents > versions[0].total_ttc_cents, "le second réfrigérateur augmente le prix");
+  assert.equal(versions[1].changes_summary.corrections, 1);
+  const { error: frozen } = await admin.from("quotes").update({ total_ttc_cents: 1 }).eq("request_id", row.id).eq("version", 1);
+  assert.ok(frozen, "une version de devis ne peut pas être modifiée");
+  log("Versions : V1 automatique, V2 corrigée, V3 envoyée (devis formel) ; versions figées");
+
+  await page.goto(quoteUrl);
+  await text(page, "Devis envoyé par votre déménageur");
+  await page.getByRole("button", { name: "Accepter le devis" }).click();
+  await text(page, "Vous avez accepté ce devis");
+  const { data: accepted } = await admin.from("quotes").select("status, accepted_at").eq("request_id", row.id).eq("version", 3).single();
+  assert.equal(accepted.status, "accepted");
+  assert.equal((await requestRow(`lina-${stamp}@example.com`)).status, "accepted");
+  const { error: locked } = await admin.from("quotes").update({ status: "refused" }).eq("request_id", row.id).eq("version", 3);
+  assert.ok(locked, "un devis accepté ne change plus de statut");
+  await p.reload();
+  await text(p, "Devis accepté par le client");
+  await shot(page, "c06c-devis-accepte");
+  log("Le client accepte le devis envoyé ; devis accepté verrouillé, plus de recalcul possible");
 
   // 10. Autre entreprise : aucun accès
   await p.getByRole("button", { name: "Se déconnecter" }).click();

@@ -85,7 +85,7 @@ export function formatNumberFr(value: number, decimals = 1): string {
   return value.toLocaleString("fr-FR", { minimumFractionDigits: 0, maximumFractionDigits: decimals });
 }
 
-const KIND_LABEL = { origin: "départ", destination: "arrivée" } as const;
+const KIND_LABEL = { origin: "au départ", destination: "à l'arrivée" } as const;
 
 function normalizeName(text: string): string {
   return text.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
@@ -143,16 +143,16 @@ export function computePrice(input: PricingInput): PricingResult {
   for (const d of input.dwellings) {
     const where = KIND_LABEL[d.kind];
     if (d.floor === null) {
-      assumptions.push(`Étage au ${where} non renseigné : aucun supplément d'étage appliqué.`);
+      assumptions.push(`Étage ${where} non renseigné : aucun supplément d'étage appliqué.`);
     } else if (d.floor > 0) {
       const elevator = d.elevator ?? "none";
-      if (d.elevator === null) assumptions.push(`Ascenseur au ${where} non précisé : considéré comme absent.`);
+      if (d.elevator === null) assumptions.push(`Ascenseur ${where} non précisé : considéré comme absent.`);
       const fee = elevator === "none" ? s.floor_fee_without_elevator : elevator === "small" ? s.floor_fee_small_elevator : 0;
       if (fee > 0) {
         const unit = toCents(fee);
         lines.push({
           code: "floors",
-          label: `Étages au ${where}`,
+          label: `Étages ${where}`,
           detail: `${d.floor} étage${d.floor > 1 ? "s" : ""} ${elevator === "none" ? "sans ascenseur" : "avec petit ascenseur"}`,
           quantity: d.floor,
           unit: "étage",
@@ -162,7 +162,7 @@ export function computePrice(input: PricingInput): PricingResult {
       }
     }
     if (d.carrying_distance_m === null) {
-      assumptions.push(`Distance de portage au ${where} non renseignée : aucun supplément de portage appliqué.`);
+      assumptions.push(`Distance de portage ${where} non renseignée : aucun supplément de portage appliqué.`);
     } else {
       const extra = Math.max(0, d.carrying_distance_m - s.free_carrying_distance_m);
       const tranches = Math.ceil(extra / 10);
@@ -170,7 +170,7 @@ export function computePrice(input: PricingInput): PricingResult {
         const unit = toCents(s.carrying_fee_per_10m);
         lines.push({
           code: "carrying",
-          label: `Portage au ${where}`,
+          label: `Portage ${where}`,
           detail: `${d.carrying_distance_m} m, dont ${extra} m au-delà des ${s.free_carrying_distance_m} m gratuits (${tranches} tranche${tranches > 1 ? "s" : ""} de 10 m)`,
           quantity: tranches,
           unit: "tranche",

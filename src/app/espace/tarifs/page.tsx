@@ -25,9 +25,15 @@ export default async function PricingPage() {
     <>
       <PageHeader title="Tarifs et options" description="Votre grille de prix, utilisée pour calculer les estimations de vos devis. Tous les montants sont hors taxes." />
       {disabled && <Alert tone="info" title="Lecture seule">Seuls le propriétaire et les administrateurs peuvent modifier les tarifs.</Alert>}
-      <Alert tone="info" title="Calcul automatique des devis à venir">
-        Ces paramètres sont enregistrés dès maintenant. Le calcul complet du devis à partir de l&apos;inventaire sera activé dans une prochaine étape.
-      </Alert>
+      {settings.data && !settings.data.configured_at ? (
+        <Alert tone="warning" title="Grille jamais enregistrée">
+          Les valeurs ci-dessous sont des exemples. Tant que vous ne les avez pas vérifiées et enregistrées, aucune estimation automatique n&apos;est présentée à vos clients.
+        </Alert>
+      ) : (
+        <Alert tone="info" title="Calcul automatique">
+          Cette grille sert à calculer l&apos;estimation présentée au client après l&apos;analyse de ses vidéos. Une modification ne change pas les devis déjà établis.
+        </Alert>
+      )}
       <Card as="section">
         <CardHeader title="Grille tarifaire" />
         {settings.data ? <PricingSettingsForm settings={settings.data} disabled={disabled} /> : <p className="text-sm text-ink-muted">Grille introuvable.</p>}

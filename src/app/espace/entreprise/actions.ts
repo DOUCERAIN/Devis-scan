@@ -51,7 +51,7 @@ export async function updateQuoteSettings(_prev: ActionState, formData: FormData
   const raw = formToObject(formData);
   const parsed = companyQuoteSettingsSchema.safeParse(raw);
   if (!parsed.success) return validationFailure(parsed.error, raw);
-  const patch = nullable(parsed.data, ["payment_terms", "quote_terms", "insurance_info"]);
+  const patch = nullable(parsed.data, ["payment_terms", "quote_terms", "insurance_info", "reserves_terms", "liability_terms"]);
   return (await saveCompany(company.id, patch, "updateQuoteSettings")) ?? success("Paramètres des devis enregistrés.");
 }
 

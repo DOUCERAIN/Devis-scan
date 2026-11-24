@@ -120,6 +120,10 @@ export function QuoteSettingsForm({ company, disabled }: Props) {
           placeholder="Ex. : acompte de 30 % à la signature, solde à la livraison." {...f("payment_terms")} />
         <TextArea id="insurance_info" label="Assurance" optional rows={2} className="sm:col-span-2"
           placeholder="Assureur, numéro de contrat, valeur garantie…" {...f("insurance_info")} />
+        <TextArea id="reserves_terms" label="Réserves à la livraison" optional rows={3} className="sm:col-span-2"
+          help="Votre procédure (délais, forme des réserves). Rédigée par vous : Devis Scan n'ajoute aucune clause." {...f("reserves_terms")} />
+        <TextArea id="liability_terms" label="Responsabilité et garanties" optional rows={3} className="sm:col-span-2"
+          help="Limites de responsabilité, déclaration de valeur…" {...f("liability_terms")} />
         <TextArea id="quote_terms" label="Conditions commerciales" optional rows={6} className="sm:col-span-2"
           help="Reproduites sur chaque devis." {...f("quote_terms")} />
       </fieldset>

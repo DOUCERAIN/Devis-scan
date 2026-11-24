@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { timingSafeEqual } from "node:crypto";
-import { cronSecret, supabaseSecretKey } from "@/lib/env.server";
+import { supabaseSecretKey } from "@/lib/env.server";
+import { cronAuthorized } from "@/lib/auth/cron";
 import { purgeAbandonedDrafts, purgeDueVideos } from "@/lib/storage/media";
 
 /**
@@ -10,16 +10,8 @@ import { purgeAbandonedDrafts, purgeDueVideos } from "@/lib/storage/media";
  */
 export const dynamic = "force-dynamic";
 
-function authorized(request: NextRequest): boolean {
-  const secret = cronSecret();
-  if (!secret) return false;
-  const given = Buffer.from(request.headers.get("authorization") ?? "");
-  const expected = Buffer.from(`Bearer ${secret}`);
-  return given.length === expected.length && timingSafeEqual(given, expected);
-}
-
 export async function GET(request: NextRequest) {
-  if (!authorized(request)) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+  if (!cronAuthorized(request)) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   if (!supabaseSecretKey()) return NextResponse.json({ error: "SUPABASE_SECRET_KEY manquante" }, { status: 500 });
   try {
     const videos = await purgeDueVideos();

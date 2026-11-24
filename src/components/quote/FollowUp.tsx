@@ -85,6 +85,11 @@ export function FollowUp({ view, companyName, pdfHref, respond }: { view: Public
             ) : null}
           </section>
           {current.status === "sent" && respond ? respond(current.id) : null}
+          {current.status === "accepted" ? (
+            <Alert tone="success" title="Vous avez accepté ce devis">
+              {companyName} a été informé de votre accord{current.accepted_at ? ` (le ${new Date(current.accepted_at).toLocaleDateString("fr-FR")})` : ""}.
+            </Alert>
+          ) : null}
           <QuoteDocument quote={current} audience="customer" />
         </>
       ) : (

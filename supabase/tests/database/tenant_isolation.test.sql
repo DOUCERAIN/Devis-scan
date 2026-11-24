@@ -157,7 +157,7 @@ delete from public.inventory_items;
 select pg_temp.logout();
 select is((select status::text from public.quote_requests q, ids where q.company_id = ids.company_a), 'to_review',
   'Bob ne modifie pas une demande de A');
-select is((select count(*)::int from public.inventory_items), 1, 'Bob ne supprime pas l''inventaire de A');
+select is((select count(*)::int from public.inventory_items i, ids where i.company_id = ids.company_a), 1, 'Bob ne supprime pas l''inventaire de A');
 
 -- Rattacher une donnée de B à une demande de A est impossible (contrainte d'intégrité)
 create temp table a_request as select id from public.quote_requests q where q.company_id = (select company_a from ids);

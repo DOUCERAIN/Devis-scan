@@ -39,6 +39,8 @@ export const companyQuoteSettingsSchema = z.object({
   payment_terms: optionalText(2000, "Les conditions de paiement"),
   quote_terms: optionalText(10000, "Les conditions commerciales"),
   insurance_info: optionalText(2000, "Les informations d'assurance"),
+  reserves_terms: optionalText(4000, "La procédure de réserves"),
+  liability_terms: optionalText(4000, "Les conditions de responsabilité"),
   video_retention_days: integerField("La durée de conservation", 7, 365),
 });
 

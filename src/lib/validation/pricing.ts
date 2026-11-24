@@ -13,6 +13,10 @@ export const pricingSettingsSchema = z.object({
   carrying_fee_per_10m: euroAmount("Le supplément de portage"),
   heavy_item_fee: euroAmount("Le supplément objet lourd"),
   vat_rate: euroAmount("Le taux de TVA").pipe(z.number().max(100, { error: "Le taux de TVA ne peut pas dépasser 100 %." })),
+  trip_type: z
+    .enum(["dedie", "groupage", ""], { error: "Choisissez un type de voyage." })
+    .optional()
+    .transform((v) => (v ? v : null)),
 });
 
 export const PRICING_MODES = ["fixed", "per_m3", "per_item"] as const;

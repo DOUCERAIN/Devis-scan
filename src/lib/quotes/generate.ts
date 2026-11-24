@@ -33,7 +33,7 @@ export function hasLegalIdentity(c: { legal_name: string | null; siret: string |
 export async function generateQuote(
   supabase: Client,
   requestId: string,
-  options: { origin: "automatic" | "correction"; userId?: string | null; changesSummary?: Json | null },
+  options: { origin: "automatic" | "correction"; userId?: string | null; changesSummary?: Json | null; send?: boolean },
 ): Promise<GenerateOutcome> {
   const { data: request, error } = await supabase
     .from("quote_requests")
@@ -150,9 +150,11 @@ export async function generateQuote(
     .insert({
       request_id: requestId,
       company_id: companyId,
-      status: options.origin === "automatic" ? "generated" : "corrected",
+      status: options.send ? "sent" : options.origin === "automatic" ? "generated" : "corrected",
+      sent_at: options.send ? new Date().toISOString() : null,
       version,
-      kind: "estimate",
+      // Un devis n'est « formel » que lorsqu'il est vérifié et envoyé par l'entreprise (identité légale complète).
+      kind: options.send && hasLegalIdentity(company) ? "formal" : "estimate",
       origin: options.origin,
       supersedes_id: previous.find((q) => q.status !== "superseded")?.id ?? null,
       lines: price.lines as unknown as Json[],

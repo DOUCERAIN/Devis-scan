@@ -8,7 +8,6 @@ import { requestReference, STATUS_META } from "@/lib/requests/status";
 import { ELEVATOR_LABELS, HOUSING_LABELS, floorLabel, formatDate, formatDateTime } from "@/lib/requests/labels";
 import { summarizeVolume } from "@/lib/inventory/volume";
 import { RequestStatusBadge } from "@/components/requests/RequestStatusBadge";
-import { InventoryTable } from "@/components/inventory/InventoryTable";
 import { VolumeSummaryCard } from "@/components/inventory/VolumeSummaryCard";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Alert } from "@/components/ui/Alert";
@@ -18,6 +17,10 @@ import { NotesForm, StatusForm } from "./RequestForms";
 import { createClient } from "@/lib/supabase/server";
 import { signedMediaUrl, signedMediaUrls } from "@/lib/storage/media";
 import { RoomMedia } from "./RoomMedia";
+import { InventoryEditor, type EditableItem } from "./InventoryEditor";
+import { QuoteActions } from "./QuoteActions";
+import { formatEuros } from "@/lib/pricing/engine";
+import { QUOTE_STATUS_META } from "@/lib/requests/quote-status";
 
 export const metadata: Metadata = { title: "Demande" };
 
@@ -66,10 +69,35 @@ export default async function RequestDetailPage({ params, searchParams }: PagePr
   const roomNames = new Map(rooms.map((r) => [r.id, r.name]));
   const items = toInventoryItems(request.inventory_items, roomNames);
   const summary = summarizeVolume(items);
+  const supabase = await createClient();
+  const editable: EditableItem[] = request.inventory_items
+    .map((r, i) => ({ r, base: items[i] }))
+    .filter(({ r }) => !r.merged_into_item_id)
+    .map(({ r, base }) => ({
+      ...base,
+      aiLabel: r.ai_label,
+      roomId: r.room_id,
+      validatedByHuman: r.validated_by_human,
+      possibleDuplicate: r.possible_duplicate,
+      removed: r.removed,
+      volumeSource: r.volume_source,
+      isHeavy: r.is_heavy,
+      frames: r.inventory_item_frames?.length ?? 0,
+    }))
+    .sort((a, b) => a.room.localeCompare(b.room) || a.name.localeCompare(b.name));
+  const [{ data: quotes }, { data: runs }, { data: changes }, { data: pricing }, { data: catalogRows }] = await Promise.all([
+    supabase.from("quotes").select("id, version, status, kind, origin, total_ttc_cents, created_at, sent_at, accepted_at, changes_summary").eq("request_id", request.id).order("version", { ascending: false }),
+    supabase.from("analysis_runs").select("id, status, stage, provider, model, simulated, rooms_total, rooms_done, images_count, input_tokens, output_tokens, cost_usd, error_code, error_message, created_at, finished_at").eq("request_id", request.id).order("created_at", { ascending: false }).limit(3),
+    supabase.from("inventory_item_changes").select("id, action, changes, volume_before_m3, volume_after_m3, changed_at, item_id").eq("request_id", request.id).order("changed_at", { ascending: false }).limit(30),
+    supabase.from("pricing_settings").select("configured_at").eq("company_id", company.id).maybeSingle(),
+    supabase.from("furniture_catalog").select("id, name, category_label").order("category_label").order("name"),
+  ]);
+  const run = runs?.[0] ?? null;
+  const itemNames = new Map(request.inventory_items.map((i) => [i.id, i.name]));
+  const catalog = (catalogRows ?? []).map((c) => ({ value: c.id, label: `${c.category_label} · ${c.name}` }));
   const events = [...request.request_events].sort((a, b) => b.created_at.localeCompare(a.created_at));
 
   // Liens de lecture temporaires, créés avec la session de l'utilisateur (règles de stockage appliquées).
-  const supabase = await createClient();
   const playable = rooms.flatMap((r) => r.room_videos).filter((v) => !v.deleted_at && ["uploaded", "processing", "ready"].includes(v.status));
   const videoUrls = new Map(
     await Promise.all(playable.map(async (v) => [v.id, await signedMediaUrl(supabase, v.storage_path)] as const)),
@@ -122,10 +150,45 @@ export default async function RequestDetailPage({ params, searchParams }: PagePr
             ) : (
               <>
                 <VolumeSummaryCard summary={summary} audience="pro" />
-                <InventoryTable items={items} />
+                <InventoryEditor
+                  requestId={request.id}
+                  items={editable}
+                  rooms={rooms.map((r) => ({ value: r.id, label: r.name }))}
+                  catalog={catalog}
+                />
               </>
             )}
+            {items.length === 0 ? (
+              <InventoryEditor requestId={request.id} items={[]} rooms={rooms.map((r) => ({ value: r.id, label: r.name }))} catalog={catalog} />
+            ) : null}
           </section>
+
+          {changes && changes.length > 0 ? (
+            <Card as="section">
+              <CardHeader title="Corrections de l'inventaire" />
+              <ol className="flex flex-col gap-2 text-sm">
+                {changes.map((c) => {
+                  const delta = Number(c.volume_after_m3 ?? 0) - Number(c.volume_before_m3 ?? 0);
+                  return (
+                    <li key={c.id} className="flex flex-wrap justify-between gap-2 border-l-2 border-border pl-3">
+                      <span>
+                        {{ add: "Ajout", update: "Modification", remove: "Retrait", restore: "Rétablissement", merge: "Fusion", confirm: "Confirmation" }[c.action] ?? c.action}
+                        {" : "}
+                        {(c.item_id && itemNames.get(c.item_id)) || "objet"}
+                        {c.action === "update" && c.changes && typeof c.changes === "object" && !Array.isArray(c.changes)
+                          ? ` (${Object.entries(c.changes as Record<string, { avant: unknown; apres: unknown }>).map(([k, v]) => `${k} : ${String(v.avant)} → ${String(v.apres)}`).join(", ")})`
+                          : ""}
+                      </span>
+                      <span className="text-ink-muted tabular-nums">
+                        {delta !== 0 ? `${delta > 0 ? "+" : ""}${delta.toLocaleString("fr-FR", { maximumFractionDigits: 2 })} m³ · ` : ""}
+                        {formatDateTime(c.changed_at)}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ol>
+            </Card>
+          ) : null}
 
           <RoomMedia
             rooms={rooms.map((room) => ({
@@ -164,6 +227,49 @@ export default async function RequestDetailPage({ params, searchParams }: PagePr
             <StatusForm id={request.id} status={request.status} />
             <p className="text-xs text-ink-muted">{STATUS_META[request.status].description}</p>
           </Card>
+
+          <Card as="section">
+            <CardHeader title="Devis" />
+            {!pricing?.configured_at ? (
+              <Alert tone="warning" title="Grille tarifaire non enregistrée">
+                Aucune estimation n&apos;est calculée tant que vous n&apos;avez pas enregistré vos tarifs. <Link href="/espace/tarifs" className="font-medium text-brand underline">Configurer mes tarifs</Link>
+              </Alert>
+            ) : null}
+            {quotes && quotes.length > 0 ? (
+              <ul className="flex flex-col gap-2 text-sm">
+                {quotes.map((q) => (
+                  <li key={q.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-canvas px-3 py-2">
+                    <span>
+                      <span className="font-medium">V{q.version}</span> · {QUOTE_STATUS_META[q.status]?.label ?? q.status}
+                      {q.kind === "formal" ? " · devis" : " · estimation"}
+                      <span className="block text-xs text-ink-muted">{formatDateTime(q.created_at)}{q.origin === "automatic" ? " · automatique" : ""}</span>
+                    </span>
+                    <span className="font-semibold tabular-nums">{q.total_ttc_cents !== null ? formatEuros(q.total_ttc_cents) : "—"}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-ink-muted">Aucun devis calculé pour l&apos;instant.</p>
+            )}
+            {request.status !== "accepted" && pricing?.configured_at ? <QuoteActions requestId={request.id} canSend={items.length > 0} /> : null}
+            {request.status === "accepted" ? <p className="text-sm text-success-text">Devis accepté par le client : il ne peut plus être remplacé.</p> : null}
+          </Card>
+
+          {run ? (
+            <Card as="section">
+              <CardHeader title="Analyse automatique" />
+              {run.simulated ? <Alert tone="warning" title="Analyse simulée (environnement de test)">Ces résultats ne proviennent pas d&apos;une IA.</Alert> : null}
+              <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
+                <dt className="text-ink-muted">État</dt>
+                <dd>{{ queued: "En attente", running: "En cours", succeeded: "Terminée", failed: "Échec" }[run.status]}{run.error_code ? ` (${{ not_configured: "analyse IA non configurée", missing_key: "clé API absente", simulation_forbidden: "simulation interdite ici", no_images: "aucune image", analysis_failed: "analyse impossible", internal_error: "erreur interne", save_failed: "enregistrement impossible" }[run.error_code] ?? run.error_code})` : ""}</dd>
+                {run.model ? (<><dt className="text-ink-muted">Modèle</dt><dd>{run.model}</dd></>) : null}
+                {run.rooms_total ? (<><dt className="text-ink-muted">Pièces</dt><dd>{run.rooms_done ?? 0} / {run.rooms_total} · {run.images_count} images</dd></>) : null}
+                {run.input_tokens ? (<><dt className="text-ink-muted">Jetons</dt><dd className="tabular-nums">{run.input_tokens.toLocaleString("fr-FR")} en entrée · {(run.output_tokens ?? 0).toLocaleString("fr-FR")} en sortie</dd></>) : null}
+                {run.cost_usd !== null && !run.simulated ? (<><dt className="text-ink-muted">Coût estimé</dt><dd className="tabular-nums">{Number(run.cost_usd).toLocaleString("fr-FR", { style: "currency", currency: "USD", maximumFractionDigits: 3 })}</dd></>) : null}
+              </dl>
+              {run.error_message ? <p className="text-xs text-ink-muted">{run.error_message}</p> : null}
+            </Card>
+          ) : null}
 
           <Card as="section">
             <CardHeader title="Client" />
