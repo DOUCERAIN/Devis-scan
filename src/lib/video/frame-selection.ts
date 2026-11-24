@@ -54,7 +54,7 @@ export function laplacianVariance(gray: Uint8Array | Uint8ClampedArray, width: n
   return sumSq / count - mean * mean;
 }
 
-export type SelectionOptions = { max?: number; minDistance?: number; minBrightness?: number; maxBrightness?: number };
+export type SelectionOptions = { max?: number; min?: number; minDistance?: number; minBrightness?: number; maxBrightness?: number };
 
 /**
  * Sélection : on écarte les images trop sombres ou trop claires et les plus floues
@@ -62,7 +62,7 @@ export type SelectionOptions = { max?: number; minDistance?: number; minBrightne
  * suffisamment différentes des images déjà retenues. Résultat trié dans le temps.
  */
 export function selectFrames(candidates: FrameCandidate[], options: SelectionOptions = {}): FrameCandidate[] {
-  const { max = 8, minDistance = 10, minBrightness = 18, maxBrightness = 240 } = options;
+  const { max = 8, min = 3, minDistance = 10, minBrightness = 18, maxBrightness = 240 } = options;
   const usable = candidates.filter((c) => c.brightness >= minBrightness && c.brightness <= maxBrightness);
   const pool = usable.length > 0 ? usable : candidates;
   if (pool.length === 0) return [];
@@ -74,6 +74,13 @@ export function selectFrames(candidates: FrameCandidate[], options: SelectionOpt
   for (const c of [...sharpEnough].sort((a, b) => b.sharpness - a.sharpness)) {
     if (chosen.length >= max) break;
     if (chosen.every((k) => signatureDistance(k.signature, c.signature) >= minDistance)) chosen.push(c);
+  }
+  // Peu d'images retenues : seconde passe moins exigeante (les quasi-doublons restent exclus).
+  if (chosen.length < min) {
+    for (const c of [...sharpEnough].sort((a, b) => b.sharpness - a.sharpness)) {
+      if (chosen.length >= min) break;
+      if (!chosen.includes(c) && chosen.every((k) => signatureDistance(k.signature, c.signature) >= minDistance / 2)) chosen.push(c);
+    }
   }
   if (chosen.length === 0) chosen.push([...pool].sort((a, b) => b.sharpness - a.sharpness)[0]);
   return chosen.sort((a, b) => a.time - b.time);

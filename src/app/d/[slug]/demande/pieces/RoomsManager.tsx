@@ -13,13 +13,16 @@ import type { DraftRoom } from "@/lib/public-request/service";
 import { cn } from "@/components/ui/cn";
 
 function RoomEditor({ slug, room, onDone }: { slug: string; room?: DraftRoom; onDone?: () => void }) {
-  const [state, action] = useActionState(async (prev: Parameters<typeof saveRoom>[0], fd: FormData) => {
-    const result = await saveRoom(prev, fd);
-    if (result.status === "success") onDone?.();
-    return result;
-  }, idleState);
   const [preset, setPreset] = useState<string>(room?.room_type ?? "");
   const [name, setName] = useState(room?.name ?? "");
+  const [state, action] = useActionState(async (prev: Parameters<typeof saveRoom>[0], fd: FormData) => {
+    const result = await saveRoom(prev, fd);
+    if (result.status === "success") {
+      if (!room) { setName(""); setPreset(""); }
+      onDone?.();
+    }
+    return result;
+  }, idleState);
   const prefix = room ? `room-${room.id}` : "new-room";
   return (
     <form action={action} className="flex flex-col gap-4" noValidate>
@@ -106,7 +109,7 @@ export function RoomsManager({ slug, rooms }: { slug: string; rooms: DraftRoom[]
       )}
       <section className="flex flex-col gap-4 rounded-lg border border-dashed border-border-input bg-surface p-4 sm:p-6">
         <h2 className="text-lg leading-[26px] font-semibold">{rooms.length === 0 ? "Ajoutez votre première pièce" : "Ajouter une pièce"}</h2>
-        <RoomEditor key={rooms.length} slug={slug} />
+        <RoomEditor slug={slug} />
       </section>
     </div>
   );

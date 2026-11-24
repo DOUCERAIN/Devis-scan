@@ -12,7 +12,8 @@ Le porteur du projet n'est pas développeur : expliquer en français simple, gui
 - **Marque blanche** : la couleur de l'entreprise remplace seulement `brand` côté particulier (pages, e-mails, PDF), assombrie automatiquement si texte blanc illisible (`src/lib/company/color.ts`). Couleurs de confiance jamais modifiées. L'espace pro garde l'identité Devis Scan.
 - **Nom, logo, signature du produit** : uniquement dans `src/config/brand.ts`.
 - **Vidéos** : conservées (vidéos + images extraites), bucket privé, URL signées, compression dans le navigateur (720p), suppression réelle après 90 jours par défaut (réglable par entreprise, 7–365 j).
-- **Particulier sans compte** : accès par jeton secret (hachage SHA-256 stocké, 30 jours).
+- **Particulier sans compte** : accès par jeton secret (hachage SHA-256 stocké, 30 jours) conservé dans un cookie httpOnly limité à `/d/<slug>` ; jamais d'identifiant dans les URL.
+- **Vidéos** : compressées dans le navigateur (Mediabunny/WebCodecs, 720p, sans son) ; original envoyé si compression impossible ; l'original n'est pas stocké (reste sur le téléphone), ses caractéristiques le sont. Envoi TUS reprenable signé. Jusqu'à 8 images extraites par vidéo.
 - **Paiement Stripe** : reporté après les premiers pilotes.
 - **Mode démo personnalisé** pour la prospection : prévu (colonne `companies.is_demo` déjà présente).
 - Branche de travail : `claude/trusting-wozniak-28f6ok`. Ne jamais modifier `main` ni fusionner sans autorisation explicite.
@@ -30,7 +31,10 @@ Le porteur du projet n'est pas développeur : expliquer en français simple, gui
 - `src/app/(auth)/` connexion, inscription, mot de passe ; `src/app/auth/confirm` liens e-mail.
 - `src/app/espace/` espace déménageur : tableau de bord, demandes (liste, fiche, saisie manuelle), tarifs, entreprise, équipe, profil, bienvenue (création d'entreprise).
 - `src/app/api/taches/purge-videos` purge RGPD (Vercel Cron, `vercel.json`).
-- `src/lib/public-request/service.ts` couche serveur du parcours particulier (phase 3, sans interface pour l'instant).
+- `src/app/d/[slug]/` parcours du particulier (voir `docs/parcours-client.md`) : `load.ts` (entreprise + brouillon), `actions.ts` (formulaires), `video-actions.ts` (vidéos), `demande/<étape>/`.
+- `src/lib/public-request/` session (cookie httpOnly du jeton), service (appels SQL protégés par jeton), erreurs, étapes.
+- `src/lib/video/` compression Mediabunny, extraction et sélection d'images, envoi reprenable (TUS), contrôle du format réel.
+- `src/lib/address/api.ts` API Adresse (Géoplateforme IGN).
 - `src/components/ui/` composants de la charte ; `src/components/app/` coque de l'espace.
 - `prototype/index.html` premier prototype, conservé pour référence (sa table de volumes et sa formule de prix ont été reprises).
 
@@ -51,7 +55,9 @@ npm run db:reset          # recrée la base locale depuis les migrations
 npm test                  # tests unitaires (node --test)
 npm run test:db           # tests pgTAP d'isolation et du parcours sans compte
 npm run test:integration  # stockage + purge (Supabase local + application lancée)
-npm run test:e2e          # parcours complets en navigateur (Playwright)
+npm run test:e2e          # parcours de l'espace pro en navigateur (Playwright)
+npm run test:media        # génère les vidéos de test (ffmpeg) dans tests/e2e/media/
+npm run test:e2e:client   # parcours client complet : caméra simulée, compression, coupures, erreurs
 npm run lint && npx tsc --noEmit && npm run build
 ```
 
@@ -61,7 +67,7 @@ Dans l'environnement cloud de Claude : démarrer Docker (`dockerd &`), puis `SUP
 
 1. ✅ Phase 1 — socle Next.js, charte graphique.
 2. ✅ Phase 2 — Supabase, authentification, multi-entreprises (RLS + tests), paramètres, tarifs, tableau de bord réel, saisie manuelle de demandes.
-3. ⏳ Phase 3 — parcours particulier : page `/d/[slug]` aux couleurs de l'entreprise, formulaire (adresses avec API Adresse, logements, accès), tournage pièce par pièce, compression, envoi reprenable, extraction d'images. **Base et fonctions serveur prêtes** (jeton, pièces, vidéos, URL signées, purge).
+3. ✅ Phase 3 — parcours particulier `/d/[slug]` (trajet, logements, pièces, vidéos, récapitulatif), caméra et galerie, compression 720p, envoi reprenable, images extraites, fiche pro avec vidéos et images, purge des abandons. Reste : validation sur vrais iPhone/Android, e-mail de confirmation au client.
 4. Phase 4 — analyse IA (API Claude côté serveur, `analysis_runs`, `inventory_items`), correction de l'inventaire, calcul du devis avec la grille tarifaire, PDF, envoi par e-mail.
 5. Phase 5 — démo personnalisée, invitations de collaborateurs, pages légales (CGU, confidentialité, contrat de sous-traitance RGPD).
 6. Phase 6 — Stripe, nom et domaine définitifs.

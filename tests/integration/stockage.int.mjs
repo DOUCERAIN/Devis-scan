@@ -113,4 +113,26 @@ assert.equal(row.status, "deleted");
 assert.ok(row.deleted_at);
 log("Vidéo échue réellement supprimée du stockage, puis marquée supprimée en base");
 
+// --- Brouillon abandonné (jamais envoyé) : supprimé avec ses fichiers après 30 jours
+const { data: draft } = await anon.rpc("create_public_request", {
+  company_slug: a.company.slug,
+  payload: { customer: { full_name: "Client parti", email: "parti@example.com" }, origin: { city: "Lyon" } },
+});
+const draftToken = draft[0].access_token;
+const { data: draftRoom } = await anon.rpc("add_public_room", { access_token: draftToken, room_name: "Salon" });
+const { data: draftSlot } = await anon.rpc("register_public_video", { access_token: draftToken, room_id: draftRoom, mime_type: "video/mp4", size_bytes: video.length });
+const draftPath = draftSlot[0].storage_path;
+const { data: draftSigned } = await admin.storage.from("request-media").createSignedUploadUrl(draftPath);
+await anon.storage.from("request-media").uploadToSignedUrl(draftPath, draftSigned.token, video, { contentType: "video/mp4" });
+await admin.rpc("mark_video_uploaded", { access_token: draftToken, video_id: draftSlot[0].video_id, actual_size: video.length });
+await admin.from("quote_requests").update({ created_at: new Date(Date.now() - 31 * 86400000).toISOString() }).eq("id", draft[0].request_id);
+const purge2 = await (await fetch(`${APP}/api/taches/purge-videos`, { headers: { authorization: `Bearer ${CRON}` } })).json();
+assert.ok(purge2.abandonedDrafts >= 1, JSON.stringify(purge2));
+const { data: gone } = await admin.from("quote_requests").select("id").eq("id", draft[0].request_id);
+assert.equal(gone.length, 0);
+const draftFolder = draftPath.slice(0, draftPath.lastIndexOf("/"));
+const { data: leftovers } = await admin.storage.from("request-media").list(draftFolder);
+assert.equal((leftovers ?? []).length, 0, "les fichiers du brouillon doivent être effacés");
+log("Brouillon abandonné depuis plus de 30 jours supprimé, vidéo comprise");
+
 console.log(`\nTest d'intégration du stockage réussi (${step} vérifications).`);

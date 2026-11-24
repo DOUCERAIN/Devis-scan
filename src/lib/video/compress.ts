@@ -178,7 +178,7 @@ async function extractWithMediabunny(video: Blob, max: number, onProgress?: (rat
     const h = await track.getDisplayHeight();
     const outW = Math.min(1280, w - (w % 2));
     const outH = Math.round((outW * h) / w);
-    const sink = new CanvasSink(track, { width: outW, height: outH, poolSize: 0 });
+    const sink = new CanvasSink(track, { width: outW, height: outH, fit: "fill", poolSize: 0 });
     const times = sampleTimestamps(duration, 24);
     const candidates: Array<FrameCandidate & { canvas: CanvasImageSource }> = [];
     let i = 0;

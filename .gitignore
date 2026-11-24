@@ -42,3 +42,6 @@ next-env.d.ts
 
 # Modèle de configuration (sans secret)
 !.env.example
+
+# Vidéos de test générées
+/tests/e2e/media/

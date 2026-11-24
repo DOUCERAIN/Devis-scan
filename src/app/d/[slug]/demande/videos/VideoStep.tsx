@@ -318,11 +318,12 @@ function RoomCard({ slug, room, config, open, onOpen, onDone }: {
             </div>
           )}
 
+          {/* Champs de fichier déclenchés par les boutons ci-dessus (masqués aux lecteurs d'écran). */}
           <input ref={nativeInput} type="file" accept="video/*" capture="environment" className="sr-only" tabIndex={-1}
-            aria-label="Filmer avec l'appareil photo du téléphone"
+            aria-hidden="true" data-input="native"
             onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) accept(f, "native_camera"); }} />
           <input ref={galleryInput} type="file" accept="video/mp4,video/quicktime,video/webm,video/*" className="sr-only" tabIndex={-1}
-            aria-label="Choisir une vidéo existante"
+            aria-hidden="true" data-input="gallery"
             onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) accept(f, "gallery"); }} />
         </div>
       )}

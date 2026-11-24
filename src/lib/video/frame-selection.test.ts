@@ -32,6 +32,11 @@ test("nombre maximal respecté et ordre chronologique", () => {
   assert.deepEqual([...chosen].sort((a, b) => a.time - b.time), chosen);
 });
 
+test("seconde passe : au moins 3 images si elles diffèrent un peu, jamais de doublon", () => {
+  const frames = [cand(1, 500, 10), cand(2, 490, 17), cand(3, 480, 24), cand(4, 470, 25)];
+  assert.deepEqual(selectFrames(frames).map((c) => c.time), [1, 2, 3]);
+});
+
 test("toujours au moins une image si la vidéo n'est pas vide", () => {
   assert.equal(selectFrames([cand(1, 10, 0, 2)]).length, 1);
   assert.equal(selectFrames([]).length, 0);

@@ -4,16 +4,16 @@ Logiciel SaaS pour les entreprises de déménagement : le particulier filme son 
 
 « Devis Scan » est un nom de travail : le nom et la signature se changent dans `src/config/brand.ts`, les couleurs dans `src/app/globals.css`.
 
-## État actuel (phase 2 terminée)
+## État actuel (phase 3 développée et testée en local)
 
 - Charte graphique appliquée (page de contrôle : `/charte`).
-- Connexion à Supabase : base de données multi-entreprises avec règles d'isolation (RLS) testées, stockage des logos et des vidéos.
-- Comptes déménageurs : inscription avec confirmation par e-mail, connexion, mot de passe oublié, profil.
-- Espace entreprise : tableau de bord sur données réelles, demandes (liste, fiche, saisie manuelle, statuts, notes, historique), informations, logo, couleur, conditions de devis, tarifs et options, équipe.
-- Parcours particulier sans compte : base de données, fonctions sécurisées et stockage prêts ; **l'interface sera construite en phase 3**.
-- Pas encore d'analyse IA ni de calcul de devis automatique.
+- Base de données multi-entreprises avec règles d'isolation (RLS) testées, stockage privé des logos, vidéos et images.
+- Comptes déménageurs, espace entreprise (tableau de bord, demandes, paramètres, tarifs, équipe).
+- **Parcours particulier sans compte** sur `/d/<entreprise>` : trajet avec suggestions d'adresses, logements, pièces, tournage des vidéos (caméra ou galerie), compression, images extraites, envoi reprenable, récapitulatif et envoi.
+- Fiche demande côté déménageur : informations, logements, pièces, vidéos, images extraites.
+- Pas encore d'analyse IA ni de calcul de devis automatique (phase 4).
 
-Documentation : `CLAUDE.md` (décisions et architecture), `docs/base-de-donnees.md`, `docs/mise-en-production.md`.
+Documentation : `CLAUDE.md` (décisions et architecture), `docs/base-de-donnees.md`, `docs/parcours-client.md`, `docs/mise-en-production.md`.
 
 L'ancien prototype est conservé tel quel dans `prototype/index.html`.
 
@@ -27,7 +27,9 @@ npm run dev               # application sur http://localhost:3000
 npm test                  # tests unitaires
 npm run test:db           # tests de sécurité de la base (isolation entre entreprises)
 npm run test:integration  # stockage des vidéos et purge
-npm run test:e2e          # parcours complets dans un navigateur
+npm run test:e2e          # parcours de l'espace pro dans un navigateur
+npm run test:media        # vidéos de test (nécessite ffmpeg)
+npm run test:e2e:client   # parcours client complet (caméra simulée, compression, erreurs)
 npm run build             # construction de production
 ```
 

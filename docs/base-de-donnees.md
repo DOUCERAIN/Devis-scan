@@ -30,10 +30,10 @@ Schéma PostgreSQL (Supabase), défini **uniquement** par les migrations de `sup
 | `pricing_options` | Options et prestations (forfait, par m³, par objet) | owner, admin |
 | `pricing_item_surcharges` | Suppléments d'objets spécifiques (piano…) | owner, admin |
 | `customers` | Particuliers (sans compte) | membres |
-| `quote_requests` | Demandes de devis : statut, source, date, distance, volume estimé, notes, jeton client (hachage), numéro séquentiel | membres (suppression : owner, admin) |
+| `quote_requests` | Demandes de devis : statut, source, date souhaitée et alternative, distance, volume estimé, notes, jeton client (hachage), numéro séquentiel | membres (suppression : owner, admin) |
 | `dwellings` | Logement de départ / d'arrivée : adresse, type, surface, étage, ascenseur, portage, accès | membres |
-| `rooms` | Pièces filmées | membres |
-| `room_videos` | Vidéos (fichier dans `request-media`), statut, date de suppression prévue | serveur uniquement |
+| `rooms` | Pièces filmées (nom, type, description) | membres |
+| `room_videos` | Vidéos (fichier dans `request-media`), statut, taille, durée, dimensions, version stockée (`compressed`/`original`), encodeur, source (caméra, appareil photo, galerie), caractéristiques de l'original, date de suppression prévue | serveur uniquement |
 | `video_frames` | Images extraites des vidéos | serveur uniquement |
 | `analysis_runs` | Analyses IA : statut, modèle, erreurs, réponse brute | serveur uniquement |
 | `inventory_items` | Inventaire : nom, quantité, volume, dimensions, source (ia / client / déménageur), confiance, doublon possible, validation humaine, retrait | membres |
@@ -55,11 +55,15 @@ Toutes les tables ont `created_at` ; les tables modifiables ont `updated_at` (tr
 | `create_manual_request(payload)` | membre | Saisie manuelle d'une demande (droits de l'utilisateur, RLS appliquée) |
 | `get_public_company(slug)` | public | Informations publiques pour la page client |
 | `create_public_request(slug, payload)` | public | Crée un brouillon et renvoie un **jeton secret** (seul son hachage SHA-256 est stocké, validité 30 jours) |
-| `add_public_room`, `remove_public_room` | public + jeton | Pièces du brouillon (30 max) |
-| `register_public_video` | public + jeton | Réserve l'emplacement d'une vidéo (MP4/WebM/MOV, 50 Mo, 3 par pièce) |
+| `update_public_request` | public + jeton | Modification du brouillon (coordonnées, dates, logements champ par champ) |
+| `add_public_room`, `update_public_room`, `remove_public_room` | public + jeton | Pièces du brouillon (30 max) |
+| `register_public_video` | public + jeton | Réserve l'emplacement d'une vidéo avec ses métadonnées (MP4/WebM/MOV, 50 Mo, 3 par pièce, un envoi en cours par pièce) |
 | `mark_video_uploaded` | serveur (clé secrète) + jeton | Confirme l'envoi après vérification du fichier et fixe la date de suppression |
-| `get_public_request`, `submit_public_request` | public + jeton | Suivi et envoi définitif (au moins une vidéo) |
+| `discard_public_video` | public + jeton | Retire une vidéo (supprimer / refaire) ; le serveur efface aussitôt le fichier |
+| `add_public_frames` | serveur + jeton | Enregistre les images extraites (chemins vérifiés, 12 max par vidéo) |
+| `get_public_request`, `submit_public_request` | public + jeton | Résumé complet du brouillon et envoi définitif (au moins une vidéo) |
 | `claim_videos_for_purge`, `mark_videos_purged` | serveur | Purge RGPD |
+| `claim_abandoned_drafts`, `delete_abandoned_drafts` | serveur | Suppression des brouillons non envoyés depuis plus de 30 jours |
 
 ## Stockage
 
@@ -74,4 +78,5 @@ La tâche `/api/taches/purge-videos` (Vercel Cron, chaque jour) supprime réelle
 
 - `supabase/tests/database/tenant_isolation.test.sql` : isolation entre deux entreprises (lecture, écriture, suppression, rôles, champs protégés, stockage, anonyme).
 - `supabase/tests/database/public_request.test.sql` : parcours sans compte (jeton, limites, verrouillage après envoi, fonctions serveur).
+- `supabase/tests/database/customer_flow.test.sql` : modification du brouillon, pièces, vidéos, images, abandons, isolation.
 - Lancer : `npm run test:db` (Supabase local démarré).
