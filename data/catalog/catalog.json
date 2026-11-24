@@ -1,0 +1,5762 @@
+{
+ "version": "2026-11-24",
+ "categories": {
+  "salon": "Salon et séjour",
+  "chambre": "Chambres",
+  "cuisine": "Cuisine",
+  "salle_de_bain": "Salle de bain",
+  "bureau": "Bureau",
+  "entree": "Entrée et couloirs",
+  "garage_cave": "Garage et cave",
+  "jardin": "Jardin et extérieur",
+  "sport_loisirs": "Sport et loisirs",
+  "electromenager": "Électroménager",
+  "cartons": "Cartons et emballages",
+  "volumineux": "Autres objets volumineux"
+ },
+ "handling": {
+  "rigide": {
+   "coefficient": 1.1,
+   "description": "meuble rigide transporté monté, + protection"
+  },
+  "rembourre": {
+   "coefficient": 1.15,
+   "description": "meuble rembourré, + housse et calage"
+  },
+  "empilable": {
+   "coefficient": 0.7,
+   "description": "objet empilable ou imbriquable"
+  },
+  "demontable": {
+   "coefficient": 0.45,
+   "description": "meuble transporté démonté (éléments à plat)"
+  },
+  "fragile": {
+   "coefficient": 1.3,
+   "description": "objet fragile emballé (carton, papier bulle)"
+  }
+ },
+ "items": [
+  {
+   "id": "canape-2-places",
+   "name": "Canapé 2 places",
+   "category": "salon",
+   "category_label": "Salon et séjour",
+   "subcategory": "Canapés",
+   "synonyms": [
+    "loveseat",
+    "petit canapé",
+    "canapé deux places"
+   ],
+   "coco_class": "couch",
+   "handling": "rembourre",
+   "heavy": false,
+   "sample_size": 121,
+   "dims_cm": {
+    "width": {
+     "min": 141.0,
+     "avg": 160.0,
+     "max": 171.0
+    },
+    "depth": {
+     "min": 78.0,
+     "avg": 92.0,
+     "max": 99.0
+    },
+    "height": {
+     "min": 77.0,
+     "avg": 88.0,
+     "max": 97.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.93,
+    "avg": 1.25,
+    "max": 1.5
+   },
+   "weight_kg": {
+    "min": 11.0,
+    "avg": 37.0,
+    "max": 55.0,
+    "sample_size": 117
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.74,
+    "avg": 1.0,
+    "max": 1.2
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "abo",
+    "proto"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 121 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : référence interne du prototype « Canapé 2 places » (1.0 m³) ; fourchette proportionnelle à la dispersion ABO."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "canape-3-places",
+   "name": "Canapé 3 places",
+   "category": "salon",
+   "category_label": "Salon et séjour",
+   "subcategory": "Canapés",
+   "synonyms": [
+    "sofa",
+    "canapé trois places"
+   ],
+   "coco_class": "couch",
+   "handling": "rembourre",
+   "heavy": false,
+   "sample_size": 233,
+   "dims_cm": {
+    "width": {
+     "min": 193.0,
+     "avg": 208.0,
+     "max": 229.0
+    },
+    "depth": {
+     "min": 79.0,
+     "avg": 94.0,
+     "max": 104.0
+    },
+    "height": {
+     "min": 77.0,
+     "avg": 89.0,
+     "max": 99.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 1.32,
+    "avg": 1.69,
+    "max": 2.25
+   },
+   "weight_kg": {
+    "min": 31.0,
+    "avg": 56.0,
+    "max": 71.0,
+    "sample_size": 222
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 1.17,
+    "avg": 1.5,
+    "max": 2.0
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "abo",
+    "proto"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 233 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : référence interne du prototype « Canapé 3 places » (1.5 m³) ; fourchette proportionnelle à la dispersion ABO."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "canape-4-places",
+   "name": "Canapé 4 places",
+   "category": "salon",
+   "category_label": "Salon et séjour",
+   "subcategory": "Canapés",
+   "synonyms": [
+    "grand canapé",
+    "canapé quatre places"
+   ],
+   "coco_class": "couch",
+   "handling": "rembourre",
+   "heavy": false,
+   "sample_size": 33,
+   "dims_cm": {
+    "width": {
+     "min": 236.0,
+     "avg": 237.0,
+     "max": 257.0
+    },
+    "depth": {
+     "min": 95.0,
+     "avg": 104.0,
+     "max": 146.0
+    },
+    "height": {
+     "min": 74.0,
+     "avg": 86.0,
+     "max": 104.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 1.8,
+    "avg": 2.47,
+    "max": 3.02
+   },
+   "weight_kg": {
+    "min": 38.0,
+    "avg": 63.0,
+    "max": 68.0,
+    "sample_size": 33
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 1.6,
+    "avg": 2.19,
+    "max": 2.68
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "proto",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 33 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : dérivé de « Canapé 3 places » (1.5 m³) × rapport des volumes géométriques ABO (1.46) — à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "canape-angle",
+   "name": "Canapé d'angle",
+   "category": "salon",
+   "category_label": "Salon et séjour",
+   "subcategory": "Canapés",
+   "synonyms": [
+    "canapé en L",
+    "sectional",
+    "canapé modulable"
+   ],
+   "coco_class": "couch",
+   "handling": "rembourre",
+   "heavy": false,
+   "sample_size": 166,
+   "dims_cm": {
+    "width": {
+     "min": 190.0,
+     "avg": 224.0,
+     "max": 231.0
+    },
+    "depth": {
+     "min": 71.0,
+     "avg": 91.0,
+     "max": 104.0
+    },
+    "height": {
+     "min": 71.0,
+     "avg": 79.0,
+     "max": 104.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 1.24,
+    "avg": 1.83,
+    "max": 2.3
+   },
+   "weight_kg": {
+    "min": 52.0,
+    "avg": 62.0,
+    "max": 78.0,
+    "sample_size": 165
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 1.1,
+    "avg": 1.62,
+    "max": 2.04
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "proto",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 166 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : dérivé de « Canapé 3 places » (1.5 m³) × rapport des volumes géométriques ABO (1.08) — à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "canape-convertible",
+   "name": "Canapé convertible",
+   "category": "salon",
+   "category_label": "Salon et séjour",
+   "subcategory": "Canapés",
+   "synonyms": [
+    "canapé-lit",
+    "clic-clac",
+    "BZ",
+    "futon"
+   ],
+   "coco_class": "couch",
+   "handling": "rembourre",
+   "heavy": false,
+   "sample_size": 26,
+   "dims_cm": {
+    "width": {
+     "min": 131.0,
+     "avg": 179.0,
+     "max": 198.0
+    },
+    "depth": {
+     "min": 84.0,
+     "avg": 94.0,
+     "max": 97.0
+    },
+    "height": {
+     "min": 81.0,
+     "avg": 90.0,
+     "max": 95.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 1.08,
+    "avg": 1.45,
+    "max": 1.72
+   },
+   "weight_kg": {
+    "min": 29.0,
+    "avg": 63.0,
+    "max": 80.0,
+    "sample_size": 26
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.96,
+    "avg": 1.29,
+    "max": 1.53
+   },
+   "dims_reliability": "moyenne",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "proto",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 26 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : dérivé de « Canapé 3 places » (1.5 m³) × rapport des volumes géométriques ABO (0.86) — à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "canape-panoramique",
+   "name": "Canapé panoramique",
+   "category": "salon",
+   "category_label": "Salon et séjour",
+   "subcategory": "Canapés",
+   "synonyms": [
+    "canapé en U",
+    "grand canapé d'angle"
+   ],
+   "coco_class": "couch",
+   "handling": "rembourre",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "meridienne",
+   "name": "Méridienne",
+   "category": "salon",
+   "category_label": "Salon et séjour",
+   "subcategory": "Canapés",
+   "synonyms": [
+    "chaise longue",
+    "lit de repos",
+    "chaise lounge"
+   ],
+   "coco_class": "couch",
+   "handling": "rembourre",
+   "heavy": false,
+   "sample_size": 39,
+   "dims_cm": {
+    "width": {
+     "min": 148.0,
+     "avg": 198.0,
+     "max": 198.0
+    },
+    "depth": {
+     "min": 67.0,
+     "avg": 69.0,
+     "max": 71.0
+    },
+    "height": {
+     "min": 62.0,
+     "avg": 64.0,
+     "max": 88.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.8,
+    "avg": 0.86,
+    "max": 1.21
+   },
+   "weight_kg": {
+    "min": 17.0,
+    "avg": 62.0,
+    "max": 62.0,
+    "sample_size": 38
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.74,
+    "avg": 0.8,
+    "max": 1.13
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "abo",
+    "proto"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 39 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : référence interne du prototype « Méridienne » (0.8 m³) ; fourchette proportionnelle à la dispersion ABO."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "fauteuil",
+   "name": "Fauteuil",
+   "category": "salon",
+   "category_label": "Salon et séjour",
+   "subcategory": "Fauteuils",
+   "synonyms": [
+    "fauteuil club",
+    "bergère",
+    "armchair"
+   ],
+   "coco_class": "chair",
+   "handling": "rembourre",
+   "heavy": false,
+   "sample_size": 365,
+   "dims_cm": {
+    "width": {
+     "min": 75.0,
+     "avg": 89.0,
+     "max": 107.0
+    },
+    "depth": {
+     "min": 66.0,
+     "avg": 81.0,
+     "max": 97.0
+    },
+    "height": {
+     "min": 77.0,
+     "avg": 88.0,
+     "max": 102.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.4,
+    "avg": 0.63,
+    "max": 0.94
+   },
+   "weight_kg": {
+    "min": 11.0,
+    "avg": 23.0,
+    "max": 42.0,
+    "sample_size": 350
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.32,
+    "avg": 0.5,
+    "max": 0.75
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "abo",
+    "proto"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 365 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : référence interne du prototype « Fauteuil » (0.5 m³) ; fourchette proportionnelle à la dispersion ABO."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "fauteuil-relax",
+   "name": "Fauteuil relax",
+   "category": "salon",
+   "category_label": "Salon et séjour",
+   "subcategory": "Fauteuils",
+   "synonyms": [
+    "fauteuil inclinable",
+    "recliner",
+    "fauteuil releveur"
+   ],
+   "coco_class": "chair",
+   "handling": "rembourre",
+   "heavy": false,
+   "sample_size": 119,
+   "dims_cm": {
+    "width": {
+     "min": 87.0,
+     "avg": 99.0,
+     "max": 112.0
+    },
+    "depth": {
+     "min": 74.0,
+     "avg": 84.0,
+     "max": 97.0
+    },
+    "height": {
+     "min": 96.0,
+     "avg": 102.0,
+     "max": 109.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.62,
+    "avg": 0.85,
+    "max": 1.15
+   },
+   "weight_kg": {
+    "min": 32.0,
+    "avg": 40.0,
+    "max": 52.0,
+    "sample_size": 106
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.49,
+    "avg": 0.67,
+    "max": 0.91
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "proto",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 119 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : dérivé de « Fauteuil » (0.5 m³) × rapport des volumes géométriques ABO (1.35) — à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "fauteuil-pivotant",
+   "name": "Fauteuil pivotant",
+   "category": "salon",
+   "category_label": "Salon et séjour",
+   "subcategory": "Fauteuils",
+   "synonyms": [
+    "fauteuil tournant"
+   ],
+   "coco_class": "chair",
+   "handling": "rembourre",
+   "heavy": false,
+   "sample_size": 75,
+   "dims_cm": {
+    "width": {
+     "min": 72.0,
+     "avg": 89.0,
+     "max": 100.0
+    },
+    "depth": {
+     "min": 68.0,
+     "avg": 79.0,
+     "max": 88.0
+    },
+    "height": {
+     "min": 72.0,
+     "avg": 85.0,
+     "max": 104.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.37,
+    "avg": 0.64,
+    "max": 0.85
+   },
+   "weight_kg": {
+    "min": 20.0,
+    "avg": 34.0,
+    "max": 44.0,
+    "sample_size": 69
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.29,
+    "avg": 0.51,
+    "max": 0.67
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "proto",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 75 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : dérivé de « Fauteuil » (0.5 m³) × rapport des volumes géométriques ABO (1.02) — à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "rocking-chair",
+   "name": "Rocking-chair",
+   "category": "salon",
+   "category_label": "Salon et séjour",
+   "subcategory": "Fauteuils",
+   "synonyms": [
+    "fauteuil à bascule"
+   ],
+   "coco_class": "chair",
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 27,
+   "dims_cm": {
+    "width": {
+     "min": 94.0,
+     "avg": 98.0,
+     "max": 107.0
+    },
+    "depth": {
+     "min": 62.0,
+     "avg": 95.0,
+     "max": 98.0
+    },
+    "height": {
+     "min": 64.0,
+     "avg": 102.0,
+     "max": 112.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.52,
+    "avg": 0.75,
+    "max": 1.15
+   },
+   "weight_kg": {
+    "min": 7.0,
+    "avg": 48.0,
+    "max": 59.0,
+    "sample_size": 27
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.57,
+    "avg": 0.83,
+    "max": 1.26
+   },
+   "dims_reliability": "moyenne",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 27 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "pouf",
+   "name": "Pouf",
+   "category": "salon",
+   "category_label": "Salon et séjour",
+   "subcategory": "Poufs et repose-pieds",
+   "synonyms": [
+    "repose-pieds",
+    "ottoman"
+   ],
+   "coco_class": null,
+   "handling": "rembourre",
+   "heavy": false,
+   "sample_size": 260,
+   "dims_cm": {
+    "width": {
+     "min": 48.0,
+     "avg": 77.0,
+     "max": 94.0
+    },
+    "depth": {
+     "min": 43.0,
+     "avg": 58.0,
+     "max": 94.0
+    },
+    "height": {
+     "min": 41.0,
+     "avg": 47.0,
+     "max": 89.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.1,
+    "avg": 0.22,
+    "max": 0.45
+   },
+   "weight_kg": {
+    "min": 7.0,
+    "avg": 12.0,
+    "max": 18.0,
+    "sample_size": 207
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.11,
+    "avg": 0.25,
+    "max": 0.52
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 260 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 1.15 (meuble rembourré, + housse et calage) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "pouf-poire",
+   "name": "Pouf poire",
+   "category": "salon",
+   "category_label": "Salon et séjour",
+   "subcategory": "Poufs et repose-pieds",
+   "synonyms": [
+    "bean bag",
+    "pouf géant"
+   ],
+   "coco_class": null,
+   "handling": "rembourre",
+   "heavy": false,
+   "sample_size": 52,
+   "dims_cm": {
+    "width": {
+     "min": 107.0,
+     "avg": 117.0,
+     "max": 127.0
+    },
+    "depth": {
+     "min": 107.0,
+     "avg": 117.0,
+     "max": 127.0
+    },
+    "height": {
+     "min": 99.0,
+     "avg": 107.0,
+     "max": 117.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 1.13,
+    "avg": 1.46,
+    "max": 1.89
+   },
+   "weight_kg": {
+    "min": 1.0,
+    "avg": 1.0,
+    "max": 1.0,
+    "sample_size": 52
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 1.3,
+    "avg": 1.68,
+    "max": 2.17
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 52 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 1.15 (meuble rembourré, + housse et calage) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "table-basse",
+   "name": "Table basse",
+   "category": "salon",
+   "category_label": "Salon et séjour",
+   "subcategory": "Tables",
+   "synonyms": [
+    "table de salon"
+   ],
+   "coco_class": "dining table",
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 181,
+   "dims_cm": {
+    "width": {
+     "min": 89.0,
+     "avg": 108.0,
+     "max": 130.0
+    },
+    "depth": {
+     "min": 41.0,
+     "avg": 61.0,
+     "max": 90.0
+    },
+    "height": {
+     "min": 36.0,
+     "avg": 45.0,
+     "max": 60.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.2,
+    "avg": 0.32,
+    "max": 0.43
+   },
+   "weight_kg": {
+    "min": 10.0,
+    "avg": 22.0,
+    "max": 43.0,
+    "sample_size": 170
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.19,
+    "avg": 0.3,
+    "max": 0.4
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "abo",
+    "proto"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 181 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : référence interne du prototype « Table basse » (0.3 m³) ; fourchette proportionnelle à la dispersion ABO."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "bout-de-canape",
+   "name": "Bout de canapé",
+   "category": "salon",
+   "category_label": "Salon et séjour",
+   "subcategory": "Tables",
+   "synonyms": [
+    "table d'appoint",
+    "guéridon",
+    "sellette"
+   ],
+   "coco_class": "dining table",
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 142,
+   "dims_cm": {
+    "width": {
+     "min": 42.0,
+     "avg": 51.0,
+     "max": 63.0
+    },
+    "depth": {
+     "min": 38.0,
+     "avg": 46.0,
+     "max": 60.0
+    },
+    "height": {
+     "min": 42.0,
+     "avg": 55.0,
+     "max": 67.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.08,
+    "avg": 0.13,
+    "max": 0.21
+   },
+   "weight_kg": {
+    "min": 5.0,
+    "avg": 11.0,
+    "max": 24.0,
+    "sample_size": 124
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.09,
+    "avg": 0.14,
+    "max": 0.23
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 142 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "console",
+   "name": "Console",
+   "category": "salon",
+   "category_label": "Salon et séjour",
+   "subcategory": "Tables",
+   "synonyms": [
+    "table console",
+    "console d'entrée"
+   ],
+   "coco_class": "dining table",
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 35,
+   "dims_cm": {
+    "width": {
+     "min": 107.0,
+     "avg": 120.0,
+     "max": 151.0
+    },
+    "depth": {
+     "min": 36.0,
+     "avg": 40.0,
+     "max": 57.0
+    },
+    "height": {
+     "min": 46.0,
+     "avg": 76.0,
+     "max": 81.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.22,
+    "avg": 0.37,
+    "max": 0.48
+   },
+   "weight_kg": {
+    "min": 16.0,
+    "avg": 20.0,
+    "max": 40.0,
+    "sample_size": 34
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.24,
+    "avg": 0.41,
+    "max": 0.53
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 35 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "meuble-tv",
+   "name": "Meuble TV",
+   "category": "salon",
+   "category_label": "Salon et séjour",
+   "subcategory": "Meubles de rangement",
+   "synonyms": [
+    "banc TV",
+    "meuble télé",
+    "meuble hi-fi"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 58,
+   "dims_cm": {
+    "width": {
+     "min": 99.0,
+     "avg": 132.0,
+     "max": 165.0
+    },
+    "depth": {
+     "min": 39.0,
+     "avg": 41.0,
+     "max": 57.0
+    },
+    "height": {
+     "min": 40.0,
+     "avg": 63.0,
+     "max": 84.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.24,
+    "avg": 0.38,
+    "max": 0.5
+   },
+   "weight_kg": {
+    "min": 27.0,
+    "avg": 36.0,
+    "max": 57.0,
+    "sample_size": 56
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.26,
+    "avg": 0.42,
+    "max": 0.55
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 58 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "buffet-bas",
+   "name": "Buffet bas",
+   "category": "salon",
+   "category_label": "Salon et séjour",
+   "subcategory": "Meubles de rangement",
+   "synonyms": [
+    "enfilade",
+    "bahut",
+    "sideboard"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 35,
+   "dims_cm": {
+    "width": {
+     "min": 98.0,
+     "avg": 142.0,
+     "max": 173.0
+    },
+    "depth": {
+     "min": 39.0,
+     "avg": 45.0,
+     "max": 53.0
+    },
+    "height": {
+     "min": 76.0,
+     "avg": 86.0,
+     "max": 111.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.37,
+    "avg": 0.53,
+    "max": 0.72
+   },
+   "weight_kg": {
+    "min": 19.0,
+    "avg": 51.0,
+    "max": 82.0,
+    "sample_size": 35
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.41,
+    "avg": 0.58,
+    "max": 0.79
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 35 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "bibliotheque",
+   "name": "Bibliothèque",
+   "category": "salon",
+   "category_label": "Salon et séjour",
+   "subcategory": "Meubles de rangement",
+   "synonyms": [
+    "étagère haute",
+    "bookcase"
+   ],
+   "coco_class": null,
+   "handling": "demontable",
+   "heavy": false,
+   "sample_size": 60,
+   "dims_cm": {
+    "width": {
+     "min": 63.0,
+     "avg": 86.0,
+     "max": 145.0
+    },
+    "depth": {
+     "min": 28.0,
+     "avg": 36.0,
+     "max": 53.0
+    },
+    "height": {
+     "min": 45.0,
+     "avg": 117.0,
+     "max": 189.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.18,
+    "avg": 0.37,
+    "max": 0.59
+   },
+   "weight_kg": {
+    "min": 8.0,
+    "avg": 32.0,
+    "max": 61.0,
+    "sample_size": 53
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.29,
+    "avg": 0.6,
+    "max": 0.96
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "abo",
+    "proto"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 60 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : référence interne du prototype « Bibliothèque » (0.6 m³) ; fourchette proportionnelle à la dispersion ABO."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "vitrine",
+   "name": "Vitrine",
+   "category": "salon",
+   "category_label": "Salon et séjour",
+   "subcategory": "Meubles de rangement",
+   "synonyms": [
+    "vaisselier",
+    "meuble vitré"
+   ],
+   "coco_class": null,
+   "handling": "fragile",
+   "heavy": false,
+   "sample_size": 36,
+   "dims_cm": {
+    "width": {
+     "min": 117.0,
+     "avg": 210.0,
+     "max": 234.0
+    },
+    "depth": {
+     "min": 10.0,
+     "avg": 14.0,
+     "max": 213.0
+    },
+    "height": {
+     "min": 61.0,
+     "avg": 142.0,
+     "max": 142.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.23,
+    "avg": 0.37,
+    "max": 7.09
+   },
+   "weight_kg": {
+    "min": 31.0,
+    "avg": 40.0,
+    "max": 77.0,
+    "sample_size": 36
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.3,
+    "avg": 0.48,
+    "max": 9.22
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 36 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 1.3 (objet fragile emballé (carton, papier bulle)) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "tapis",
+   "name": "Tapis",
+   "category": "salon",
+   "category_label": "Salon et séjour",
+   "subcategory": "Décoration",
+   "synonyms": [
+    "tapis roulé"
+   ],
+   "coco_class": null,
+   "handling": "empilable",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "lampadaire",
+   "name": "Lampadaire",
+   "category": "salon",
+   "category_label": "Salon et séjour",
+   "subcategory": "Luminaires",
+   "synonyms": [
+    "lampe sur pied",
+    "liseuse"
+   ],
+   "coco_class": null,
+   "handling": "fragile",
+   "heavy": false,
+   "sample_size": 15,
+   "dims_cm": {
+    "width": {
+     "min": 23.0,
+     "avg": 35.0,
+     "max": 103.0
+    },
+    "depth": {
+     "min": 18.0,
+     "avg": 24.0,
+     "max": 38.0
+    },
+    "height": {
+     "min": 54.0,
+     "avg": 156.0,
+     "max": 188.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.03,
+    "avg": 0.11,
+    "max": 0.53
+   },
+   "weight_kg": {
+    "min": 2.0,
+    "avg": 5.0,
+    "max": 12.0,
+    "sample_size": 14
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.04,
+    "avg": 0.14,
+    "max": 0.69
+   },
+   "dims_reliability": "moyenne",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 15 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 1.3 (objet fragile emballé (carton, papier bulle)) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "lampe-a-poser",
+   "name": "Lampe à poser",
+   "category": "salon",
+   "category_label": "Salon et séjour",
+   "subcategory": "Luminaires",
+   "synonyms": [
+    "lampe de chevet",
+    "lampe de table"
+   ],
+   "coco_class": null,
+   "handling": "fragile",
+   "heavy": false,
+   "sample_size": 49,
+   "dims_cm": {
+    "width": {
+     "min": 15.0,
+     "avg": 25.0,
+     "max": 36.0
+    },
+    "depth": {
+     "min": 15.0,
+     "avg": 25.0,
+     "max": 35.0
+    },
+    "height": {
+     "min": 32.0,
+     "avg": 48.0,
+     "max": 67.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.01,
+    "avg": 0.02,
+    "max": 0.08
+   },
+   "weight_kg": {
+    "min": 1.0,
+    "avg": 2.0,
+    "max": 6.0,
+    "sample_size": 47
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.01,
+    "avg": 0.03,
+    "max": 0.1
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 49 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 1.3 (objet fragile emballé (carton, papier bulle)) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "miroir-mural",
+   "name": "Miroir",
+   "category": "salon",
+   "category_label": "Salon et séjour",
+   "subcategory": "Décoration",
+   "synonyms": [
+    "grand miroir",
+    "miroir sur pied"
+   ],
+   "coco_class": null,
+   "handling": "fragile",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "tableau-cadre",
+   "name": "Tableau ou cadre",
+   "category": "salon",
+   "category_label": "Salon et séjour",
+   "subcategory": "Décoration",
+   "synonyms": [
+    "toile",
+    "cadre",
+    "affiche encadrée"
+   ],
+   "coco_class": null,
+   "handling": "fragile",
+   "heavy": false,
+   "sample_size": 74,
+   "dims_cm": {
+    "width": {
+     "min": 46.0,
+     "avg": 76.0,
+     "max": 194.0
+    },
+    "depth": {
+     "min": 2.0,
+     "avg": 5.0,
+     "max": 140.0
+    },
+    "height": {
+     "min": 4.0,
+     "avg": 46.0,
+     "max": 94.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.01,
+    "avg": 0.02,
+    "max": 1.3
+   },
+   "weight_kg": {
+    "min": 1.0,
+    "avg": 3.0,
+    "max": 23.0,
+    "sample_size": 56
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.01,
+    "avg": 0.03,
+    "max": 1.69
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 74 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 1.3 (objet fragile emballé (carton, papier bulle)) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "television",
+   "name": "Télévision",
+   "category": "salon",
+   "category_label": "Salon et séjour",
+   "subcategory": "Audio et vidéo",
+   "synonyms": [
+    "TV",
+    "écran plat",
+    "téléviseur"
+   ],
+   "coco_class": "tv",
+   "handling": "fragile",
+   "heavy": false,
+   "sample_size": 13,
+   "dims_cm": {
+    "width": {
+     "min": 78.0,
+     "avg": 89.0,
+     "max": 116.0
+    },
+    "depth": {
+     "min": 43.0,
+     "avg": 60.0,
+     "max": 67.0
+    },
+    "height": {
+     "min": 11.0,
+     "avg": 21.0,
+     "max": 135.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.06,
+    "avg": 0.11,
+    "max": 0.74
+   },
+   "weight_kg": {
+    "min": 1.0,
+    "avg": 6.0,
+    "max": 13.0,
+    "sample_size": 12
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.11,
+    "avg": 0.2,
+    "max": 1.35
+   },
+   "dims_reliability": "moyenne",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "abo",
+    "proto"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 13 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : référence interne du prototype « Télévision » (0.2 m³) ; fourchette proportionnelle à la dispersion ABO."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "enceinte-colonne",
+   "name": "Enceinte colonne",
+   "category": "salon",
+   "category_label": "Salon et séjour",
+   "subcategory": "Audio et vidéo",
+   "synonyms": [
+    "haut-parleur colonne",
+    "chaîne hi-fi"
+   ],
+   "coco_class": null,
+   "handling": "fragile",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "piano-droit",
+   "name": "Piano droit",
+   "category": "volumineux",
+   "category_label": "Autres objets volumineux",
+   "subcategory": "Instruments",
+   "synonyms": [
+    "piano"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": true,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 1.88,
+    "avg": 2.5,
+    "max": 3.12
+   },
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "proto"
+   ],
+   "method": [
+    "Volume de déménagement : référence interne du prototype « Piano droit » (2.5 m³) ; fourchette ±25 %."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "piano-a-queue",
+   "name": "Piano à queue",
+   "category": "volumineux",
+   "category_label": "Autres objets volumineux",
+   "subcategory": "Instruments",
+   "synonyms": [
+    "piano de concert",
+    "crapaud"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": true,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 3.75,
+    "avg": 5.0,
+    "max": 6.25
+   },
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "proto"
+   ],
+   "method": [
+    "Volume de déménagement : référence interne du prototype « Piano à queue » (5.0 m³) ; fourchette ±25 %."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "piano-numerique",
+   "name": "Piano numérique",
+   "category": "volumineux",
+   "category_label": "Autres objets volumineux",
+   "subcategory": "Instruments",
+   "synonyms": [
+    "clavier sur meuble"
+   ],
+   "coco_class": null,
+   "handling": "fragile",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "aquarium",
+   "name": "Aquarium",
+   "category": "volumineux",
+   "category_label": "Autres objets volumineux",
+   "subcategory": "Divers",
+   "synonyms": [
+    "meuble aquarium"
+   ],
+   "coco_class": null,
+   "handling": "fragile",
+   "heavy": true,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "coffre-fort",
+   "name": "Coffre-fort",
+   "category": "volumineux",
+   "category_label": "Autres objets volumineux",
+   "subcategory": "Divers",
+   "synonyms": [
+    "armoire forte"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": true,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.6,
+    "avg": 0.8,
+    "max": 1.0
+   },
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "proto"
+   ],
+   "method": [
+    "Volume de déménagement : référence interne du prototype « Coffre-fort » (0.8 m³) ; fourchette ±25 %."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "horloge-comtoise",
+   "name": "Horloge comtoise",
+   "category": "volumineux",
+   "category_label": "Autres objets volumineux",
+   "subcategory": "Divers",
+   "synonyms": [
+    "horloge de parquet"
+   ],
+   "coco_class": "clock",
+   "handling": "fragile",
+   "heavy": true,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "plante-grande",
+   "name": "Grande plante en pot",
+   "category": "salon",
+   "category_label": "Salon et séjour",
+   "subcategory": "Décoration",
+   "synonyms": [
+    "plante d'intérieur",
+    "palmier en pot"
+   ],
+   "coco_class": "potted plant",
+   "handling": "fragile",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "table-a-manger-4",
+   "name": "Table à manger 4 personnes",
+   "category": "cuisine",
+   "category_label": "Cuisine",
+   "subcategory": "Tables",
+   "synonyms": [
+    "table de cuisine",
+    "petite table"
+   ],
+   "coco_class": "dining table",
+   "handling": "demontable",
+   "heavy": false,
+   "sample_size": 18,
+   "dims_cm": {
+    "width": {
+     "min": 75.0,
+     "avg": 113.0,
+     "max": 136.0
+    },
+    "depth": {
+     "min": 61.0,
+     "avg": 78.0,
+     "max": 113.0
+    },
+    "height": {
+     "min": 74.0,
+     "avg": 76.0,
+     "max": 91.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.41,
+    "avg": 0.73,
+    "max": 0.96
+   },
+   "weight_kg": {
+    "min": 18.0,
+    "avg": 31.0,
+    "max": 46.0,
+    "sample_size": 15
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.28,
+    "avg": 0.5,
+    "max": 0.66
+   },
+   "dims_reliability": "moyenne",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "abo",
+    "proto"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 18 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : référence interne du prototype « Table repas » (0.5 m³) ; fourchette proportionnelle à la dispersion ABO."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "table-a-manger-6",
+   "name": "Table à manger 6 personnes",
+   "category": "cuisine",
+   "category_label": "Cuisine",
+   "subcategory": "Tables",
+   "synonyms": [
+    "table de salle à manger"
+   ],
+   "coco_class": "dining table",
+   "handling": "demontable",
+   "heavy": false,
+   "sample_size": 12,
+   "dims_cm": {
+    "width": {
+     "min": 152.0,
+     "avg": 166.0,
+     "max": 183.0
+    },
+    "depth": {
+     "min": 75.0,
+     "avg": 90.0,
+     "max": 136.0
+    },
+    "height": {
+     "min": 75.0,
+     "avg": 76.0,
+     "max": 76.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.86,
+    "avg": 1.17,
+    "max": 1.88
+   },
+   "weight_kg": {
+    "min": 33.0,
+    "avg": 45.0,
+    "max": 56.0,
+    "sample_size": 12
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.59,
+    "avg": 0.8,
+    "max": 1.29
+   },
+   "dims_reliability": "moyenne",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "proto",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 12 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : dérivé de « Table à manger 4 personnes » (0.5 m³) × rapport des volumes géométriques ABO (1.60) — à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "table-a-manger-8",
+   "name": "Table à manger 8 personnes et plus",
+   "category": "cuisine",
+   "category_label": "Cuisine",
+   "subcategory": "Tables",
+   "synonyms": [
+    "grande table",
+    "table de ferme"
+   ],
+   "coco_class": "dining table",
+   "handling": "demontable",
+   "heavy": false,
+   "sample_size": 16,
+   "dims_cm": {
+    "width": {
+     "min": 198.0,
+     "avg": 203.0,
+     "max": 250.0
+    },
+    "depth": {
+     "min": 93.0,
+     "avg": 99.0,
+     "max": 104.0
+    },
+    "height": {
+     "min": 75.0,
+     "avg": 76.0,
+     "max": 77.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 1.44,
+    "avg": 1.53,
+    "max": 1.87
+   },
+   "weight_kg": {
+    "min": 38.0,
+    "avg": 63.0,
+    "max": 88.0,
+    "sample_size": 16
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.99,
+    "avg": 1.05,
+    "max": 1.28
+   },
+   "dims_reliability": "moyenne",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "proto",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 16 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : dérivé de « Table à manger 4 personnes » (0.5 m³) × rapport des volumes géométriques ABO (2.10) — à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "chaise",
+   "name": "Chaise",
+   "category": "cuisine",
+   "category_label": "Cuisine",
+   "subcategory": "Chaises",
+   "synonyms": [
+    "chaise de salle à manger",
+    "chaise de cuisine"
+   ],
+   "coco_class": "chair",
+   "handling": "empilable",
+   "heavy": false,
+   "sample_size": 199,
+   "dims_cm": {
+    "width": {
+     "min": 54.0,
+     "avg": 61.0,
+     "max": 65.0
+    },
+    "depth": {
+     "min": 47.0,
+     "avg": 52.0,
+     "max": 61.0
+    },
+    "height": {
+     "min": 79.0,
+     "avg": 89.0,
+     "max": 102.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.22,
+    "avg": 0.29,
+    "max": 0.35
+   },
+   "weight_kg": {
+    "min": 5.0,
+    "avg": 9.0,
+    "max": 14.0,
+    "sample_size": 192
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.11,
+    "avg": 0.15,
+    "max": 0.18
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "abo",
+    "proto"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 199 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : référence interne du prototype « Chaise » (0.15 m³) ; fourchette proportionnelle à la dispersion ABO."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "tabouret-de-bar",
+   "name": "Tabouret de bar",
+   "category": "cuisine",
+   "category_label": "Cuisine",
+   "subcategory": "Chaises",
+   "synonyms": [
+    "tabouret haut",
+    "chaise de bar"
+   ],
+   "coco_class": "chair",
+   "handling": "empilable",
+   "heavy": false,
+   "sample_size": 246,
+   "dims_cm": {
+    "width": {
+     "min": 45.0,
+     "avg": 56.0,
+     "max": 59.0
+    },
+    "depth": {
+     "min": 36.0,
+     "avg": 47.0,
+     "max": 53.0
+    },
+    "height": {
+     "min": 66.0,
+     "avg": 99.0,
+     "max": 110.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.11,
+    "avg": 0.26,
+    "max": 0.33
+   },
+   "weight_kg": {
+    "min": 6.0,
+    "avg": 8.0,
+    "max": 12.0,
+    "sample_size": 216
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.08,
+    "avg": 0.18,
+    "max": 0.23
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 246 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 0.7 (objet empilable ou imbriquable) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "tabouret",
+   "name": "Tabouret",
+   "category": "cuisine",
+   "category_label": "Cuisine",
+   "subcategory": "Chaises",
+   "synonyms": [
+    "petit tabouret",
+    "repose-pieds"
+   ],
+   "coco_class": "chair",
+   "handling": "empilable",
+   "heavy": false,
+   "sample_size": 14,
+   "dims_cm": {
+    "width": {
+     "min": 33.0,
+     "avg": 45.0,
+     "max": 52.0
+    },
+    "depth": {
+     "min": 32.0,
+     "avg": 45.0,
+     "max": 50.0
+    },
+    "height": {
+     "min": 38.0,
+     "avg": 46.0,
+     "max": 79.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.06,
+    "avg": 0.1,
+    "max": 0.19
+   },
+   "weight_kg": {
+    "min": 3.0,
+    "avg": 6.0,
+    "max": 10.0,
+    "sample_size": 13
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.04,
+    "avg": 0.07,
+    "max": 0.13
+   },
+   "dims_reliability": "moyenne",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 14 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 0.7 (objet empilable ou imbriquable) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "banc-de-table",
+   "name": "Banc de table",
+   "category": "cuisine",
+   "category_label": "Cuisine",
+   "subcategory": "Chaises",
+   "synonyms": [
+    "banc de salle à manger"
+   ],
+   "coco_class": "bench",
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 15,
+   "dims_cm": {
+    "width": {
+     "min": 102.0,
+     "avg": 122.0,
+     "max": 157.0
+    },
+    "depth": {
+     "min": 39.0,
+     "avg": 64.0,
+     "max": 91.0
+    },
+    "height": {
+     "min": 45.0,
+     "avg": 74.0,
+     "max": 85.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.2,
+    "avg": 0.6,
+    "max": 0.88
+   },
+   "weight_kg": {
+    "min": 7.0,
+    "avg": 12.0,
+    "max": 28.0,
+    "sample_size": 13
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.22,
+    "avg": 0.66,
+    "max": 0.97
+   },
+   "dims_reliability": "moyenne",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 15 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "desserte-cuisine",
+   "name": "Desserte de cuisine",
+   "category": "cuisine",
+   "category_label": "Cuisine",
+   "subcategory": "Rangements",
+   "synonyms": [
+    "îlot de cuisine",
+    "chariot de cuisine"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 36,
+   "dims_cm": {
+    "width": {
+     "min": 56.0,
+     "avg": 76.0,
+     "max": 102.0
+    },
+    "depth": {
+     "min": 34.0,
+     "avg": 44.0,
+     "max": 53.0
+    },
+    "height": {
+     "min": 79.0,
+     "avg": 87.0,
+     "max": 95.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.15,
+    "avg": 0.3,
+    "max": 0.47
+   },
+   "weight_kg": {
+    "min": 4.0,
+    "avg": 15.0,
+    "max": 31.0,
+    "sample_size": 32
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.17,
+    "avg": 0.33,
+    "max": 0.52
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 36 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "buffet-cuisine",
+   "name": "Buffet de cuisine",
+   "category": "cuisine",
+   "category_label": "Cuisine",
+   "subcategory": "Rangements",
+   "synonyms": [
+    "meuble de cuisine indépendant",
+    "garde-manger"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "etagere-cuisine",
+   "name": "Étagère de cuisine",
+   "category": "cuisine",
+   "category_label": "Cuisine",
+   "subcategory": "Rangements",
+   "synonyms": [
+    "étagère à micro-ondes",
+    "baker's rack"
+   ],
+   "coco_class": null,
+   "handling": "demontable",
+   "heavy": false,
+   "sample_size": 2,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "refrigerateur",
+   "name": "Réfrigérateur",
+   "category": "electromenager",
+   "category_label": "Électroménager",
+   "subcategory": "Froid",
+   "synonyms": [
+    "frigo",
+    "réfrigérateur combiné"
+   ],
+   "coco_class": "refrigerator",
+   "handling": "rigide",
+   "heavy": true,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.3,
+    "avg": 0.4,
+    "max": 0.5
+   },
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "proto"
+   ],
+   "method": [
+    "Volume de déménagement : référence interne du prototype « Réfrigérateur » (0.4 m³) ; fourchette ±25 %."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "refrigerateur-americain",
+   "name": "Réfrigérateur américain",
+   "category": "electromenager",
+   "category_label": "Électroménager",
+   "subcategory": "Froid",
+   "synonyms": [
+    "frigo américain",
+    "side-by-side"
+   ],
+   "coco_class": "refrigerator",
+   "handling": "rigide",
+   "heavy": true,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "refrigerateur-top",
+   "name": "Réfrigérateur top",
+   "category": "electromenager",
+   "category_label": "Électroménager",
+   "subcategory": "Froid",
+   "synonyms": [
+    "petit frigo",
+    "frigo table top",
+    "mini-frigo"
+   ],
+   "coco_class": "refrigerator",
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "congelateur",
+   "name": "Congélateur",
+   "category": "electromenager",
+   "category_label": "Électroménager",
+   "subcategory": "Froid",
+   "synonyms": [
+    "congélateur armoire",
+    "congélateur coffre"
+   ],
+   "coco_class": "refrigerator",
+   "handling": "rigide",
+   "heavy": true,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.3,
+    "avg": 0.4,
+    "max": 0.5
+   },
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "proto"
+   ],
+   "method": [
+    "Volume de déménagement : référence interne du prototype « Congélateur » (0.4 m³) ; fourchette ±25 %."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "cave-a-vin",
+   "name": "Cave à vin",
+   "category": "electromenager",
+   "category_label": "Électroménager",
+   "subcategory": "Froid",
+   "synonyms": [
+    "armoire à vin"
+   ],
+   "coco_class": "refrigerator",
+   "handling": "rigide",
+   "heavy": true,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "lave-linge",
+   "name": "Lave-linge",
+   "category": "electromenager",
+   "category_label": "Électroménager",
+   "subcategory": "Lavage",
+   "synonyms": [
+    "machine à laver"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": true,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.22,
+    "avg": 0.3,
+    "max": 0.38
+   },
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "proto"
+   ],
+   "method": [
+    "Volume de déménagement : référence interne du prototype « Lave-linge » (0.3 m³) ; fourchette ±25 %."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "seche-linge",
+   "name": "Sèche-linge",
+   "category": "electromenager",
+   "category_label": "Électroménager",
+   "subcategory": "Lavage",
+   "synonyms": [
+    "séchoir électrique"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": true,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.22,
+    "avg": 0.3,
+    "max": 0.38
+   },
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "proto"
+   ],
+   "method": [
+    "Volume de déménagement : référence interne du prototype « Sèche-linge » (0.3 m³) ; fourchette ±25 %."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "lave-vaisselle",
+   "name": "Lave-vaisselle",
+   "category": "electromenager",
+   "category_label": "Électroménager",
+   "subcategory": "Lavage",
+   "synonyms": [],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": true,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.22,
+    "avg": 0.3,
+    "max": 0.38
+   },
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "proto"
+   ],
+   "method": [
+    "Volume de déménagement : référence interne du prototype « Lave-vaisselle » (0.3 m³) ; fourchette ±25 %."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "four",
+   "name": "Four",
+   "category": "electromenager",
+   "category_label": "Électroménager",
+   "subcategory": "Cuisson",
+   "synonyms": [
+    "four encastrable",
+    "four indépendant"
+   ],
+   "coco_class": "oven",
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "cuisiniere",
+   "name": "Cuisinière",
+   "category": "electromenager",
+   "category_label": "Électroménager",
+   "subcategory": "Cuisson",
+   "synonyms": [
+    "piano de cuisson",
+    "gazinière"
+   ],
+   "coco_class": "oven",
+   "handling": "rigide",
+   "heavy": true,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "micro-ondes",
+   "name": "Micro-ondes",
+   "category": "electromenager",
+   "category_label": "Électroménager",
+   "subcategory": "Cuisson",
+   "synonyms": [
+    "four à micro-ondes"
+   ],
+   "coco_class": "microwave",
+   "handling": "fragile",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.04,
+    "avg": 0.05,
+    "max": 0.06
+   },
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "proto"
+   ],
+   "method": [
+    "Volume de déménagement : référence interne du prototype « Micro-ondes » (0.05 m³) ; fourchette ±25 %."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "petit-electromenager",
+   "name": "Petit électroménager",
+   "category": "electromenager",
+   "category_label": "Électroménager",
+   "subcategory": "Petit électroménager",
+   "synonyms": [
+    "machine à café",
+    "robot",
+    "grille-pain"
+   ],
+   "coco_class": null,
+   "handling": "fragile",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.04,
+    "avg": 0.05,
+    "max": 0.06
+   },
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "proto"
+   ],
+   "method": [
+    "Volume de déménagement : référence interne du prototype « Machine à café » (0.05 m³) ; fourchette ±25 %."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "lit-simple",
+   "name": "Lit simple",
+   "category": "chambre",
+   "category_label": "Chambres",
+   "subcategory": "Lits",
+   "synonyms": [
+    "lit une place",
+    "lit 90",
+    "lit enfant"
+   ],
+   "coco_class": "bed",
+   "handling": "demontable",
+   "heavy": false,
+   "sample_size": 1,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.6,
+    "avg": 0.8,
+    "max": 1.0
+   },
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "proto"
+   ],
+   "method": [
+    "Volume de déménagement : référence interne du prototype « Lit simple » (0.8 m³) ; fourchette ±25 %."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "lit-double",
+   "name": "Lit double",
+   "category": "chambre",
+   "category_label": "Chambres",
+   "subcategory": "Lits",
+   "synonyms": [
+    "lit 140",
+    "lit deux places"
+   ],
+   "coco_class": "bed",
+   "handling": "demontable",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.9,
+    "avg": 1.2,
+    "max": 1.5
+   },
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "proto"
+   ],
+   "method": [
+    "Volume de déménagement : référence interne du prototype « Lit double 140 » (1.2 m³) ; fourchette ±25 %."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "lit-queen-size",
+   "name": "Lit queen size",
+   "category": "chambre",
+   "category_label": "Chambres",
+   "subcategory": "Lits",
+   "synonyms": [
+    "lit 160",
+    "grand lit"
+   ],
+   "coco_class": "bed",
+   "handling": "demontable",
+   "heavy": false,
+   "sample_size": 88,
+   "dims_cm": {
+    "width": {
+     "min": 201.0,
+     "avg": 218.0,
+     "max": 234.0
+    },
+    "depth": {
+     "min": 156.0,
+     "avg": 163.0,
+     "max": 168.0
+    },
+    "height": {
+     "min": 80.0,
+     "avg": 124.0,
+     "max": 143.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 2.52,
+    "avg": 4.48,
+    "max": 5.57
+   },
+   "weight_kg": {
+    "min": 32.0,
+    "avg": 64.0,
+    "max": 116.0,
+    "sample_size": 87
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.79,
+    "avg": 1.4,
+    "max": 1.74
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "abo",
+    "proto"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 88 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : référence interne du prototype « Lit double 160 » (1.4 m³) ; fourchette proportionnelle à la dispersion ABO."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "lit-king-size",
+   "name": "Lit king size",
+   "category": "chambre",
+   "category_label": "Chambres",
+   "subcategory": "Lits",
+   "synonyms": [
+    "lit 180",
+    "lit 200"
+   ],
+   "coco_class": "bed",
+   "handling": "demontable",
+   "heavy": false,
+   "sample_size": 63,
+   "dims_cm": {
+    "width": {
+     "min": 208.0,
+     "avg": 228.0,
+     "max": 234.0
+    },
+    "depth": {
+     "min": 194.0,
+     "avg": 208.0,
+     "max": 213.0
+    },
+    "height": {
+     "min": 84.0,
+     "avg": 142.0,
+     "max": 147.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 3.38,
+    "avg": 6.62,
+    "max": 7.09
+   },
+   "weight_kg": {
+    "min": 35.0,
+    "avg": 77.0,
+    "max": 78.0,
+    "sample_size": 63
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 1.06,
+    "avg": 2.07,
+    "max": 2.22
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "proto",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 63 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : dérivé de « Lit queen size » (1.4 m³) × rapport des volumes géométriques ABO (1.48) — à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "lit-superpose",
+   "name": "Lit superposé",
+   "category": "chambre",
+   "category_label": "Chambres",
+   "subcategory": "Lits",
+   "synonyms": [
+    "lits superposés",
+    "lit mezzanine"
+   ],
+   "coco_class": "bed",
+   "handling": "demontable",
+   "heavy": false,
+   "sample_size": 4,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "lit-coffre",
+   "name": "Lit avec rangement",
+   "category": "chambre",
+   "category_label": "Chambres",
+   "subcategory": "Lits",
+   "synonyms": [
+    "lit coffre",
+    "lit à tiroirs"
+   ],
+   "coco_class": "bed",
+   "handling": "demontable",
+   "heavy": false,
+   "sample_size": 10,
+   "dims_cm": {
+    "width": {
+     "min": 193.0,
+     "avg": 206.0,
+     "max": 227.0
+    },
+    "depth": {
+     "min": 159.0,
+     "avg": 159.0,
+     "max": 173.0
+    },
+    "height": {
+     "min": 88.0,
+     "avg": 88.0,
+     "max": 147.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 2.73,
+    "avg": 2.91,
+    "max": 5.95
+   },
+   "weight_kg": {
+    "min": 63.0,
+    "avg": 116.0,
+    "max": 124.0,
+    "sample_size": 10
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.85,
+    "avg": 0.91,
+    "max": 1.86
+   },
+   "dims_reliability": "moyenne",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "proto",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 10 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : dérivé de « Lit queen size » (1.4 m³) × rapport des volumes géométriques ABO (0.65) — à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "lit-bebe",
+   "name": "Lit bébé",
+   "category": "chambre",
+   "category_label": "Chambres",
+   "subcategory": "Lits",
+   "synonyms": [
+    "lit à barreaux",
+    "berceau"
+   ],
+   "coco_class": "bed",
+   "handling": "demontable",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "tete-de-lit",
+   "name": "Tête de lit",
+   "category": "chambre",
+   "category_label": "Chambres",
+   "subcategory": "Lits",
+   "synonyms": [
+    "headboard"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 219,
+   "dims_cm": {
+    "width": {
+     "min": 152.0,
+     "avg": 175.0,
+     "max": 208.0
+    },
+    "depth": {
+     "min": 7.0,
+     "avg": 10.0,
+     "max": 57.0
+    },
+    "height": {
+     "min": 110.0,
+     "avg": 132.0,
+     "max": 157.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.11,
+    "avg": 0.25,
+    "max": 0.7
+   },
+   "weight_kg": {
+    "min": 12.0,
+    "avg": 29.0,
+    "max": 37.0,
+    "sample_size": 216
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.12,
+    "avg": 0.28,
+    "max": 0.77
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 219 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "sommier",
+   "name": "Sommier",
+   "category": "chambre",
+   "category_label": "Chambres",
+   "subcategory": "Literie",
+   "synonyms": [
+    "sommier à lattes",
+    "box spring"
+   ],
+   "coco_class": "bed",
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.22,
+    "avg": 0.3,
+    "max": 0.38
+   },
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "proto"
+   ],
+   "method": [
+    "Volume de déménagement : référence interne du prototype « Sommier » (0.3 m³) ; fourchette ±25 %."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "matelas-simple",
+   "name": "Matelas une place",
+   "category": "chambre",
+   "category_label": "Chambres",
+   "subcategory": "Literie",
+   "synonyms": [
+    "matelas 90",
+    "matelas enfant"
+   ],
+   "coco_class": "bed",
+   "handling": "rembourre",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.22,
+    "avg": 0.3,
+    "max": 0.38
+   },
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "proto"
+   ],
+   "method": [
+    "Volume de déménagement : référence interne du prototype « Matelas simple » (0.3 m³) ; fourchette ±25 %."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "matelas-double",
+   "name": "Matelas deux places",
+   "category": "chambre",
+   "category_label": "Chambres",
+   "subcategory": "Literie",
+   "synonyms": [
+    "matelas 140",
+    "matelas 160",
+    "matelas 180"
+   ],
+   "coco_class": "bed",
+   "handling": "rembourre",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.38,
+    "avg": 0.5,
+    "max": 0.62
+   },
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "proto"
+   ],
+   "method": [
+    "Volume de déménagement : référence interne du prototype « Matelas double » (0.5 m³) ; fourchette ±25 %."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "table-de-chevet",
+   "name": "Table de chevet",
+   "category": "chambre",
+   "category_label": "Chambres",
+   "subcategory": "Rangements",
+   "synonyms": [
+    "table de nuit",
+    "chevet"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 33,
+   "dims_cm": {
+    "width": {
+     "min": 45.0,
+     "avg": 61.0,
+     "max": 71.0
+    },
+    "depth": {
+     "min": 38.0,
+     "avg": 43.0,
+     "max": 59.0
+    },
+    "height": {
+     "min": 38.0,
+     "avg": 56.0,
+     "max": 61.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.07,
+    "avg": 0.14,
+    "max": 0.17
+   },
+   "weight_kg": {
+    "min": 7.0,
+    "avg": 16.0,
+    "max": 31.0,
+    "sample_size": 33
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.05,
+    "avg": 0.1,
+    "max": 0.12
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "abo",
+    "proto"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 33 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : référence interne du prototype « Table de nuit » (0.1 m³) ; fourchette proportionnelle à la dispersion ABO."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "commode",
+   "name": "Commode",
+   "category": "chambre",
+   "category_label": "Chambres",
+   "subcategory": "Rangements",
+   "synonyms": [
+    "chiffonnier",
+    "semainier",
+    "dresser"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 42,
+   "dims_cm": {
+    "width": {
+     "min": 70.0,
+     "avg": 100.0,
+     "max": 159.0
+    },
+    "depth": {
+     "min": 40.0,
+     "avg": 44.0,
+     "max": 48.0
+    },
+    "height": {
+     "min": 75.0,
+     "avg": 83.0,
+     "max": 125.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.26,
+    "avg": 0.47,
+    "max": 0.64
+   },
+   "weight_kg": {
+    "min": 32.0,
+    "avg": 49.0,
+    "max": 96.0,
+    "sample_size": 40
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.28,
+    "avg": 0.5,
+    "max": 0.68
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "abo",
+    "proto"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 42 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : référence interne du prototype « Commode » (0.5 m³) ; fourchette proportionnelle à la dispersion ABO."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "armoire-1-porte",
+   "name": "Armoire 1 porte",
+   "category": "chambre",
+   "category_label": "Chambres",
+   "subcategory": "Armoires",
+   "synonyms": [
+    "penderie étroite",
+    "bonnetière"
+   ],
+   "coco_class": null,
+   "handling": "demontable",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.38,
+    "avg": 0.5,
+    "max": 0.62
+   },
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "proto"
+   ],
+   "method": [
+    "Volume de déménagement : référence interne du prototype « Armoire 1 porte » (0.5 m³) ; fourchette ±25 %."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "armoire-2-portes",
+   "name": "Armoire 2 portes",
+   "category": "chambre",
+   "category_label": "Chambres",
+   "subcategory": "Armoires",
+   "synonyms": [
+    "penderie",
+    "garde-robe"
+   ],
+   "coco_class": null,
+   "handling": "demontable",
+   "heavy": false,
+   "sample_size": 33,
+   "dims_cm": {
+    "width": {
+     "min": 74.0,
+     "avg": 99.0,
+     "max": 127.0
+    },
+    "depth": {
+     "min": 45.0,
+     "avg": 45.0,
+     "max": 57.0
+    },
+    "height": {
+     "min": 155.0,
+     "avg": 165.0,
+     "max": 192.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.51,
+    "avg": 0.74,
+    "max": 1.12
+   },
+   "weight_kg": {
+    "min": 51.0,
+    "avg": 63.0,
+    "max": 88.0,
+    "sample_size": 13
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.55,
+    "avg": 0.8,
+    "max": 1.21
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "abo",
+    "proto"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 33 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : référence interne du prototype « Armoire 2 portes » (0.8 m³) ; fourchette proportionnelle à la dispersion ABO."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "armoire-3-portes",
+   "name": "Armoire 3 portes",
+   "category": "chambre",
+   "category_label": "Chambres",
+   "subcategory": "Armoires",
+   "synonyms": [
+    "grande armoire"
+   ],
+   "coco_class": null,
+   "handling": "demontable",
+   "heavy": false,
+   "sample_size": 6,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "armoire-4-portes",
+   "name": "Armoire 4 portes",
+   "category": "chambre",
+   "category_label": "Chambres",
+   "subcategory": "Armoires",
+   "synonyms": [
+    "très grande armoire"
+   ],
+   "coco_class": null,
+   "handling": "demontable",
+   "heavy": false,
+   "sample_size": 9,
+   "dims_cm": {
+    "width": {
+     "min": 177.0,
+     "avg": 180.0,
+     "max": 205.0
+    },
+    "depth": {
+     "min": 48.0,
+     "avg": 59.0,
+     "max": 61.0
+    },
+    "height": {
+     "min": 197.0,
+     "avg": 200.0,
+     "max": 213.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 1.7,
+    "avg": 2.16,
+    "max": 2.58
+   },
+   "weight_kg": {
+    "min": 65.0,
+    "avg": 112.0,
+    "max": 195.0,
+    "sample_size": 9
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.94,
+    "avg": 1.2,
+    "max": 1.43
+   },
+   "dims_reliability": "moyenne",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "abo",
+    "proto"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 9 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : référence interne du prototype « Grande armoire » (1.2 m³) ; fourchette proportionnelle à la dispersion ABO."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "armoire-basse",
+   "name": "Armoire basse",
+   "category": "chambre",
+   "category_label": "Chambres",
+   "subcategory": "Armoires",
+   "synonyms": [
+    "meuble bas à portes"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 11,
+   "dims_cm": {
+    "width": {
+     "min": 80.0,
+     "avg": 122.0,
+     "max": 145.0
+    },
+    "depth": {
+     "min": 33.0,
+     "avg": 38.0,
+     "max": 42.0
+    },
+    "height": {
+     "min": 61.0,
+     "avg": 81.0,
+     "max": 113.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.24,
+    "avg": 0.37,
+    "max": 0.5
+   },
+   "weight_kg": {
+    "min": 16.0,
+    "avg": 33.0,
+    "max": 45.0,
+    "sample_size": 11
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.26,
+    "avg": 0.41,
+    "max": 0.55
+   },
+   "dims_reliability": "moyenne",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 11 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "dressing",
+   "name": "Dressing",
+   "category": "chambre",
+   "category_label": "Chambres",
+   "subcategory": "Armoires",
+   "synonyms": [
+    "système de penderie",
+    "rangement de placard"
+   ],
+   "coco_class": null,
+   "handling": "demontable",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "portant-vetements",
+   "name": "Portant à vêtements",
+   "category": "chambre",
+   "category_label": "Chambres",
+   "subcategory": "Armoires",
+   "synonyms": [
+    "penderie mobile"
+   ],
+   "coco_class": null,
+   "handling": "demontable",
+   "heavy": false,
+   "sample_size": 11,
+   "dims_cm": {
+    "width": {
+     "min": 34.0,
+     "avg": 70.0,
+     "max": 128.0
+    },
+    "depth": {
+     "min": 2.0,
+     "avg": 40.0,
+     "max": 55.0
+    },
+    "height": {
+     "min": 62.0,
+     "avg": 142.0,
+     "max": 161.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.0,
+    "avg": 0.44,
+    "max": 1.0
+   },
+   "weight_kg": {
+    "min": 2.0,
+    "avg": 3.0,
+    "max": 7.0,
+    "sample_size": 9
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.0,
+    "avg": 0.2,
+    "max": 0.45
+   },
+   "dims_reliability": "moyenne",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 11 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 0.45 (meuble transporté démonté (éléments à plat)) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "coiffeuse",
+   "name": "Coiffeuse",
+   "category": "chambre",
+   "category_label": "Chambres",
+   "subcategory": "Rangements",
+   "synonyms": [
+    "table de maquillage"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 8,
+   "dims_cm": {
+    "width": {
+     "min": 63.0,
+     "avg": 137.0,
+     "max": 137.0
+    },
+    "depth": {
+     "min": 41.0,
+     "avg": 48.0,
+     "max": 48.0
+    },
+    "height": {
+     "min": 127.0,
+     "avg": 131.0,
+     "max": 146.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.36,
+    "avg": 0.87,
+    "max": 0.87
+   },
+   "weight_kg": {
+    "min": 17.0,
+    "avg": 38.0,
+    "max": 40.0,
+    "sample_size": 8
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.4,
+    "avg": 0.96,
+    "max": 0.96
+   },
+   "dims_reliability": "moyenne",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 8 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "coffre-a-jouets",
+   "name": "Coffre à jouets",
+   "category": "chambre",
+   "category_label": "Chambres",
+   "subcategory": "Rangements",
+   "synonyms": [
+    "malle",
+    "coffre de rangement"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "bureau-enfant",
+   "name": "Bureau enfant",
+   "category": "chambre",
+   "category_label": "Chambres",
+   "subcategory": "Enfants",
+   "synonyms": [
+    "table d'activité enfant"
+   ],
+   "coco_class": "dining table",
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 12,
+   "dims_cm": {
+    "width": {
+     "min": 60.0,
+     "avg": 63.0,
+     "max": 178.0
+    },
+    "depth": {
+     "min": 40.0,
+     "avg": 50.0,
+     "max": 129.0
+    },
+    "height": {
+     "min": 27.0,
+     "avg": 51.0,
+     "max": 59.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.07,
+    "avg": 0.17,
+    "max": 0.86
+   },
+   "weight_kg": {
+    "min": 4.0,
+    "avg": 9.0,
+    "max": 42.0,
+    "sample_size": 12
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.08,
+    "avg": 0.19,
+    "max": 0.95
+   },
+   "dims_reliability": "moyenne",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 12 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "chaise-enfant",
+   "name": "Chaise enfant",
+   "category": "chambre",
+   "category_label": "Chambres",
+   "subcategory": "Enfants",
+   "synonyms": [
+    "fauteuil enfant"
+   ],
+   "coco_class": "chair",
+   "handling": "empilable",
+   "heavy": false,
+   "sample_size": 16,
+   "dims_cm": {
+    "width": {
+     "min": 40.0,
+     "avg": 52.0,
+     "max": 80.0
+    },
+    "depth": {
+     "min": 36.0,
+     "avg": 40.0,
+     "max": 46.0
+    },
+    "height": {
+     "min": 44.0,
+     "avg": 55.0,
+     "max": 60.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.08,
+    "avg": 0.1,
+    "max": 0.2
+   },
+   "weight_kg": {
+    "min": 2.0,
+    "avg": 5.0,
+    "max": 8.0,
+    "sample_size": 16
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.06,
+    "avg": 0.07,
+    "max": 0.14
+   },
+   "dims_reliability": "moyenne",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 16 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 0.7 (objet empilable ou imbriquable) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "meuble-vasque",
+   "name": "Meuble sous-vasque",
+   "category": "salle_de_bain",
+   "category_label": "Salle de bain",
+   "subcategory": "Meubles",
+   "synonyms": [
+    "meuble de salle de bain"
+   ],
+   "coco_class": "sink",
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "colonne-salle-de-bain",
+   "name": "Colonne de salle de bain",
+   "category": "salle_de_bain",
+   "category_label": "Salle de bain",
+   "subcategory": "Meubles",
+   "synonyms": [
+    "meuble colonne"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "etagere-salle-de-bain",
+   "name": "Étagère de salle de bain",
+   "category": "salle_de_bain",
+   "category_label": "Salle de bain",
+   "subcategory": "Meubles",
+   "synonyms": [
+    "étagère au-dessus des toilettes"
+   ],
+   "coco_class": null,
+   "handling": "demontable",
+   "heavy": false,
+   "sample_size": 1,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "panier-a-linge",
+   "name": "Panier à linge",
+   "category": "salle_de_bain",
+   "category_label": "Salle de bain",
+   "subcategory": "Accessoires",
+   "synonyms": [
+    "coffre à linge"
+   ],
+   "coco_class": null,
+   "handling": "empilable",
+   "heavy": false,
+   "sample_size": 22,
+   "dims_cm": {
+    "width": {
+     "min": 18.0,
+     "avg": 36.0,
+     "max": 63.0
+    },
+    "depth": {
+     "min": 17.0,
+     "avg": 35.0,
+     "max": 41.0
+    },
+    "height": {
+     "min": 35.0,
+     "avg": 57.0,
+     "max": 70.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.01,
+    "avg": 0.07,
+    "max": 0.15
+   },
+   "weight_kg": {
+    "min": 1.0,
+    "avg": 2.0,
+    "max": 5.0,
+    "sample_size": 13
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.01,
+    "avg": 0.05,
+    "max": 0.1
+   },
+   "dims_reliability": "moyenne",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 22 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 0.7 (objet empilable ou imbriquable) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "bureau",
+   "name": "Bureau",
+   "category": "bureau",
+   "category_label": "Bureau",
+   "subcategory": "Bureaux",
+   "synonyms": [
+    "table de bureau",
+    "bureau droit"
+   ],
+   "coco_class": "dining table",
+   "handling": "demontable",
+   "heavy": false,
+   "sample_size": 86,
+   "dims_cm": {
+    "width": {
+     "min": 97.0,
+     "avg": 120.0,
+     "max": 152.0
+    },
+    "depth": {
+     "min": 48.0,
+     "avg": 56.0,
+     "max": 72.0
+    },
+    "height": {
+     "min": 73.0,
+     "avg": 76.0,
+     "max": 79.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.33,
+    "avg": 0.5,
+    "max": 0.87
+   },
+   "weight_kg": {
+    "min": 12.0,
+    "avg": 30.0,
+    "max": 59.0,
+    "sample_size": 75
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.4,
+    "avg": 0.6,
+    "max": 1.04
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "abo",
+    "proto"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 86 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : référence interne du prototype « Bureau » (0.6 m³) ; fourchette proportionnelle à la dispersion ABO."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "bureau-angle",
+   "name": "Bureau d'angle",
+   "category": "bureau",
+   "category_label": "Bureau",
+   "subcategory": "Bureaux",
+   "synonyms": [
+    "bureau en L"
+   ],
+   "coco_class": "dining table",
+   "handling": "demontable",
+   "heavy": false,
+   "sample_size": 9,
+   "dims_cm": {
+    "width": {
+     "min": 94.0,
+     "avg": 136.0,
+     "max": 140.0
+    },
+    "depth": {
+     "min": 94.0,
+     "avg": 130.0,
+     "max": 140.0
+    },
+    "height": {
+     "min": 72.0,
+     "avg": 76.0,
+     "max": 85.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.72,
+    "avg": 1.27,
+    "max": 1.49
+   },
+   "weight_kg": {
+    "min": 20.0,
+    "avg": 28.0,
+    "max": 42.0,
+    "sample_size": 9
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.86,
+    "avg": 1.52,
+    "max": 1.79
+   },
+   "dims_reliability": "moyenne",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "proto",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 9 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : dérivé de « Bureau » (0.6 m³) × rapport des volumes géométriques ABO (2.54) — à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "bureau-assis-debout",
+   "name": "Bureau assis-debout",
+   "category": "bureau",
+   "category_label": "Bureau",
+   "subcategory": "Bureaux",
+   "synonyms": [
+    "bureau réglable en hauteur"
+   ],
+   "coco_class": "dining table",
+   "handling": "demontable",
+   "heavy": false,
+   "sample_size": 5,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "chaise-de-bureau",
+   "name": "Chaise de bureau",
+   "category": "bureau",
+   "category_label": "Bureau",
+   "subcategory": "Sièges",
+   "synonyms": [
+    "fauteuil de bureau",
+    "siège de bureau"
+   ],
+   "coco_class": "chair",
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 103,
+   "dims_cm": {
+    "width": {
+     "min": 56.0,
+     "avg": 66.0,
+     "max": 75.0
+    },
+    "depth": {
+     "min": 50.0,
+     "avg": 63.0,
+     "max": 70.0
+    },
+    "height": {
+     "min": 77.0,
+     "avg": 100.0,
+     "max": 115.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.24,
+    "avg": 0.41,
+    "max": 0.58
+   },
+   "weight_kg": {
+    "min": 10.0,
+    "avg": 16.0,
+    "max": 21.0,
+    "sample_size": 91
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.18,
+    "avg": 0.3,
+    "max": 0.42
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "abo",
+    "proto"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 103 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : référence interne du prototype « Chaise de bureau » (0.3 m³) ; fourchette proportionnelle à la dispersion ABO."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "caisson-de-bureau",
+   "name": "Caisson de bureau",
+   "category": "bureau",
+   "category_label": "Bureau",
+   "subcategory": "Rangements",
+   "synonyms": [
+    "caisson à tiroirs",
+    "classeur à tiroirs"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 11,
+   "dims_cm": {
+    "width": {
+     "min": 41.0,
+     "avg": 55.0,
+     "max": 76.0
+    },
+    "depth": {
+     "min": 40.0,
+     "avg": 43.0,
+     "max": 50.0
+    },
+    "height": {
+     "min": 46.0,
+     "avg": 72.0,
+     "max": 77.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.1,
+    "avg": 0.16,
+    "max": 0.29
+   },
+   "weight_kg": {
+    "min": 11.0,
+    "avg": 18.0,
+    "max": 23.0,
+    "sample_size": 10
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.11,
+    "avg": 0.18,
+    "max": 0.32
+   },
+   "dims_reliability": "moyenne",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 11 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "armoire-de-bureau",
+   "name": "Armoire de bureau",
+   "category": "bureau",
+   "category_label": "Bureau",
+   "subcategory": "Rangements",
+   "synonyms": [
+    "armoire à dossiers",
+    "armoire métallique"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "etagere",
+   "name": "Étagère",
+   "category": "bureau",
+   "category_label": "Bureau",
+   "subcategory": "Rangements",
+   "synonyms": [
+    "étagère basse",
+    "rayonnage",
+    "étagère cube"
+   ],
+   "coco_class": null,
+   "handling": "demontable",
+   "heavy": false,
+   "sample_size": 54,
+   "dims_cm": {
+    "width": {
+     "min": 46.0,
+     "avg": 76.0,
+     "max": 133.0
+    },
+    "depth": {
+     "min": 15.0,
+     "avg": 36.0,
+     "max": 46.0
+    },
+    "height": {
+     "min": 9.0,
+     "avg": 118.0,
+     "max": 193.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.01,
+    "avg": 0.36,
+    "max": 1.08
+   },
+   "weight_kg": {
+    "min": 4.0,
+    "avg": 12.0,
+    "max": 40.0,
+    "sample_size": 44
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.01,
+    "avg": 0.3,
+    "max": 0.9
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "abo",
+    "proto"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 54 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : référence interne du prototype « Étagère » (0.3 m³) ; fourchette proportionnelle à la dispersion ABO."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "imprimante",
+   "name": "Imprimante",
+   "category": "bureau",
+   "category_label": "Bureau",
+   "subcategory": "Informatique",
+   "synonyms": [
+    "imprimante multifonction"
+   ],
+   "coco_class": null,
+   "handling": "fragile",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "ordinateur-fixe",
+   "name": "Ordinateur fixe et écran",
+   "category": "bureau",
+   "category_label": "Bureau",
+   "subcategory": "Informatique",
+   "synonyms": [
+    "unité centrale",
+    "PC fixe",
+    "écran d'ordinateur"
+   ],
+   "coco_class": "laptop",
+   "handling": "fragile",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "meuble-a-chaussures",
+   "name": "Meuble à chaussures",
+   "category": "entree",
+   "category_label": "Entrée et couloirs",
+   "subcategory": "Rangements",
+   "synonyms": [
+    "range-chaussures",
+    "banc à chaussures"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 43,
+   "dims_cm": {
+    "width": {
+     "min": 50.0,
+     "avg": 75.0,
+     "max": 116.0
+    },
+    "depth": {
+     "min": 25.0,
+     "avg": 33.0,
+     "max": 41.0
+    },
+    "height": {
+     "min": 47.0,
+     "avg": 81.0,
+     "max": 163.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.13,
+    "avg": 0.21,
+    "max": 0.28
+   },
+   "weight_kg": {
+    "min": 7.0,
+    "avg": 27.0,
+    "max": 30.0,
+    "sample_size": 36
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.14,
+    "avg": 0.23,
+    "max": 0.31
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 43 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "banc-entree",
+   "name": "Banc d'entrée",
+   "category": "entree",
+   "category_label": "Entrée et couloirs",
+   "subcategory": "Assises",
+   "synonyms": [
+    "banc coffre",
+    "banc de rangement"
+   ],
+   "coco_class": "bench",
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 22,
+   "dims_cm": {
+    "width": {
+     "min": 97.0,
+     "avg": 105.0,
+     "max": 118.0
+    },
+    "depth": {
+     "min": 40.0,
+     "avg": 40.0,
+     "max": 48.0
+    },
+    "height": {
+     "min": 43.0,
+     "avg": 48.0,
+     "max": 50.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.2,
+    "avg": 0.23,
+    "max": 0.24
+   },
+   "weight_kg": {
+    "min": 11.0,
+    "avg": 18.0,
+    "max": 23.0,
+    "sample_size": 22
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.22,
+    "avg": 0.25,
+    "max": 0.26
+   },
+   "dims_reliability": "moyenne",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 22 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "portemanteau",
+   "name": "Portemanteau sur pied",
+   "category": "entree",
+   "category_label": "Entrée et couloirs",
+   "subcategory": "Rangements",
+   "synonyms": [
+    "vestiaire",
+    "hall tree"
+   ],
+   "coco_class": null,
+   "handling": "demontable",
+   "heavy": false,
+   "sample_size": 1,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "meuble-d-entree",
+   "name": "Meuble d'entrée",
+   "category": "entree",
+   "category_label": "Entrée et couloirs",
+   "subcategory": "Rangements",
+   "synonyms": [
+    "console d'entrée avec tiroirs"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "etabli",
+   "name": "Établi",
+   "category": "garage_cave",
+   "category_label": "Garage et cave",
+   "subcategory": "Atelier",
+   "synonyms": [
+    "table d'atelier"
+   ],
+   "coco_class": null,
+   "handling": "demontable",
+   "heavy": true,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "etagere-metallique",
+   "name": "Étagère métallique",
+   "category": "garage_cave",
+   "category_label": "Garage et cave",
+   "subcategory": "Rangements",
+   "synonyms": [
+    "rayonnage métallique",
+    "étagère de garage"
+   ],
+   "coco_class": null,
+   "handling": "demontable",
+   "heavy": false,
+   "sample_size": 21,
+   "dims_cm": {
+    "width": {
+     "min": 76.0,
+     "avg": 122.0,
+     "max": 152.0
+    },
+    "depth": {
+     "min": 35.0,
+     "avg": 36.0,
+     "max": 46.0
+    },
+    "height": {
+     "min": 91.0,
+     "avg": 164.0,
+     "max": 193.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.33,
+    "avg": 0.53,
+    "max": 1.35
+   },
+   "weight_kg": {
+    "min": 11.0,
+    "avg": 17.0,
+    "max": 42.0,
+    "sample_size": 20
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.15,
+    "avg": 0.24,
+    "max": 0.61
+   },
+   "dims_reliability": "moyenne",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 21 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 0.45 (meuble transporté démonté (éléments à plat)) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "armoire-de-garage",
+   "name": "Armoire de garage",
+   "category": "garage_cave",
+   "category_label": "Garage et cave",
+   "subcategory": "Rangements",
+   "synonyms": [
+    "armoire métallique de garage"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": true,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "servante-outils",
+   "name": "Servante à outils",
+   "category": "garage_cave",
+   "category_label": "Garage et cave",
+   "subcategory": "Atelier",
+   "synonyms": [
+    "coffre à outils roulant"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": true,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "tondeuse",
+   "name": "Tondeuse à gazon",
+   "category": "jardin",
+   "category_label": "Jardin et extérieur",
+   "subcategory": "Outillage",
+   "synonyms": [
+    "tondeuse thermique",
+    "tondeuse électrique"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": true,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "echelle",
+   "name": "Échelle ou escabeau",
+   "category": "garage_cave",
+   "category_label": "Garage et cave",
+   "subcategory": "Atelier",
+   "synonyms": [
+    "escabeau"
+   ],
+   "coco_class": null,
+   "handling": "empilable",
+   "heavy": false,
+   "sample_size": 31,
+   "dims_cm": {
+    "width": {
+     "min": 48.0,
+     "avg": 63.0,
+     "max": 126.0
+    },
+    "depth": {
+     "min": 36.0,
+     "avg": 45.0,
+     "max": 51.0
+    },
+    "height": {
+     "min": 36.0,
+     "avg": 97.0,
+     "max": 165.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.08,
+    "avg": 0.29,
+    "max": 0.76
+   },
+   "weight_kg": {
+    "min": 2.0,
+    "avg": 5.0,
+    "max": 15.0,
+    "sample_size": 27
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.06,
+    "avg": 0.2,
+    "max": 0.53
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 31 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 0.7 (objet empilable ou imbriquable) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "malle",
+   "name": "Malle",
+   "category": "garage_cave",
+   "category_label": "Garage et cave",
+   "subcategory": "Rangements",
+   "synonyms": [
+    "coffre",
+    "cantine"
+   ],
+   "coco_class": "suitcase",
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 4,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "valise",
+   "name": "Valise",
+   "category": "garage_cave",
+   "category_label": "Garage et cave",
+   "subcategory": "Bagages",
+   "synonyms": [
+    "bagage",
+    "valise cabine"
+   ],
+   "coco_class": "suitcase",
+   "handling": "empilable",
+   "heavy": false,
+   "sample_size": 135,
+   "dims_cm": {
+    "width": {
+     "min": 35.0,
+     "avg": 41.0,
+     "max": 53.0
+    },
+    "depth": {
+     "min": 20.0,
+     "avg": 26.0,
+     "max": 32.0
+    },
+    "height": {
+     "min": 49.0,
+     "avg": 56.0,
+     "max": 79.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.04,
+    "avg": 0.06,
+    "max": 0.13
+   },
+   "weight_kg": {
+    "min": 2.0,
+    "avg": 3.0,
+    "max": 9.0,
+    "sample_size": 127
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.03,
+    "avg": 0.04,
+    "max": 0.09
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 135 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 0.7 (objet empilable ou imbriquable) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "chaise-de-jardin",
+   "name": "Chaise de jardin",
+   "category": "jardin",
+   "category_label": "Jardin et extérieur",
+   "subcategory": "Mobilier de jardin",
+   "synonyms": [
+    "fauteuil de jardin",
+    "chaise d'extérieur"
+   ],
+   "coco_class": "chair",
+   "handling": "empilable",
+   "heavy": false,
+   "sample_size": 36,
+   "dims_cm": {
+    "width": {
+     "min": 58.0,
+     "avg": 86.0,
+     "max": 98.0
+    },
+    "depth": {
+     "min": 47.0,
+     "avg": 70.0,
+     "max": 95.0
+    },
+    "height": {
+     "min": 54.0,
+     "avg": 76.0,
+     "max": 91.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.15,
+    "avg": 0.54,
+    "max": 0.6
+   },
+   "weight_kg": {
+    "min": 3.0,
+    "avg": 9.0,
+    "max": 20.0,
+    "sample_size": 32
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.1,
+    "avg": 0.38,
+    "max": 0.42
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 36 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 0.7 (objet empilable ou imbriquable) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "table-de-jardin",
+   "name": "Table de jardin",
+   "category": "jardin",
+   "category_label": "Jardin et extérieur",
+   "subcategory": "Mobilier de jardin",
+   "synonyms": [
+    "table d'extérieur"
+   ],
+   "coco_class": "dining table",
+   "handling": "demontable",
+   "heavy": false,
+   "sample_size": 32,
+   "dims_cm": {
+    "width": {
+     "min": 88.0,
+     "avg": 136.0,
+     "max": 200.0
+    },
+    "depth": {
+     "min": 30.0,
+     "avg": 70.0,
+     "max": 101.0
+    },
+    "height": {
+     "min": 24.0,
+     "avg": 72.0,
+     "max": 87.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.08,
+    "avg": 0.73,
+    "max": 1.34
+   },
+   "weight_kg": {
+    "min": 7.0,
+    "avg": 13.0,
+    "max": 38.0,
+    "sample_size": 28
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.04,
+    "avg": 0.33,
+    "max": 0.6
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 32 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 0.45 (meuble transporté démonté (éléments à plat)) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "salon-de-jardin",
+   "name": "Salon de jardin",
+   "category": "jardin",
+   "category_label": "Jardin et extérieur",
+   "subcategory": "Mobilier de jardin",
+   "synonyms": [
+    "canapé d'extérieur",
+    "ensemble de jardin"
+   ],
+   "coco_class": "couch",
+   "handling": "rembourre",
+   "heavy": false,
+   "sample_size": 15,
+   "dims_cm": {
+    "width": {
+     "min": 75.0,
+     "avg": 104.0,
+     "max": 156.0
+    },
+    "depth": {
+     "min": 60.0,
+     "avg": 79.0,
+     "max": 85.0
+    },
+    "height": {
+     "min": 74.0,
+     "avg": 82.0,
+     "max": 86.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.36,
+    "avg": 0.57,
+    "max": 1.1
+   },
+   "weight_kg": {
+    "min": 7.0,
+    "avg": 18.0,
+    "max": 43.0,
+    "sample_size": 13
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.41,
+    "avg": 0.66,
+    "max": 1.26
+   },
+   "dims_reliability": "moyenne",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 15 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 1.15 (meuble rembourré, + housse et calage) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "bain-de-soleil",
+   "name": "Bain de soleil",
+   "category": "jardin",
+   "category_label": "Jardin et extérieur",
+   "subcategory": "Mobilier de jardin",
+   "synonyms": [
+    "transat",
+    "chaise longue de jardin"
+   ],
+   "coco_class": "chair",
+   "handling": "empilable",
+   "heavy": false,
+   "sample_size": 12,
+   "dims_cm": {
+    "width": {
+     "min": 87.0,
+     "avg": 191.0,
+     "max": 200.0
+    },
+    "depth": {
+     "min": 28.0,
+     "avg": 67.0,
+     "max": 70.0
+    },
+    "height": {
+     "min": 16.0,
+     "avg": 78.0,
+     "max": 91.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.07,
+    "avg": 0.87,
+    "max": 1.22
+   },
+   "weight_kg": {
+    "min": 9.0,
+    "avg": 17.0,
+    "max": 23.0,
+    "sample_size": 10
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.05,
+    "avg": 0.61,
+    "max": 0.85
+   },
+   "dims_reliability": "moyenne",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 12 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 0.7 (objet empilable ou imbriquable) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "parasol",
+   "name": "Parasol",
+   "category": "jardin",
+   "category_label": "Jardin et extérieur",
+   "subcategory": "Mobilier de jardin",
+   "synonyms": [
+    "parasol déporté"
+   ],
+   "coco_class": "umbrella",
+   "handling": "empilable",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "barbecue",
+   "name": "Barbecue",
+   "category": "jardin",
+   "category_label": "Jardin et extérieur",
+   "subcategory": "Cuisine d'extérieur",
+   "synonyms": [
+    "plancha",
+    "grill"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": true,
+   "sample_size": 4,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "jardiniere",
+   "name": "Jardinière ou grand pot",
+   "category": "jardin",
+   "category_label": "Jardin et extérieur",
+   "subcategory": "Décoration",
+   "synonyms": [
+    "bac à fleurs"
+   ],
+   "coco_class": "potted plant",
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 8,
+   "dims_cm": {
+    "width": {
+     "min": 45.0,
+     "avg": 70.0,
+     "max": 94.0
+    },
+    "depth": {
+     "min": 24.0,
+     "avg": 28.0,
+     "max": 44.0
+    },
+    "height": {
+     "min": 39.0,
+     "avg": 67.0,
+     "max": 84.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.09,
+    "avg": 0.13,
+    "max": 0.14
+   },
+   "weight_kg": {
+    "min": 4.0,
+    "avg": 7.0,
+    "max": 9.0,
+    "sample_size": 5
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.1,
+    "avg": 0.14,
+    "max": 0.15
+   },
+   "dims_reliability": "moyenne",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 8 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "abri-de-jardin",
+   "name": "Abri ou coffre de jardin",
+   "category": "jardin",
+   "category_label": "Jardin et extérieur",
+   "subcategory": "Rangements",
+   "synonyms": [
+    "coffre de jardin",
+    "deck box"
+   ],
+   "coco_class": null,
+   "handling": "demontable",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "velo",
+   "name": "Vélo",
+   "category": "sport_loisirs",
+   "category_label": "Sport et loisirs",
+   "subcategory": "Vélos",
+   "synonyms": [
+    "bicyclette",
+    "VTT",
+    "vélo de ville"
+   ],
+   "coco_class": "bicycle",
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.38,
+    "avg": 0.5,
+    "max": 0.62
+   },
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "proto"
+   ],
+   "method": [
+    "Volume de déménagement : référence interne du prototype « Vélo » (0.5 m³) ; fourchette ±25 %."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "velo-enfant",
+   "name": "Vélo enfant",
+   "category": "sport_loisirs",
+   "category_label": "Sport et loisirs",
+   "subcategory": "Vélos",
+   "synonyms": [
+    "draisienne"
+   ],
+   "coco_class": "bicycle",
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "trottinette",
+   "name": "Trottinette",
+   "category": "sport_loisirs",
+   "category_label": "Sport et loisirs",
+   "subcategory": "Vélos",
+   "synonyms": [
+    "trottinette électrique"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "velo-appartement",
+   "name": "Vélo d'appartement",
+   "category": "sport_loisirs",
+   "category_label": "Sport et loisirs",
+   "subcategory": "Fitness",
+   "synonyms": [
+    "vélo fitness",
+    "vélo elliptique"
+   ],
+   "coco_class": "bicycle",
+   "handling": "rigide",
+   "heavy": true,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.75,
+    "avg": 1.0,
+    "max": 1.25
+   },
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "proto"
+   ],
+   "method": [
+    "Volume de déménagement : référence interne du prototype « Vélo fitness » (1.0 m³) ; fourchette ±25 %."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "tapis-de-course",
+   "name": "Tapis de course",
+   "category": "sport_loisirs",
+   "category_label": "Sport et loisirs",
+   "subcategory": "Fitness",
+   "synonyms": [
+    "tapis roulant"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": true,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "banc-de-musculation",
+   "name": "Banc de musculation",
+   "category": "sport_loisirs",
+   "category_label": "Sport et loisirs",
+   "subcategory": "Fitness",
+   "synonyms": [
+    "banc de développé couché"
+   ],
+   "coco_class": "bench",
+   "handling": "demontable",
+   "heavy": true,
+   "sample_size": 3,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "rameur",
+   "name": "Rameur",
+   "category": "sport_loisirs",
+   "category_label": "Sport et loisirs",
+   "subcategory": "Fitness",
+   "synonyms": [
+    "machine à ramer"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": true,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "table-de-ping-pong",
+   "name": "Table de ping-pong",
+   "category": "sport_loisirs",
+   "category_label": "Sport et loisirs",
+   "subcategory": "Jeux",
+   "synonyms": [
+    "table de tennis de table"
+   ],
+   "coco_class": "dining table",
+   "handling": "rigide",
+   "heavy": true,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "baby-foot",
+   "name": "Baby-foot",
+   "category": "sport_loisirs",
+   "category_label": "Sport et loisirs",
+   "subcategory": "Jeux",
+   "synonyms": [
+    "table de football"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": true,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "billard",
+   "name": "Billard",
+   "category": "sport_loisirs",
+   "category_label": "Sport et loisirs",
+   "subcategory": "Jeux",
+   "synonyms": [
+    "table de billard"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": true,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "planche-de-surf",
+   "name": "Planche de surf ou paddle",
+   "category": "sport_loisirs",
+   "category_label": "Sport et loisirs",
+   "subcategory": "Sports",
+   "synonyms": [
+    "paddle",
+    "planche à voile"
+   ],
+   "coco_class": "surfboard",
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "skis",
+   "name": "Skis et équipement de ski",
+   "category": "sport_loisirs",
+   "category_label": "Sport et loisirs",
+   "subcategory": "Sports",
+   "synonyms": [
+    "snowboard",
+    "skis"
+   ],
+   "coco_class": "skis",
+   "handling": "empilable",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "sac-de-golf",
+   "name": "Sac de golf",
+   "category": "sport_loisirs",
+   "category_label": "Sport et loisirs",
+   "subcategory": "Sports",
+   "synonyms": [
+    "clubs de golf"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "poussette",
+   "name": "Poussette",
+   "category": "sport_loisirs",
+   "category_label": "Sport et loisirs",
+   "subcategory": "Enfants",
+   "synonyms": [
+    "landau"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "carton-standard",
+   "name": "Carton standard",
+   "category": "cartons",
+   "category_label": "Cartons et emballages",
+   "subcategory": "Cartons",
+   "synonyms": [
+    "carton de déménagement"
+   ],
+   "coco_class": null,
+   "handling": "empilable",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "carton-livres",
+   "name": "Carton livres",
+   "category": "cartons",
+   "category_label": "Cartons et emballages",
+   "subcategory": "Cartons",
+   "synonyms": [
+    "petit carton",
+    "carton vaisselle"
+   ],
+   "coco_class": null,
+   "handling": "empilable",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "carton-penderie",
+   "name": "Carton penderie",
+   "category": "cartons",
+   "category_label": "Cartons et emballages",
+   "subcategory": "Cartons",
+   "synonyms": [
+    "carton à vêtements sur cintres"
+   ],
+   "coco_class": null,
+   "handling": "empilable",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "lot-10-cartons",
+   "name": "Lot de 10 cartons",
+   "category": "cartons",
+   "category_label": "Cartons et emballages",
+   "subcategory": "Cartons",
+   "synonyms": [
+    "dizaine de cartons"
+   ],
+   "coco_class": null,
+   "handling": "empilable",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.75,
+    "avg": 1.0,
+    "max": 1.25
+   },
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "moyenne",
+   "sources": [
+    "proto"
+   ],
+   "method": [
+    "Volume de déménagement : référence interne du prototype « Cartons (×10) » (1.0 m³) ; fourchette ±25 %."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "caisse-plastique",
+   "name": "Caisse ou bac de rangement",
+   "category": "cartons",
+   "category_label": "Cartons et emballages",
+   "subcategory": "Bacs",
+   "synonyms": [
+    "boîte de rangement",
+    "bac plastique"
+   ],
+   "coco_class": null,
+   "handling": "empilable",
+   "heavy": false,
+   "sample_size": 68,
+   "dims_cm": {
+    "width": {
+     "min": 40.0,
+     "avg": 40.0,
+     "max": 46.0
+    },
+    "depth": {
+     "min": 30.0,
+     "avg": 40.0,
+     "max": 40.0
+    },
+    "height": {
+     "min": 25.0,
+     "avg": 40.0,
+     "max": 40.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.03,
+    "avg": 0.06,
+    "max": 0.06
+   },
+   "weight_kg": {
+    "min": 0.0,
+    "avg": 0.0,
+    "max": 1.0,
+    "sample_size": 8
+   },
+   "professional_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.02,
+    "avg": 0.04,
+    "max": 0.04
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
+   ],
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 68 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 0.7 (objet empilable ou imbriquable) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "sac-ou-ballot",
+   "name": "Sac ou ballot",
+   "category": "cartons",
+   "category_label": "Cartons et emballages",
+   "subcategory": "Sacs",
+   "synonyms": [
+    "sac de linge",
+    "housse de couette"
+   ],
+   "coco_class": null,
+   "handling": "empilable",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  },
+  {
+   "id": "autre-objet",
+   "name": "Autre objet",
+   "category": "volumineux",
+   "category_label": "Autres objets volumineux",
+   "subcategory": "Non classé",
+   "synonyms": [
+    "objet non identifié",
+    "divers"
+   ],
+   "coco_class": null,
+   "handling": "rigide",
+   "heavy": false,
+   "sample_size": 0,
+   "dims_cm": null,
+   "geometric_volume_m3": null,
+   "weight_kg": null,
+   "professional_volume_m3": null,
+   "moving_volume_m3": null,
+   "dims_reliability": "aucune",
+   "moving_volume_reliability": "aucune",
+   "sources": [],
+   "method": [
+    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   ],
+   "updated_at": "2026-11-24"
+  }
+ ]
+}
