@@ -15,7 +15,10 @@ export function SiteHeader() {
           <Link href="#fonctionnement" className="hidden rounded-md px-3 py-2 text-sm font-medium text-ink-secondary hover:text-ink md:inline">
             Fonctionnement
           </Link>
-          <ButtonLink href="#exemple" size="sm">Voir un exemple</ButtonLink>
+          <Link href="/connexion" className="rounded-md px-3 py-2 text-sm font-medium text-ink-secondary hover:text-ink">
+            Connexion
+          </Link>
+          <ButtonLink href="/inscription" size="sm">Créer un compte</ButtonLink>
         </nav>
       </div>
     </header>

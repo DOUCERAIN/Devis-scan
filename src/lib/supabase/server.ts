@@ -9,8 +9,9 @@ import type { Database } from "./database.types";
  * Toutes les requêtes passent par les règles RLS. Un nouveau client par requête.
  */
 export async function createClient() {
-  const env = publicEnv();
+  // Lire les cookies en premier : la page devient dynamique (jamais calculée à la construction).
   const cookieStore = await cookies();
+  const env = publicEnv();
   return createServerClient<Database>(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, {
     cookies: {
       getAll() {
