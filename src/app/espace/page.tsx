@@ -9,6 +9,8 @@ import { ButtonLink } from "@/components/ui/Button";
 import { Alert } from "@/components/ui/Alert";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { RequestList } from "@/components/requests/RequestList";
+import { RequestLinkCard } from "@/components/app/RequestLinkCard";
+import { siteUrl } from "@/lib/site-url";
 
 export const metadata: Metadata = { title: "Tableau de bord" };
 
@@ -79,13 +81,18 @@ export default async function DashboardPage({ searchParams }: PageProps<"/espace
         </section>
       )}
 
+      <section aria-labelledby="link-title" className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4 sm:p-5">
+        <h2 id="link-title" className="text-lg leading-[26px] font-semibold">Votre lien de demande de devis</h2>
+        <RequestLinkCard url={`${await siteUrl()}/d/${company.slug}`} />
+      </section>
+
       {stats.total === 0 ? (
         <EmptyState
           icon={<Inbox />}
           title="Aucune demande pour le moment"
           action={<ButtonLink href="/espace/demandes/nouvelle" variant="secondary"><Plus aria-hidden />Saisir une demande</ButtonLink>}
         >
-          Les demandes de vos clients apparaîtront ici. Vous pouvez déjà saisir une demande reçue par téléphone ou par e-mail.
+          Partagez votre lien : les demandes de vos clients apparaîtront ici. Vous pouvez aussi saisir une demande reçue par téléphone.
         </EmptyState>
       ) : (
         <>

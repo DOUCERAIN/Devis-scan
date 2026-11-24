@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ClipboardList, Mail, Phone, Video } from "lucide-react";
+import { ClipboardList, Mail, Phone } from "lucide-react";
 import { requireMembership } from "@/lib/auth/dal";
 import { getRequestDetail, toInventoryItems, type DwellingRow } from "@/lib/data/requests";
 import { requestReference, STATUS_META } from "@/lib/requests/status";
@@ -16,7 +16,8 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Badge } from "@/components/ui/Badge";
 import { NotesForm, StatusForm } from "./RequestForms";
 import { createClient } from "@/lib/supabase/server";
-import { signedMediaUrl } from "@/lib/storage/media";
+import { signedMediaUrl, signedMediaUrls } from "@/lib/storage/media";
+import { RoomMedia } from "./RoomMedia";
 
 export const metadata: Metadata = { title: "Demande" };
 
@@ -34,6 +35,8 @@ function DwellingCard({ title, d }: { title: string; d: DwellingRow | undefined 
   const address = [d.address_line, [d.postal_code, d.city].filter(Boolean).join(" ")].filter(Boolean).join(", ");
   const facts = [
     d.housing_type ? HOUSING_LABELS[d.housing_type] : null,
+    d.surface_m2 ? `${d.surface_m2} m²` : null,
+    d.room_count !== null ? `${d.room_count} pièce${d.room_count > 1 ? "s" : ""}` : null,
     floorLabel(d.floor),
     d.elevator ? ELEVATOR_LABELS[d.elevator] : "Ascenseur non précisé",
     d.carrying_distance_m !== null ? `Portage ${d.carrying_distance_m} m` : null,
@@ -44,6 +47,7 @@ function DwellingCard({ title, d }: { title: string; d: DwellingRow | undefined 
       <p className="text-sm text-ink">{address || "Adresse non précisée"}</p>
       <p className="text-sm text-ink-secondary">{facts.join(" · ")}</p>
       {d.access_notes && <p className="text-sm text-ink-secondary">Accès : {d.access_notes}</p>}
+      {d.parking_notes && <p className="text-sm text-ink-secondary">Contraintes : {d.parking_notes}</p>}
     </div>
   );
 }
@@ -70,6 +74,7 @@ export default async function RequestDetailPage({ params, searchParams }: PagePr
   const videoUrls = new Map(
     await Promise.all(playable.map(async (v) => [v.id, await signedMediaUrl(supabase, v.storage_path)] as const)),
   );
+  const frameUrls = await signedMediaUrls(supabase, playable.flatMap((v) => v.video_frames.map((f) => f.storage_path)));
 
   return (
     <>
@@ -95,6 +100,7 @@ export default async function RequestDetailPage({ params, searchParams }: PagePr
             <p className="text-sm text-ink-secondary">
               Date souhaitée : <span className="font-medium text-ink">{formatDate(request.moving_date)}</span>
               {request.moving_date_flexible && " (flexible)"}
+              {request.alternative_moving_date && <> · date alternative : <span className="font-medium text-ink">{formatDate(request.alternative_moving_date)}</span></>}
             </p>
             <div className="grid gap-3 sm:grid-cols-2">
               <DwellingCard title="Départ" d={origin} />
@@ -121,43 +127,35 @@ export default async function RequestDetailPage({ params, searchParams }: PagePr
             )}
           </section>
 
-          <Card as="section">
-            <CardHeader title="Pièces et vidéos" />
-            {rooms.length === 0 ? (
-              <p className="flex items-center gap-2 text-sm text-ink-secondary">
-                <Video aria-hidden className="size-4 text-ink-muted" />Aucune pièce filmée pour cette demande.
-              </p>
-            ) : (
-              <ul className="flex flex-col gap-4">
-                {rooms.map((room) => {
-                  const videos = room.room_videos.filter((v) => !v.deleted_at && videoUrls.has(v.id));
-                  const purged = room.room_videos.filter((v) => v.deleted_at).length;
-                  return (
-                    <li key={room.id} className="flex flex-col gap-2 rounded-md bg-canvas p-3 text-sm">
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="font-medium">{room.name}</span>
-                        <span className="text-ink-secondary">{videos.length === 0 ? "Pas de vidéo" : `${videos.length} vidéo${videos.length > 1 ? "s" : ""}`}</span>
-                      </div>
-                      {videos.map((v) => {
-                        const url = videoUrls.get(v.id);
-                        return (
-                          <div key={v.id} className="flex flex-col gap-1">
-                            {url ? (
-                              <video controls preload="metadata" src={url} className="aspect-video w-full rounded-lg bg-media" />
-                            ) : (
-                              <p className="text-ink-muted">Vidéo indisponible.</p>
-                            )}
-                            {v.delete_after && <span className="text-xs text-ink-muted">Suppression automatique prévue le {formatDate(v.delete_after)}.</span>}
-                          </div>
-                        );
-                      })}
-                      {purged > 0 && <span className="text-xs text-ink-muted">{purged} vidéo{purged > 1 ? "s" : ""} supprimée{purged > 1 ? "s" : ""} (durée de conservation atteinte).</span>}
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </Card>
+          <RoomMedia
+            rooms={rooms.map((room) => ({
+              id: room.id,
+              name: room.name,
+              description: room.description,
+              // Vidéos effacées à l'échéance de conservation (pas celles retirées par le client avant l'envoi).
+              purged: room.room_videos.filter((v) => v.deleted_at && v.uploaded_at && v.delete_after &&
+                new Date(v.delete_after).getTime() - new Date(v.uploaded_at).getTime() > 86_400_000).length,
+              videos: room.room_videos
+                .filter((v) => !v.deleted_at && videoUrls.get(v.id))
+                .sort((a, b) => a.created_at.localeCompare(b.created_at))
+                .map((v) => ({
+                  id: v.id,
+                  url: videoUrls.get(v.id)!,
+                  mimeType: v.mime_type,
+                  size: v.size_bytes,
+                  duration: v.duration_seconds,
+                  width: v.width,
+                  height: v.height,
+                  processing: v.processing,
+                  originalSize: v.original_size_bytes,
+                  source: v.capture_source,
+                  deleteAfter: v.delete_after,
+                  frames: [...v.video_frames]
+                    .sort((a, b) => (a.captured_at_ms ?? 0) - (b.captured_at_ms ?? 0))
+                    .map((f) => ({ id: f.id, url: frameUrls.get(f.storage_path) ?? null, ms: f.captured_at_ms })),
+                })),
+            }))}
+          />
         </div>
 
         <div className="flex min-w-0 flex-col gap-6">
