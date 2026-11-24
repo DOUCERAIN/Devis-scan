@@ -49,9 +49,10 @@ select pg_temp.login('b1b1b1b1-0000-4000-8000-000000000003');
 select lives_ok($$ select public.create_company('Transports Bravo') $$, 'Bob crée son entreprise');
 
 select pg_temp.logout();
+-- Identifiants récupérés par utilisateur (indépendant des données déjà présentes en base).
 create temp table ids as
-  select (select id from public.companies where slug = 'demenagements-alpha') as company_a,
-         (select id from public.companies where slug = 'transports-bravo') as company_b;
+  select (select company_id from public.company_members where user_id = 'a1a1a1a1-0000-4000-8000-000000000001') as company_a,
+         (select company_id from public.company_members where user_id = 'b1b1b1b1-0000-4000-8000-000000000003') as company_b;
 grant select on ids to authenticated, anon;
 
 select is((select role::text from public.company_members m, ids where m.company_id = ids.company_a
@@ -211,7 +212,7 @@ select is((select count(*)::int from storage.objects where bucket_id = 'request-
 select set_config('storage.allow_delete_query', 'true', true);
 delete from storage.objects where bucket_id = 'company-assets';
 select pg_temp.logout();
-select is((select count(*)::int from storage.objects where bucket_id = 'company-assets'), 1,
+select is((select count(*)::int from storage.objects o, ids where o.bucket_id = 'company-assets' and o.name = ids.company_a || '/logo.png'), 1,
   'Bob ne supprime pas le logo de A');
 
 select * from finish();

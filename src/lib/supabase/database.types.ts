@@ -387,7 +387,15 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "create_company":
+            "add_public_room":
+{ Args: { "access_token": string,"room_kind"?: string,"room_name": string }; Returns: string
+                           },
+"claim_videos_for_purge":
+{ Args: { "max_items"?: number }; Returns: {
+              "frame_paths": (string)[],"storage_path": string,"video_id": string
+            }[]
+                           },
+"create_company":
 { Args: { "company_name": string }; Returns: {
               "address_line1": string | null,
 "address_line2": string | null,
@@ -424,6 +432,36 @@ isOneToOne: false
       } },
 "create_manual_request":
 { Args: { "payload": Json }; Returns: string
+                           },
+"create_public_request":
+{ Args: { "company_slug": string,"payload": Json }; Returns: {
+              "access_token": string,"request_id": string
+            }[]
+                           },
+"get_public_company":
+{ Args: { "company_slug": string }; Returns: {
+              "brand_color": string,"email": string,"id": string,"logo_path": string,"name": string,"phone": string,"slug": string,"website": string
+            }[]
+                           },
+"get_public_request":
+{ Args: { "access_token": string }; Returns: Json
+                           },
+"mark_video_uploaded":
+{ Args: { "access_token": string,"actual_size": number,"duration_seconds"?: number,"video_id": string }; Returns: undefined
+                           },
+"mark_videos_purged":
+{ Args: { "video_ids": (string)[] }; Returns: number
+                           },
+"register_public_video":
+{ Args: { "access_token": string,"mime_type": string,"room_id": string,"size_bytes": number }; Returns: {
+              "storage_path": string,"video_id": string
+            }[]
+                           },
+"remove_public_room":
+{ Args: { "access_token": string,"room_id": string }; Returns: undefined
+                           },
+"submit_public_request":
+{ Args: { "access_token": string }; Returns: undefined
                            }
           }
           Enums: {

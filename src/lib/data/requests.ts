@@ -93,7 +93,7 @@ export async function getRequestDetail(companyId: string, requestId: string) {
       `*,
        customer:customers(*),
        dwellings(*),
-       rooms(*, room_videos(id, status, duration_seconds, delete_after, deleted_at)),
+       rooms(*, room_videos(id, status, storage_path, mime_type, duration_seconds, uploaded_at, delete_after, deleted_at)),
        inventory_items(*),
        request_events(id, event_type, from_status, to_status, message, created_at, actor_user_id)`,
     )

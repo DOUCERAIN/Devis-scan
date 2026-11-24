@@ -15,6 +15,8 @@ import { Alert } from "@/components/ui/Alert";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Badge } from "@/components/ui/Badge";
 import { NotesForm, StatusForm } from "./RequestForms";
+import { createClient } from "@/lib/supabase/server";
+import { signedMediaUrl } from "@/lib/storage/media";
 
 export const metadata: Metadata = { title: "Demande" };
 
@@ -61,6 +63,13 @@ export default async function RequestDetailPage({ params, searchParams }: PagePr
   const items = toInventoryItems(request.inventory_items, roomNames);
   const summary = summarizeVolume(items);
   const events = [...request.request_events].sort((a, b) => b.created_at.localeCompare(a.created_at));
+
+  // Liens de lecture temporaires, créés avec la session de l'utilisateur (règles de stockage appliquées).
+  const supabase = await createClient();
+  const playable = rooms.flatMap((r) => r.room_videos).filter((v) => !v.deleted_at && ["uploaded", "processing", "ready"].includes(v.status));
+  const videoUrls = new Map(
+    await Promise.all(playable.map(async (v) => [v.id, await signedMediaUrl(supabase, v.storage_path)] as const)),
+  );
 
   return (
     <>
@@ -119,13 +128,30 @@ export default async function RequestDetailPage({ params, searchParams }: PagePr
                 <Video aria-hidden className="size-4 text-ink-muted" />Aucune pièce filmée pour cette demande.
               </p>
             ) : (
-              <ul className="flex flex-col gap-2">
+              <ul className="flex flex-col gap-4">
                 {rooms.map((room) => {
-                  const videos = room.room_videos.filter((v) => !v.deleted_at);
+                  const videos = room.room_videos.filter((v) => !v.deleted_at && videoUrls.has(v.id));
+                  const purged = room.room_videos.filter((v) => v.deleted_at).length;
                   return (
-                    <li key={room.id} className="flex items-center justify-between gap-3 rounded-md bg-canvas px-4 py-3 text-sm">
-                      <span className="font-medium">{room.name}</span>
-                      <span className="text-ink-secondary">{videos.length === 0 ? "Pas de vidéo" : `${videos.length} vidéo${videos.length > 1 ? "s" : ""}`}</span>
+                    <li key={room.id} className="flex flex-col gap-2 rounded-md bg-canvas p-3 text-sm">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="font-medium">{room.name}</span>
+                        <span className="text-ink-secondary">{videos.length === 0 ? "Pas de vidéo" : `${videos.length} vidéo${videos.length > 1 ? "s" : ""}`}</span>
+                      </div>
+                      {videos.map((v) => {
+                        const url = videoUrls.get(v.id);
+                        return (
+                          <div key={v.id} className="flex flex-col gap-1">
+                            {url ? (
+                              <video controls preload="metadata" src={url} className="aspect-video w-full rounded-lg bg-media" />
+                            ) : (
+                              <p className="text-ink-muted">Vidéo indisponible.</p>
+                            )}
+                            {v.delete_after && <span className="text-xs text-ink-muted">Suppression automatique prévue le {formatDate(v.delete_after)}.</span>}
+                          </div>
+                        );
+                      })}
+                      {purged > 0 && <span className="text-xs text-ink-muted">{purged} vidéo{purged > 1 ? "s" : ""} supprimée{purged > 1 ? "s" : ""} (durée de conservation atteinte).</span>}
                     </li>
                   );
                 })}
