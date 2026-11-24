@@ -536,6 +536,9 @@ isOneToOne: false
 "get_public_request":
 { Args: { "access_token": string }; Returns: Json
                            },
+"get_public_selected_options":
+{ Args: { "access_token": string }; Returns: Json
+                           },
 "mark_video_uploaded":
 { Args: { "access_token": string,"actual_size": number,"duration_seconds"?: number,"height"?: number,"video_id": string,"width"?: number }; Returns: undefined
                            },
@@ -549,6 +552,9 @@ isOneToOne: false
                            },
 "remove_public_room":
 { Args: { "access_token": string,"room_id": string }; Returns: undefined
+                           },
+"respond_public_quote":
+{ Args: { "decision": string,"quote_id": string,"token": string }; Returns: string
                            },
 "set_public_options":
 { Args: { "access_token": string,"options": Json }; Returns: undefined

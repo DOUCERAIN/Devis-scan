@@ -2,12 +2,14 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { failure, validationFailure, type ActionState } from "@/lib/errors";
+import { after } from "next/server";
+import { runRequestAnalysis } from "@/lib/analysis/run";
+import { failure, success, validationFailure, type ActionState } from "@/lib/errors";
 import { formToObject, nestDotted } from "@/lib/form-data";
 import { isExpiredSession, publicErrorMessage } from "@/lib/public-request/errors";
 import { clearDraftToken, readDraftToken, saveDraftToken } from "@/lib/public-request/session";
 import {
-  addRoom, createDraft, getDraft, getPublicCompany, removeRoom, submitDraft, updateDraft, updateRoom,
+  addRoom, createDraft, getDraft, getPublicCompany, removeRoom, requestIdForViewToken, setDraftOptions, submitDraft, updateDraft, updateRoom,
 } from "@/lib/public-request/service";
 import { stepHref } from "@/lib/public-request/steps";
 import { dwellingsPayload, dwellingsSchema, finalNotesSchema, roomSchema, tripPayload, tripSchema } from "@/lib/validation/public-request";
@@ -121,17 +123,43 @@ export async function submitRequest(_prev: ActionState, formData: FormData): Pro
   const raw = formToObject(formData);
   const parsed = finalNotesSchema.safeParse(raw);
   if (!parsed.success) return validationFailure(parsed.error, raw);
+  let viewToken: string;
   try {
     await updateDraft(token, { customer_notes: parsed.data.customer_notes ?? "" });
-    await submitDraft(token);
+    viewToken = await submitDraft(token);
   } catch (error) {
     if (isExpiredSession(error)) expired(slug);
     // Double envoi : la demande est déjà partie, on affiche simplement la confirmation.
     if (/already submitted/i.test(String((error as { message?: string })?.message))) redirect(stepHref(slug, "envoyee"));
     return failure(publicErrorMessage(error, "submitRequest"), undefined, raw);
   }
+  // Analyse lancée après la réponse (le client suit la progression sur la page du devis).
+  const sentToken = viewToken;
+  after(async () => {
+    const requestId = await requestIdForViewToken(sentToken);
+    if (requestId) await runRequestAnalysis(requestId);
+  });
   refresh(slug);
-  redirect(stepHref(slug, "envoyee"));
+  redirect(`/d/${slug}/devis/${viewToken}`);
+}
+
+/** Options proposées par l'entreprise et choisies par le client (prix calculés côté serveur). */
+export async function saveOptions(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const { slug, token } = await context(formData);
+  if (!token) expired(slug);
+  const chosen = formData.getAll("option").map(String).filter((id) => /^[0-9a-f-]{36}$/.test(id)).slice(0, 30);
+  const options = chosen.map((id) => {
+    const q = Number(formData.get(`quantity_${id}`) ?? 1);
+    return { option_id: id, quantity: Number.isInteger(q) && q >= 1 && q <= 99 ? q : 1 };
+  });
+  try {
+    await setDraftOptions(token, options);
+  } catch (error) {
+    if (isExpiredSession(error)) expired(slug);
+    return failure(publicErrorMessage(error, "saveOptions"));
+  }
+  refresh(slug);
+  return success(options.length ? "Options enregistrées." : "Aucune option retenue.");
 }
 
 /** Abandonne la demande en cours sur cet appareil et en commence une nouvelle. */

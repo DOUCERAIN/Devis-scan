@@ -284,6 +284,18 @@ begin
 end;
 $$;
 
+create or replace function public.get_public_selected_options(access_token text)
+returns jsonb
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select (private.request_for_token(access_token, false)).selected_options;
+$$;
+revoke all on function public.get_public_selected_options(text) from public;
+grant execute on function public.get_public_selected_options(text) to anon, authenticated, service_role;
+
 -- Lien de consultation du devis (lecture seule) remis à l'envoi de la demande.
 drop function if exists public.submit_public_request(text);
 create or replace function public.submit_public_request(access_token text)
@@ -346,7 +358,6 @@ declare
   req public.quote_requests := private.request_for_any_token(token);
 begin
   return jsonb_build_object(
-    'request_id', req.id,
     'status', req.status,
     'submitted_at', req.submitted_at,
     'analysis', (select jsonb_build_object('status', a.status, 'stage', a.stage, 'rooms_total', a.rooms_total,
@@ -364,6 +375,45 @@ begin
   );
 end;
 $$;
+
+-- Réponse du particulier à un devis ENVOYÉ par le déménageur (jamais à une estimation automatique).
+create or replace function public.respond_public_quote(token text, quote_id uuid, decision text)
+returns text
+language plpgsql
+volatile
+security definer
+set search_path = ''
+as $$
+declare
+  req public.quote_requests := private.request_for_any_token(token);
+  q public.quotes;
+begin
+  if decision not in ('accepted', 'refused') then
+    raise exception 'Invalid decision' using errcode = '22023';
+  end if;
+  select * into q from public.quotes where id = quote_id and request_id = req.id for update;
+  if q.id is null then
+    raise exception 'Unknown quote' using errcode = '42501';
+  end if;
+  if q.status <> 'sent' then
+    raise exception 'Quote cannot be answered' using errcode = '55000';
+  end if;
+  if q.valid_until is not null and q.valid_until < current_date then
+    update public.quotes set status = 'expired' where id = q.id;
+    return 'expired';
+  end if;
+  if decision = 'accepted' then
+    update public.quotes set status = 'accepted', accepted_at = now() where id = q.id;
+    update public.quote_requests set status = 'accepted' where id = req.id;
+  else
+    update public.quotes set status = 'refused', refused_at = now() where id = q.id;
+    update public.quote_requests set status = 'refused' where id = req.id;
+  end if;
+  return decision;
+end;
+$$;
+revoke all on function public.respond_public_quote(text, uuid, text) from public;
+grant execute on function public.respond_public_quote(text, uuid, text) to anon, authenticated, service_role;
 
 revoke all on function public.get_public_company_options(text) from public;
 revoke all on function public.set_public_options(text, jsonb) from public;

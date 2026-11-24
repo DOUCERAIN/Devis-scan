@@ -1,4 +1,5 @@
 import "server-only";
+import { createHash } from "node:crypto";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { publicEnv } from "@/lib/env";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -189,7 +190,56 @@ export async function confirmFrames(token: string, videoId: string, frames: Arra
   return data ?? 0;
 }
 
-export async function submitDraft(token: string) {
-  const { error } = await anonClient().rpc("submit_public_request", { access_token: token });
+/** Envoie la demande ; renvoie le jeton de consultation du devis (remis une seule fois). */
+export async function submitDraft(token: string): Promise<string> {
+  const { data, error } = await anonClient().rpc("submit_public_request", { access_token: token });
   if (error) throw error;
+  return data;
+}
+
+export type QuoteLineView = { code: string; label: string; detail: string; quantity: number; unit: string; unit_price_cents: number; amount_cents: number };
+export type PublicQuote = {
+  id: string; version: number; status: string; kind: "formal" | "estimate"; origin: string; created_at: string; valid_until: string | null;
+  lines: QuoteLineView[]; total_ht_cents: number; vat_cents: number; total_ttc_cents: number; vat_rate: number;
+  distance_km: number | null; distance_method: "route" | "estimate" | null;
+  volume: { confirmedM3: number; toVerifyM3: number; potentialM3: number; estimatedM3: number; maxM3: number; billable_m3: number; needsHumanReview: boolean; upper_total_ttc_cents: number | null; rooms: { name: string; estimatedM3: number; potentialM3: number }[] };
+  company: Record<string, string | number | boolean | null>;
+  request: { reference: string; moving_date: string | null; alternative_moving_date: string | null; moving_date_flexible: boolean; customer: { full_name: string; email: string | null; phone: string | null } | null; origin: Record<string, unknown> | null; destination: Record<string, unknown> | null };
+  inventory: { name: string; room: string; quantity: number; unit_volume_m3: number; bucket: string; level: string }[];
+  assumptions: string[]; changes: unknown; sent_at: string | null; accepted_at: string | null;
+};
+export type PublicQuoteView = {
+  status: string; submitted_at: string | null;
+  analysis: { status: string; stage: string | null; rooms_total: number | null; rooms_done: number | null; simulated: boolean; error_code: string | null } | null;
+  quotes: PublicQuote[];
+};
+
+/** Suivi de l'analyse et devis, à partir du jeton de consultation ou du jeton d'accès (cookie). */
+export async function getQuoteView(token: string): Promise<PublicQuoteView | null> {
+  if (!/^[0-9a-f]{64}$/.test(token)) return null;
+  const { data, error } = await anonClient().rpc("get_public_quote_view", { token });
+  if (error) return null;
+  return data as unknown as PublicQuoteView;
+}
+
+/** Identifiant interne de la demande (serveur uniquement, pour lancer l'analyse). */
+export async function requestIdForViewToken(viewToken: string): Promise<string | null> {
+  const hash = createHash("sha256").update(viewToken).digest("hex");
+  const { data } = await adminClient().from("quote_requests").select("id").eq("view_token_hash", hash).maybeSingle();
+  return data?.id ?? null;
+}
+
+export async function getPublicOptions(slug: string) {
+  const { data } = await anonClient().rpc("get_public_company_options", { company_slug: slug });
+  return data ?? [];
+}
+
+export async function setDraftOptions(token: string, options: { option_id: string; quantity: number }[]) {
+  const { error } = await anonClient().rpc("set_public_options", { access_token: token, options: options as unknown as Json });
+  if (error) throw error;
+}
+
+export async function getDraftOptions(token: string): Promise<{ option_id: string; quantity: number }[]> {
+  const { data } = await anonClient().rpc("get_public_selected_options", { access_token: token });
+  return Array.isArray(data) ? (data as { option_id: string; quantity: number }[]) : [];
 }
