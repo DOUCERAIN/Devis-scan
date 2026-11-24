@@ -239,14 +239,14 @@ isOneToOne: true
                   ]
                 },"quote_requests": {
                   Row: {
-                    "access_token_expires_at": string | null,"access_token_hash": string | null,"company_id": string,"created_at": string,"customer_id": string | null,"customer_notes": string | null,"distance_km": number | null,"estimated_volume_m3": number | null,"id": string,"internal_notes": string | null,"moving_date": string | null,"moving_date_flexible": boolean,"request_number": number,"source": Database["public"]['Enums']["request_source"],"status": Database["public"]['Enums']["request_status"],"submitted_at": string | null,"updated_at": string
+                    "access_token_expires_at": string | null,"access_token_hash": string | null,"alternative_moving_date": string | null,"company_id": string,"created_at": string,"customer_id": string | null,"customer_notes": string | null,"distance_km": number | null,"estimated_volume_m3": number | null,"id": string,"internal_notes": string | null,"moving_date": string | null,"moving_date_flexible": boolean,"request_number": number,"source": Database["public"]['Enums']["request_source"],"status": Database["public"]['Enums']["request_status"],"submitted_at": string | null,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "access_token_expires_at"?: string | null,"access_token_hash"?: string | null,"company_id": string,"created_at"?: string,"customer_id"?: string | null,"customer_notes"?: string | null,"distance_km"?: number | null,"estimated_volume_m3"?: number | null,"id"?: string,"internal_notes"?: string | null,"moving_date"?: string | null,"moving_date_flexible"?: boolean,"request_number": number,"source"?: Database["public"]['Enums']["request_source"],"status"?: Database["public"]['Enums']["request_status"],"submitted_at"?: string | null,"updated_at"?: string
+                    "access_token_expires_at"?: string | null,"access_token_hash"?: string | null,"alternative_moving_date"?: string | null,"company_id": string,"created_at"?: string,"customer_id"?: string | null,"customer_notes"?: string | null,"distance_km"?: number | null,"estimated_volume_m3"?: number | null,"id"?: string,"internal_notes"?: string | null,"moving_date"?: string | null,"moving_date_flexible"?: boolean,"request_number": number,"source"?: Database["public"]['Enums']["request_source"],"status"?: Database["public"]['Enums']["request_status"],"submitted_at"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "access_token_expires_at"?: string | null,"access_token_hash"?: string | null,"company_id"?: string,"created_at"?: string,"customer_id"?: string | null,"customer_notes"?: string | null,"distance_km"?: number | null,"estimated_volume_m3"?: number | null,"id"?: string,"internal_notes"?: string | null,"moving_date"?: string | null,"moving_date_flexible"?: boolean,"request_number"?: number,"source"?: Database["public"]['Enums']["request_source"],"status"?: Database["public"]['Enums']["request_status"],"submitted_at"?: string | null,"updated_at"?: string
+                    "access_token_expires_at"?: string | null,"access_token_hash"?: string | null,"alternative_moving_date"?: string | null,"company_id"?: string,"created_at"?: string,"customer_id"?: string | null,"customer_notes"?: string | null,"distance_km"?: number | null,"estimated_volume_m3"?: number | null,"id"?: string,"internal_notes"?: string | null,"moving_date"?: string | null,"moving_date_flexible"?: boolean,"request_number"?: number,"source"?: Database["public"]['Enums']["request_source"],"status"?: Database["public"]['Enums']["request_status"],"submitted_at"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -305,14 +305,14 @@ isOneToOne: false
                   ]
                 },"room_videos": {
                   Row: {
-                    "company_id": string,"created_at": string,"delete_after": string | null,"deleted_at": string | null,"duration_seconds": number | null,"failure_reason": string | null,"height": number | null,"id": string,"mime_type": string | null,"request_id": string,"room_id": string,"size_bytes": number | null,"status": Database["public"]['Enums']["video_status"],"storage_path": string,"updated_at": string,"uploaded_at": string | null,"width": number | null
+                    "capture_source": string | null,"company_id": string,"created_at": string,"delete_after": string | null,"deleted_at": string | null,"duration_seconds": number | null,"encoder": string | null,"failure_reason": string | null,"height": number | null,"id": string,"mime_type": string | null,"original_duration_seconds": number | null,"original_height": number | null,"original_mime_type": string | null,"original_size_bytes": number | null,"original_width": number | null,"processing": string | null,"request_id": string,"room_id": string,"size_bytes": number | null,"status": Database["public"]['Enums']["video_status"],"storage_path": string,"updated_at": string,"uploaded_at": string | null,"width": number | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "company_id": string,"created_at"?: string,"delete_after"?: string | null,"deleted_at"?: string | null,"duration_seconds"?: number | null,"failure_reason"?: string | null,"height"?: number | null,"id"?: string,"mime_type"?: string | null,"request_id": string,"room_id": string,"size_bytes"?: number | null,"status"?: Database["public"]['Enums']["video_status"],"storage_path": string,"updated_at"?: string,"uploaded_at"?: string | null,"width"?: number | null
+                    "capture_source"?: string | null,"company_id": string,"created_at"?: string,"delete_after"?: string | null,"deleted_at"?: string | null,"duration_seconds"?: number | null,"encoder"?: string | null,"failure_reason"?: string | null,"height"?: number | null,"id"?: string,"mime_type"?: string | null,"original_duration_seconds"?: number | null,"original_height"?: number | null,"original_mime_type"?: string | null,"original_size_bytes"?: number | null,"original_width"?: number | null,"processing"?: string | null,"request_id": string,"room_id": string,"size_bytes"?: number | null,"status"?: Database["public"]['Enums']["video_status"],"storage_path": string,"updated_at"?: string,"uploaded_at"?: string | null,"width"?: number | null
                   }
                   Update: {
-                    "company_id"?: string,"created_at"?: string,"delete_after"?: string | null,"deleted_at"?: string | null,"duration_seconds"?: number | null,"failure_reason"?: string | null,"height"?: number | null,"id"?: string,"mime_type"?: string | null,"request_id"?: string,"room_id"?: string,"size_bytes"?: number | null,"status"?: Database["public"]['Enums']["video_status"],"storage_path"?: string,"updated_at"?: string,"uploaded_at"?: string | null,"width"?: number | null
+                    "capture_source"?: string | null,"company_id"?: string,"created_at"?: string,"delete_after"?: string | null,"deleted_at"?: string | null,"duration_seconds"?: number | null,"encoder"?: string | null,"failure_reason"?: string | null,"height"?: number | null,"id"?: string,"mime_type"?: string | null,"original_duration_seconds"?: number | null,"original_height"?: number | null,"original_mime_type"?: string | null,"original_size_bytes"?: number | null,"original_width"?: number | null,"processing"?: string | null,"request_id"?: string,"room_id"?: string,"size_bytes"?: number | null,"status"?: Database["public"]['Enums']["video_status"],"storage_path"?: string,"updated_at"?: string,"uploaded_at"?: string | null,"width"?: number | null
                   }
                   Relationships: [
                     {
@@ -331,14 +331,14 @@ isOneToOne: false
                   ]
                 },"rooms": {
                   Row: {
-                    "company_id": string,"created_at": string,"dwelling_id": string | null,"id": string,"name": string,"position": number,"request_id": string,"room_type": string | null,"updated_at": string
+                    "company_id": string,"created_at": string,"description": string | null,"dwelling_id": string | null,"id": string,"name": string,"position": number,"request_id": string,"room_type": string | null,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "company_id": string,"created_at"?: string,"dwelling_id"?: string | null,"id"?: string,"name": string,"position"?: number,"request_id": string,"room_type"?: string | null,"updated_at"?: string
+                    "company_id": string,"created_at"?: string,"description"?: string | null,"dwelling_id"?: string | null,"id"?: string,"name": string,"position"?: number,"request_id": string,"room_type"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "company_id"?: string,"created_at"?: string,"dwelling_id"?: string | null,"id"?: string,"name"?: string,"position"?: number,"request_id"?: string,"room_type"?: string | null,"updated_at"?: string
+                    "company_id"?: string,"created_at"?: string,"description"?: string | null,"dwelling_id"?: string | null,"id"?: string,"name"?: string,"position"?: number,"request_id"?: string,"room_type"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -387,8 +387,16 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "add_public_room":
-{ Args: { "access_token": string,"room_kind"?: string,"room_name": string }; Returns: string
+            "add_public_frames":
+{ Args: { "access_token": string,"frames": Json,"video_id": string }; Returns: number
+                           },
+"add_public_room":
+{ Args: { "access_token": string,"room_description"?: string,"room_kind"?: string,"room_name": string }; Returns: string
+                           },
+"claim_abandoned_drafts":
+{ Args: { "max_items"?: number }; Returns: {
+              "file_paths": (string)[],"request_id": string
+            }[]
                            },
 "claim_videos_for_purge":
 { Args: { "max_items"?: number }; Returns: {
@@ -438,6 +446,12 @@ isOneToOne: false
               "access_token": string,"request_id": string
             }[]
                            },
+"delete_abandoned_drafts":
+{ Args: { "request_ids": (string)[] }; Returns: number
+                           },
+"discard_public_video":
+{ Args: { "access_token": string,"video_id": string }; Returns: undefined
+                           },
 "get_public_company":
 { Args: { "company_slug": string }; Returns: {
               "brand_color": string,"email": string,"id": string,"logo_path": string,"name": string,"phone": string,"slug": string,"website": string
@@ -447,13 +461,13 @@ isOneToOne: false
 { Args: { "access_token": string }; Returns: Json
                            },
 "mark_video_uploaded":
-{ Args: { "access_token": string,"actual_size": number,"duration_seconds"?: number,"video_id": string }; Returns: undefined
+{ Args: { "access_token": string,"actual_size": number,"duration_seconds"?: number,"height"?: number,"video_id": string,"width"?: number }; Returns: undefined
                            },
 "mark_videos_purged":
 { Args: { "video_ids": (string)[] }; Returns: number
                            },
 "register_public_video":
-{ Args: { "access_token": string,"mime_type": string,"room_id": string,"size_bytes": number }; Returns: {
+{ Args: { "access_token": string,"meta"?: Json,"mime_type": string,"room_id": string,"size_bytes": number }; Returns: {
               "storage_path": string,"video_id": string
             }[]
                            },
@@ -462,6 +476,12 @@ isOneToOne: false
                            },
 "submit_public_request":
 { Args: { "access_token": string }; Returns: undefined
+                           },
+"update_public_request":
+{ Args: { "access_token": string,"payload": Json }; Returns: undefined
+                           },
+"update_public_room":
+{ Args: { "access_token": string,"room_description"?: string,"room_id": string,"room_kind"?: string,"room_name": string }; Returns: undefined
                            }
           }
           Enums: {
