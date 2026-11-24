@@ -1,0 +1,121 @@
+@import "tailwindcss";
+
+/*
+ * Charte graphique Devis Scan v1 — source des valeurs : la charte publiée.
+ * Les variables --ds-* sont les valeurs ; @theme les expose à Tailwind
+ * (bg-brand, text-ink, rounded-lg…). Pour la marque blanche, redéfinir
+ * --ds-brand* sur un conteneur suffit : tout ce qu'il contient suit.
+ */
+:root {
+  --ds-brand: #3050c8;
+  --ds-brand-hover: #2843ad;
+  --ds-brand-pressed: #213893;
+  --ds-brand-soft: #eef1fc;
+  --ds-brand-soft-strong: #dbe2f8;
+  --ds-on-brand: #ffffff;
+
+  --ds-canvas: #f6f8fb;
+  --ds-surface: #ffffff;
+  --ds-surface-subtle: #eef2f7;
+  --ds-border: #e2e7ef;
+  --ds-border-input: #8692a8;
+
+  --ds-ink: #13203a;
+  --ds-ink-secondary: #4f5d75;
+  --ds-ink-muted: #647086;
+  --ds-ink-disabled: #a3adbe;
+
+  --ds-success: #2e9a68;
+  --ds-success-text: #1e7a50;
+  --ds-success-soft: #e6f5ec;
+  --ds-warning: #e07a12;
+  --ds-warning-text: #a14e06;
+  --ds-warning-soft: #fff1e2;
+  --ds-danger: #d9443a;
+  --ds-danger-text: #b0342b;
+  --ds-danger-soft: #fdecea;
+  --ds-duplicate: #7c55d6;
+  --ds-duplicate-text: #6640c2;
+  --ds-duplicate-soft: #f3eefd;
+
+  --ds-media: #1b2436;
+  --ds-overlay: rgba(19, 32, 58, 0.45);
+
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-brand: var(--ds-brand);
+  --color-brand-hover: var(--ds-brand-hover);
+  --color-brand-pressed: var(--ds-brand-pressed);
+  --color-brand-soft: var(--ds-brand-soft);
+  --color-brand-soft-strong: var(--ds-brand-soft-strong);
+  --color-on-brand: var(--ds-on-brand);
+  --color-canvas: var(--ds-canvas);
+  --color-surface: var(--ds-surface);
+  --color-surface-subtle: var(--ds-surface-subtle);
+  --color-border: var(--ds-border);
+  --color-border-input: var(--ds-border-input);
+  --color-ink: var(--ds-ink);
+  --color-ink-secondary: var(--ds-ink-secondary);
+  --color-ink-muted: var(--ds-ink-muted);
+  --color-ink-disabled: var(--ds-ink-disabled);
+  --color-success: var(--ds-success);
+  --color-success-text: var(--ds-success-text);
+  --color-success-soft: var(--ds-success-soft);
+  --color-warning: var(--ds-warning);
+  --color-warning-text: var(--ds-warning-text);
+  --color-warning-soft: var(--ds-warning-soft);
+  --color-danger: var(--ds-danger);
+  --color-danger-text: var(--ds-danger-text);
+  --color-danger-soft: var(--ds-danger-soft);
+  --color-duplicate: var(--ds-duplicate);
+  --color-duplicate-text: var(--ds-duplicate-text);
+  --color-duplicate-soft: var(--ds-duplicate-soft);
+  --color-media: var(--ds-media);
+  --color-overlay: var(--ds-overlay);
+
+  --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-jakarta), var(--font-inter), system-ui, sans-serif;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+
+  --shadow-sm: 0 1px 2px rgba(19, 32, 58, 0.06);
+  --shadow-md: 0 6px 16px -4px rgba(19, 32, 58, 0.12);
+  --shadow-lg: 0 20px 48px -16px rgba(19, 32, 58, 0.28);
+
+  --container-content: 1200px;
+  --container-reading: 640px;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--ds-canvas);
+    color: var(--ds-ink);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 24px;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    text-wrap: balance;
+  }
+  :focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--ds-surface), 0 0 0 4px var(--ds-brand);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
