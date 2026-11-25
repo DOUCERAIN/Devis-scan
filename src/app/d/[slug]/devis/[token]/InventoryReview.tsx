@@ -8,15 +8,15 @@ import { SubmitButton } from "@/components/forms/SubmitButton";
 import { FormMessage } from "@/components/forms/FormMessage";
 import { CUSTOMER_INVENTORY_WARNING, DUPLICATE_DECISION_LABELS } from "@/lib/inventory/duplicates";
 
-export type ReviewItem = { id: string; name: string; room: string; quantity: number };
+type ReviewItem = { id: string; name: string; room: string; quantity: number };
 export type ReviewDuplicate = ReviewItem & { explanation: string; images: string[]; otherImages: string[]; otherLabel: string | null };
 
 /**
- * Inventaire préparé par l'analyse, à valider par le client. Les éléments signalés comme doublons possibles
+ * Validation de l'inventaire (modifiable juste au-dessus) par le client. Les éléments signalés comme doublons possibles
  * sont regroupés dans « Éléments à vérifier » : une réponse est obligatoire pour chacun (contrôlée aussi
  * côté serveur et en base), puis l'avertissement doit être accepté.
  */
-export function InventoryReview({ slug, token, rooms, duplicates }: { slug: string; token: string; rooms: { name: string; items: ReviewItem[] }[]; duplicates: ReviewDuplicate[] }) {
+export function InventoryReview({ slug, token, duplicates, empty }: { slug: string; token: string; duplicates: ReviewDuplicate[]; empty: boolean }) {
   const [state, action] = useActionState(validateCustomerInventory, idleState);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const remaining = duplicates.filter((d) => !answers[d.id]).length;
@@ -26,26 +26,6 @@ export function InventoryReview({ slug, token, rooms, duplicates }: { slug: stri
     <form action={action} className="flex flex-col gap-5">
       <input type="hidden" name="slug" value={slug} />
       <input type="hidden" name="token" value={token} />
-      <section className="flex flex-col gap-2">
-        <h2 className="text-[20px] leading-[28px] font-bold">Votre inventaire</h2>
-        <p className="text-sm text-ink-secondary">Voici les meubles et objets repérés dans vos vidéos. Vérifiez-les, répondez aux éléments à vérifier, puis validez pour recevoir votre devis.</p>
-        <div className="flex flex-col gap-3">
-          {rooms.map((room) => (
-            <div key={room.name} className="rounded-lg border border-border bg-surface p-4">
-              <h3 className="font-semibold">{room.name}</h3>
-              <ul className="mt-1 text-sm">
-                {room.items.map((i) => (
-                  <li key={i.id} className="flex justify-between gap-2 py-0.5">
-                    <span>{i.name}</span>
-                    <span className="tabular-nums text-ink-secondary">× {i.quantity}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {duplicates.length > 0 ? (
         <section className="flex flex-col gap-3" aria-labelledby="to-check-title">
           <h2 id="to-check-title" className="text-[20px] leading-[28px] font-bold">Éléments à vérifier</h2>
@@ -102,7 +82,7 @@ export function InventoryReview({ slug, token, rooms, duplicates }: { slug: stri
       </section>
 
       <FormMessage state={state} />
-      <SubmitButton pendingLabel="Validation…">
+      <SubmitButton pendingLabel="Validation…" disabled={empty}>
         <CheckCircle2 aria-hidden className="size-4" /> Valider mon inventaire et recevoir mon devis
       </SubmitButton>
     </form>

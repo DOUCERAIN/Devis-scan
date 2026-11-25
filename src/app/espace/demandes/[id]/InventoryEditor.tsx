@@ -33,6 +33,10 @@ export type EditableItem = {
   duplicateDecision: "distinct" | "same" | null;
   removed: boolean;
   volumeSource: string | null;
+  /** Justification du volume retenu (objets saisis par le client) et commentaire du client. */
+  volumeNote: string | null;
+  customerComment: string | null;
+  addedByCustomer: boolean;
   isHeavy: boolean;
   frames: number;
 };
@@ -67,11 +71,15 @@ function ItemRow({ item, requestId, rooms }: { item: EditableItem; requestId: st
               {item.room}
               {item.isHeavy ? " · objet lourd" : ""}
               {item.volumeSource === "unknown" && !item.validatedByHuman ? " · volume à renseigner" : ""}
-              {item.volumeSource === "dimensions" ? " · volume estimé d'après l'image" : ""}
+              {item.volumeSource === "dimensions" && !item.addedByCustomer ? " · volume estimé d'après l'image" : ""}
+              {item.addedByCustomer && item.volumeNote ? ` · ${item.volumeNote}` : ""}
             </span>
+            {item.customerComment ? <span className="block text-xs text-ink-secondary">Commentaire du client : « {item.customerComment} »</span> : null}
           </span>
           {item.removed ? (
             <Badge>Retiré</Badge>
+          ) : item.addedByCustomer ? (
+            <Badge>Ajouté par le client</Badge>
           ) : item.source === "manual" ? (
             <Badge>Ajouté à la main</Badge>
           ) : item.validatedByHuman ? (

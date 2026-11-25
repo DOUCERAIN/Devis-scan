@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Link2 } from "lucide-react";
 import { Alert } from "@/components/ui/Alert";
-import { getPublicInventory, getQuoteView } from "@/lib/public-request/service";
+import { getCustomerCatalog, getPublicInventory, getQuoteView, type PublicInventoryItem } from "@/lib/public-request/service";
+import { InventoryBuilder } from "@/components/customer/InventoryBuilder";
+import { ResumeManualForm } from "./ResumeManualForm";
 import { customerDuplicateExplanation } from "@/lib/inventory/duplicates";
-import { InventoryReview, type ReviewDuplicate, type ReviewItem } from "./InventoryReview";
+import { InventoryReview, type ReviewDuplicate } from "./InventoryReview";
 import { FollowUp, analysisPending } from "@/components/quote/FollowUp";
 import { loadContext } from "../../load";
 import { AutoRefresh } from "./AutoRefresh";
@@ -25,15 +27,13 @@ export default async function QuotePage({ params }: PageProps<"/d/[slug]/devis/[
   const hasQuote = view.quotes.some((q) => q.status !== "superseded");
 
   // Inventaire à valider par le client avant son devis final.
-  let review: { rooms: { name: string; items: ReviewItem[] }[]; duplicates: ReviewDuplicate[] } | null = null;
+  let review: { items: PublicInventoryItem[]; duplicates: ReviewDuplicate[] } | null = null;
   if (view.status === "awaiting_customer" && !pending) {
     const data = await getPublicInventory(token);
     if (data) {
       const { inventory, imageUrls } = data;
-      const rooms = new Map<string, ReviewItem[]>();
-      for (const i of inventory.items) rooms.set(i.room, [...(rooms.get(i.room) ?? []), { id: i.id, name: i.name, room: i.room, quantity: i.quantity }]);
       review = {
-        rooms: [...rooms.entries()].map(([name, items]) => ({ name, items })),
+        items: inventory.items,
         duplicates: inventory.items
           .filter((i) => i.possible_duplicate)
           .map((i) => ({
@@ -60,7 +60,15 @@ export default async function QuotePage({ params }: PageProps<"/d/[slug]/devis/[
         <Alert tone="warning" title="Environnement de test">Inventaire produit par le simulateur de test, et non par une analyse réelle des vidéos.</Alert>
       ) : null}
       {review ? (
-        <InventoryReview slug={slug} token={token} rooms={review.rooms} duplicates={review.duplicates} />
+        <>
+          <p className="text-sm text-ink-secondary">
+            {review.items.some((i) => i.source === "ai")
+              ? "Voici les meubles et objets repérés dans vos vidéos. Corrigez les quantités, retirez ce qui ne déménage pas et ajoutez ce qui manque, puis validez pour recevoir votre devis."
+              : "Ajoutez vos meubles et objets pièce par pièce, puis validez pour recevoir votre devis."}
+          </p>
+          <InventoryBuilder slug={slug} viewToken={token} catalog={await getCustomerCatalog()} items={review.items} />
+          <InventoryReview slug={slug} token={token} duplicates={review.duplicates} empty={review.items.length === 0} />
+        </>
       ) : (
       <FollowUp
         view={view}
@@ -68,6 +76,7 @@ export default async function QuotePage({ params }: PageProps<"/d/[slug]/devis/[
         pdfHref={hasQuote && !pending ? `/d/${slug}/devis/${token}/pdf` : null}
         respond={(quoteId, label) => <RespondForm slug={slug} token={token} quoteId={quoteId} label={label} />}
         versionPdfHref={(version) => `/d/${slug}/devis/${token}/pdf?version=${version}`}
+        resumeManually={view.status === "to_review" && !hasQuote ? <ResumeManualForm slug={slug} token={token} /> : undefined}
       />
       )}
     </>

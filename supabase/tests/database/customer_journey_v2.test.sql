@@ -5,7 +5,7 @@
 -- =============================================================================
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(45);
+select plan(52);
 
 insert into auth.users (id, instance_id, aud, role, email, raw_user_meta_data, created_at, updated_at)
 values ('a6a6a6a6-0000-4000-8000-000000000001', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'anna6@test.local', '{}', now(), now()),
@@ -70,6 +70,7 @@ select throws_ok($$ select public.update_public_request((select access_token fro
 select lives_ok($$ select public.update_public_request((select access_token from t), '{"customer":{"type":"company","company_name":"Acme","first_name":"Léa","last_name":"Martin","email":"Lea@Example.com","phone":"06 12 34 56 78","privacy_accepted":true}}') $$,
   'Entreprise sans SIRET acceptée');
 select is((public.get_public_request((select access_token from t)) #>> '{customer,company_name}'), 'Acme', 'Nom de l''entreprise enregistré');
+select is((public.get_public_request((select access_token from t)) -> 'alternative_moving_dates'), '["2027-03-20"]'::jsonb, 'Les autres étapes ne modifient pas les dates alternatives');
 select is((public.get_public_request((select access_token from t)) #>> '{customer,siret}'), null, 'SIRET facultatif');
 select lives_ok($$ select public.update_public_request((select access_token from t), '{"customer":{"type":"individual","company_name":"Acme","siret":"12345678901234","first_name":"Léa","last_name":"Martin","email":"lea@example.com","phone":"0612345678","privacy_accepted":true,"marketing_consent":false}}') $$,
   'Passage en particulier');
@@ -136,6 +137,36 @@ select is((select actor || ' ' || action from public.inventory_item_changes wher
 -- Membre d'une autre entreprise : aucune visibilité
 select pg_temp.login('b6b6b6b6-0000-4000-8000-000000000002');
 select is((select count(*)::int from public.customers where email = 'lea@example.com'), 0, 'Coordonnées invisibles pour une autre entreprise');
+select pg_temp.reset();
+
+-- Analyse impossible : le client complète lui-même son inventaire ------------------------------
+select pg_temp.anon();
+create temp table t2 as select * from public.create_public_request((select slug_a from ctx), '{
+  "moving_date":"2027-04-01","origin":{"city":"Lyon","floor":1,"elevator":"none","housing_type":"apartment"},
+  "destination":{"city":"Paris","floor":2,"elevator":"none","housing_type":"apartment"}}');
+select pg_temp.reset();
+grant select on t2 to anon, authenticated;
+select pg_temp.anon();
+select public.update_public_request((select access_token from t2), '{"inventory_method":"video","customer":{"type":"individual","first_name":"Max","last_name":"Roy","email":"max@example.com","phone":"0611111111","privacy_accepted":true}}');
+select pg_temp.reset();
+insert into public.rooms (request_id, company_id, name) select request_id, (select company_a from ctx), 'Salon' from t2;
+insert into public.room_videos (request_id, company_id, room_id, storage_path, status)
+  select t2.request_id, (select company_a from ctx), r.id, 'test/' || t2.request_id || '/salon.mp4', 'uploaded' from t2 join public.rooms r on r.request_id = t2.request_id;
+select pg_temp.anon();
+select throws_ok($$ select public.submit_public_manual_request((select access_token from t2), 'Merci de vérifier attentivement votre inventaire…') $$, '55000', null, 'Envoi « manuel » refusé pour la méthode vidéo');
+create temp table v2 as select public.submit_public_request((select access_token from t2)) as view_token;
+select pg_temp.reset();
+grant select on v2 to anon, authenticated;
+select pg_temp.anon();
+select throws_ok($$ select public.public_resume_manual((select view_token from v2)) $$, '55000', null, 'Reprise manuelle refusée tant que l''analyse n''a pas échoué');
+select pg_temp.reset();
+insert into public.analysis_runs (request_id, company_id, status) select request_id, (select company_a from ctx), 'failed' from t2;
+update public.quote_requests set status = 'to_review' where id = (select request_id from t2);
+select pg_temp.anon();
+select is(public.public_resume_manual((select view_token from v2)), 'awaiting_customer', 'Analyse échouée : le client complète son inventaire');
+select throws_ok($$ select public.validate_public_inventory((select view_token from v2), '{}', 'Merci de vérifier attentivement votre inventaire…') $$, '22023', null, 'Inventaire vide : validation refusée');
+select lives_ok($$ select public.public_inventory_add((select view_token from v2), '{"catalog_key":"canape-3-places","category":"salon"}') $$, 'Objet ajouté après l''échec de l''analyse');
+select is(public.validate_public_inventory((select view_token from v2), '{}', 'Merci de vérifier attentivement votre inventaire…'), 'validated', 'Inventaire validé : devis final possible');
 select pg_temp.reset();
 
 select * from finish();

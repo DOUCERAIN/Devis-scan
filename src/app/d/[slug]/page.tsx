@@ -6,9 +6,9 @@ import { restartRequest } from "./actions";
 import { loadContext } from "./load";
 
 const STEPS = [
-  { icon: MapPin, title: "Votre trajet", text: "Adresses, date souhaitée et vos coordonnées." },
-  { icon: ClipboardCheck, title: "Vos logements et vos pièces", text: "Étage, ascenseur, accès, puis la liste des pièces à déménager." },
-  { icon: Video, title: "Une courte vidéo par pièce", text: "Filmez chaque pièce avec votre téléphone, en suivant nos conseils." },
+  { icon: MapPin, title: "Votre déménagement", text: "Adresses, étages, ascenseur, date souhaitée et dates alternatives." },
+  { icon: Video, title: "Votre inventaire, à votre choix", text: "Filmez chaque pièce avec votre téléphone, ou choisissez vos meubles dans une liste." },
+  { icon: ClipboardCheck, title: "Votre devis immédiat", text: "Vous vérifiez votre inventaire et recevez votre devis aussitôt, calculé avec les tarifs de l'entreprise." },
 ];
 
 export default async function CustomerHome({ params }: PageProps<"/d/[slug]">) {
@@ -23,7 +23,7 @@ export default async function CustomerHome({ params }: PageProps<"/d/[slug]">) {
         <p className="text-xs leading-4 font-semibold tracking-[0.06em] text-brand uppercase">Demande de devis</p>
         <h1 className="text-[28px] leading-9 font-bold sm:text-[34px] sm:leading-[42px]">Estimez votre déménagement avec {company.name}</h1>
         <p className="text-[17px] leading-7 text-ink-secondary">
-          Décrivez votre déménagement et filmez vos pièces depuis votre téléphone. {company.name} vous enverra un devis établi à partir de vos vidéos, sans visite préalable.
+          Décrivez votre déménagement, puis filmez vos pièces ou indiquez vos meubles vous-même. Vous recevez votre devis {company.name} dès votre inventaire validé, sans visite préalable.
         </p>
         {sent ? (
           <Alert tone="success" title="Votre demande a bien été envoyée">

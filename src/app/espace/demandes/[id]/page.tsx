@@ -89,6 +89,9 @@ export default async function RequestDetailPage({ params, searchParams }: PagePr
       duplicateDecision: base.duplicateDecision ?? null,
       removed: r.removed,
       volumeSource: r.volume_source,
+      volumeNote: r.volume_note,
+      customerComment: r.customer_comment,
+      addedByCustomer: r.source === "customer",
       isHeavy: r.is_heavy,
       frames: r.inventory_item_frames?.length ?? 0,
     }))
@@ -133,6 +136,8 @@ export default async function RequestDetailPage({ params, searchParams }: PagePr
           <div className="flex flex-wrap items-center gap-2">
             <RequestStatusBadge status={request.status} />
             <Badge>{request.source === "mover_manual" ? "Saisie manuelle" : "Lien client"}</Badge>
+            {request.inventory_method ? <Badge>{request.inventory_method === "manual" ? "Inventaire saisi par le client" : "Inventaire par vidéo"}</Badge> : null}
+            {request.customer?.customer_type === "company" ? <Badge>Client entreprise</Badge> : null}
           </div>
         </div>
       </div>
@@ -145,7 +150,10 @@ export default async function RequestDetailPage({ params, searchParams }: PagePr
             <p className="text-sm text-ink-secondary">
               Date souhaitée : <span className="font-medium text-ink">{formatDate(request.moving_date)}</span>
               {request.moving_date_flexible && " (flexible)"}
-              {request.alternative_moving_date && <> · date alternative : <span className="font-medium text-ink">{formatDate(request.alternative_moving_date)}</span></>}
+              {(request.alternative_moving_dates?.length ? request.alternative_moving_dates : request.alternative_moving_date ? [request.alternative_moving_date] : []).length > 0 && (
+                <> · {(request.alternative_moving_dates?.length ?? 0) > 1 ? "dates alternatives" : "date alternative"} :{" "}
+                  <span className="font-medium text-ink">{(request.alternative_moving_dates?.length ? request.alternative_moving_dates : [request.alternative_moving_date as string]).map(formatDate).join(", ")}</span></>
+              )}
             </p>
             <div className="grid gap-3 sm:grid-cols-2">
               <DwellingCard title="Départ" d={origin} />
@@ -367,6 +375,13 @@ export default async function RequestDetailPage({ params, searchParams }: PagePr
           <Card as="section">
             <CardHeader title="Client" />
             <ul className="flex flex-col gap-2 text-sm">
+              {request.customer?.customer_type === "company" ? (
+                <li>
+                  <span className="font-medium">{request.customer.company_name}</span>
+                  <span className="text-ink-secondary">{request.customer.siret ? ` · SIRET ${request.customer.siret}` : " · SIRET non communiqué"}</span>
+                  <span className="block text-ink-secondary">Contact : {request.customer.full_name}</span>
+                </li>
+              ) : null}
               <li className="flex items-center gap-2">
                 <Mail aria-hidden className="size-4 text-ink-muted" />
                 {request.customer?.email ? <a href={`mailto:${request.customer.email}`} className="text-brand hover:underline">{request.customer.email}</a> : <span className="text-ink-muted">E-mail non renseigné</span>}
@@ -375,6 +390,11 @@ export default async function RequestDetailPage({ params, searchParams }: PagePr
                 <Phone aria-hidden className="size-4 text-ink-muted" />
                 {request.customer?.phone ? <a href={`tel:${request.customer.phone}`} className="text-brand hover:underline">{request.customer.phone}</a> : <span className="text-ink-muted">Téléphone non renseigné</span>}
               </li>
+              {request.customer?.privacy_accepted_at ? (
+                <li className="text-xs text-ink-muted">
+                  Traitement des données accepté le {formatDate(request.customer.privacy_accepted_at)} · offres commerciales : {request.customer.marketing_consent ? "acceptées" : "refusées"}
+                </li>
+              ) : null}
             </ul>
           </Card>
 

@@ -165,6 +165,12 @@ export async function generateQuote(
     assumptions.push(`${volume.possibleDuplicateM3.toLocaleString("fr-FR")} m³ d'objets peut-être vus deux fois (doublons possibles) sont comptés en attendant la vérification du déménageur.`);
   }
   if (unknownVolumeItems > 0) assumptions.push(`${unknownVolumeItems} objet${unknownVolumeItems > 1 ? "s" : ""} sans volume de référence, à évaluer par le déménageur.`);
+  // Objets déclarés par le client sans volume de référence : volume traçable, jamais arbitraire.
+  const declared = (kind: string) => asVolumeItems.filter((i) => i.volumeSource === kind && !i.validatedByHuman).reduce((n, i) => n + i.quantity, 0);
+  const bySize = declared("comparable");
+  const byDims = declared("dimensions");
+  if (bySize > 0) assumptions.push(`${bySize} objet${bySize > 1 ? "s" : ""} décrit${bySize > 1 ? "s" : ""} par une taille approximative : volume d'un objet comparable du catalogue, à confirmer par le déménageur.`);
+  if (byDims > 0) assumptions.push(`${byDims} objet${byDims > 1 ? "s" : ""} estimé${byDims > 1 ? "s" : ""} à partir des dimensions indiquées par le client.`);
 
   const previous = quotesRes.data ?? [];
   if (options.dryRun) {

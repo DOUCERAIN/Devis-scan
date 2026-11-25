@@ -1,5 +1,6 @@
 import "server-only";
 import { createHash } from "node:crypto";
+import { cache } from "react";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { publicEnv } from "@/lib/env";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -36,12 +37,20 @@ export type DraftDwelling = {
 };
 export type DraftVideo = { id: string; status: string; size_bytes: number | null; duration_seconds: number | null; processing: string | null; original_size_bytes: number | null; frames: number };
 export type DraftRoom = { id: string; name: string; room_type: string | null; description: string | null; videos: DraftVideo[] };
+export type DraftCustomer = {
+  full_name: string; email: string | null; phone: string | null; type: "individual" | "company";
+  first_name: string | null; last_name: string | null; company_name: string | null; siret: string | null;
+  privacy_accepted: boolean; marketing_consent: boolean;
+};
 export type Draft = {
   id: string; status: string; submitted_at: string | null;
-  moving_date: string | null; alternative_moving_date: string | null; moving_date_flexible: boolean; customer_notes: string | null;
-  customer: { full_name: string; email: string | null; phone: string | null } | null;
+  moving_date: string | null; alternative_moving_date: string | null; alternative_moving_dates: string[]; moving_date_flexible: boolean; customer_notes: string | null;
+  inventory_method: "video" | "manual" | null;
+  customer: DraftCustomer | null;
   dwellings: Partial<Record<"origin" | "destination", DraftDwelling>>;
+  /** Pièces filmées (les catégories de l'inventaire manuel n'en font pas partie). */
   rooms: DraftRoom[];
+  item_count: number;
 };
 
 export async function getPublicCompany(slug: string): Promise<PublicCompany | null> {
@@ -251,13 +260,18 @@ export async function getDraftOptions(token: string): Promise<{ option_id: strin
 }
 
 export type PublicInventoryItem = {
-  id: string; name: string; room: string; room_position: number; quantity: number;
+  id: string; name: string; room: string; room_id: string | null; room_position: number; quantity: number;
+  category: string | null; catalog_key: string | null; source: "ai" | "customer" | "mover"; unit_volume_m3: number;
+  volume_source: string | null; size_class: string | null; dims: { w: number; d: number; h: number } | null; comment: string | null;
   possible_duplicate: boolean; duplicate_reason: string | null;
   duplicate_of: { id: string; name: string; room: string } | null;
   customer_decision: "distinct" | "same" | null;
   frames: string[]; duplicate_frames: string[];
 };
-export type PublicInventory = { status: string; customer_validated_at: string | null; items: PublicInventoryItem[] };
+export type PublicInventory = {
+  status: string; inventory_method: "video" | "manual" | null; customer_validated_at: string | null;
+  rooms: { id: string; name: string; category: string | null }[]; items: PublicInventoryItem[];
+};
 
 /**
  * Inventaire à valider par le client (jeton vérifié en base). Les images des éléments à vérifier sont
@@ -283,3 +297,59 @@ export async function validateInventory(token: string, decisions: Record<string,
   const { error } = await anonClient().rpc("validate_public_inventory", { token, decisions: decisions as unknown as Json, acknowledgement });
   if (error) throw error;
 }
+
+// -----------------------------------------------------------------------------
+// Inventaire saisi ou corrigé par le client (jeton vérifié en base à chaque appel)
+// -----------------------------------------------------------------------------
+
+export type CustomerItemInput = {
+  catalog_key?: string; label?: string; category?: string; room_id?: string; quantity: number;
+  width_cm?: number; depth_cm?: number; height_cm?: number; size?: string; comment?: string;
+};
+
+/** Ajoute un objet ; le volume (catalogue, dimensions ou objet comparable) est calculé et justifié en base. */
+export async function addInventoryItem(token: string, item: CustomerItemInput): Promise<string> {
+  const { data, error } = await anonClient().rpc("public_inventory_add", { token, item: item as unknown as Json });
+  if (error) throw error;
+  return data;
+}
+
+export async function setInventoryQuantity(token: string, itemId: string, quantity: number) {
+  const { error } = await anonClient().rpc("public_inventory_update", { token, item_id: itemId, new_quantity: quantity });
+  if (error) throw error;
+}
+
+export async function removeInventoryItem(token: string, itemId: string) {
+  const { error } = await anonClient().rpc("public_inventory_remove", { token, item_id: itemId });
+  if (error) throw error;
+}
+
+/** Inventaire (sans images) lu avec le jeton d'accès du brouillon ou le jeton de consultation. */
+export async function readInventory(token: string): Promise<PublicInventory | null> {
+  if (!/^[0-9a-f]{64}$/.test(token)) return null;
+  const { data, error } = await anonClient().rpc("get_public_inventory", { token });
+  if (error || !data) return null;
+  return data as unknown as PublicInventory;
+}
+
+/** Envoi d'une demande « inventaire manuel » : validée par le client dans la même opération. */
+export async function submitManualDraft(token: string, acknowledgement: string): Promise<string> {
+  const { data, error } = await anonClient().rpc("submit_public_manual_request", { access_token: token, acknowledgement });
+  if (error) throw error;
+  return data;
+}
+
+/** Analyse impossible : le client complète lui-même son inventaire. */
+export async function resumeManually(viewToken: string) {
+  const { error } = await anonClient().rpc("public_resume_manual", { token: viewToken });
+  if (error) throw error;
+}
+
+export type { CatalogChoice } from "@/lib/inventory/manual";
+
+/** Catalogue proposé au client (lecture publique) : nom, catégorie, synonymes, volume de déménagement. */
+export const getCustomerCatalog = cache(async () => {
+  const { data, error } = await anonClient().from("furniture_catalog").select("id, name, category, synonyms, moving_volume_avg").order("name");
+  if (error) throw error;
+  return (data ?? []).map((r) => ({ id: r.id, name: r.name, category: r.category, synonyms: r.synonyms ?? [], volume: r.moving_volume_avg === null ? null : Number(r.moving_volume_avg) }));
+});

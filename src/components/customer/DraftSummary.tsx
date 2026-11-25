@@ -3,7 +3,7 @@ import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import { ELEVATOR_LABELS, HOUSING_LABELS, floorLabel, formatDate } from "@/lib/requests/labels";
 import { stepHref } from "@/lib/public-request/steps";
 import { formatBytes } from "@/lib/video/signature";
-import type { Draft, DraftDwelling } from "@/lib/public-request/service";
+import type { Draft, DraftDwelling, PublicInventoryItem } from "@/lib/public-request/service";
 
 function Section({ title, edit, children }: { title: string; edit?: string; children: React.ReactNode }) {
   return (
@@ -32,19 +32,24 @@ function dwellingLines(d?: DraftDwelling) {
 }
 
 /** Récapitulatif complet de la demande (utilisé avant l'envoi et après). */
-export function DraftSummary({ slug, draft, editable }: { slug: string; draft: Draft; editable: boolean }) {
-  const edit = (key: Parameters<typeof stepHref>[1]) => (editable ? stepHref(slug, key) : undefined);
+export function DraftSummary({ slug, draft, editable, inventory }: { slug: string; draft: Draft; editable: boolean; inventory?: PublicInventoryItem[] }) {
+  const edit = (key: Parameters<typeof stepHref>[1]) => (editable ? stepHref(slug, key, draft.inventory_method) : undefined);
+  const c = draft.customer;
+  const alternatives = draft.alternative_moving_dates?.length ? draft.alternative_moving_dates : draft.alternative_moving_date ? [draft.alternative_moving_date] : [];
+  const manual = draft.inventory_method === "manual";
+  const byRoom = new Map<string, PublicInventoryItem[]>();
+  for (const i of inventory ?? []) byRoom.set(i.room, [...(byRoom.get(i.room) ?? []), i]);
+  const totalM3 = (inventory ?? []).reduce((sum, i) => sum + i.quantity * Number(i.unit_volume_m3), 0);
   return (
     <div className="flex flex-col gap-4">
       <Section title="Déménagement" edit={edit("trajet")}>
         <dl className="grid gap-2 text-sm">
           <div><dt className="inline text-ink-secondary">Date souhaitée : </dt><dd className="inline font-medium">{formatDate(draft.moving_date)}</dd></div>
-          {draft.alternative_moving_date && <div><dt className="inline text-ink-secondary">Date alternative : </dt><dd className="inline font-medium">{formatDate(draft.alternative_moving_date)}</dd></div>}
+          {alternatives.length > 0 && (
+            <div><dt className="inline text-ink-secondary">{alternatives.length > 1 ? "Dates alternatives" : "Date alternative"} : </dt><dd className="inline font-medium">{alternatives.map(formatDate).join(", ")}</dd></div>
+          )}
           {draft.moving_date_flexible && <div className="text-ink-secondary">Dates flexibles</div>}
-          <div><dt className="inline text-ink-secondary">Contact : </dt><dd className="inline font-medium">{draft.customer?.full_name} · {draft.customer?.email}{draft.customer?.phone ? ` · ${draft.customer.phone}` : ""}</dd></div>
         </dl>
-      </Section>
-      <Section title="Logements" edit={edit("logements")}>
         {(["origin", "destination"] as const).map((k) => (
           <div key={k} className="flex flex-col gap-0.5 rounded-md bg-canvas px-3 py-2.5 text-sm">
             <span className="font-semibold">{k === "origin" ? "Départ" : "Arrivée"}</span>
@@ -52,6 +57,30 @@ export function DraftSummary({ slug, draft, editable }: { slug: string; draft: D
           </div>
         ))}
       </Section>
+      <Section title="Coordonnées" edit={edit("coordonnees")}>
+        <dl className="grid gap-1 text-sm">
+          {c?.type === "company" ? (
+            <div><dt className="inline text-ink-secondary">Entreprise : </dt><dd className="inline font-medium">{c.company_name}{c.siret ? ` · SIRET ${c.siret}` : ""}</dd></div>
+          ) : null}
+          <div><dt className="inline text-ink-secondary">{c?.type === "company" ? "Contact" : "Nom"} : </dt><dd className="inline font-medium">{c?.full_name}</dd></div>
+          <div><dt className="inline text-ink-secondary">E-mail : </dt><dd className="inline font-medium">{c?.email}</dd></div>
+          {c?.phone ? <div><dt className="inline text-ink-secondary">Téléphone : </dt><dd className="inline font-medium">{c.phone}</dd></div> : null}
+        </dl>
+      </Section>
+      {manual ? (
+        <Section title={`Inventaire (${(inventory ?? []).reduce((n, i) => n + i.quantity, 0)} objets · ${totalM3.toLocaleString("fr-FR", { maximumFractionDigits: 1 })} m³)`} edit={edit("inventaire")}>
+          {[...byRoom.entries()].map(([room, items]) => (
+            <div key={room} className="rounded-md bg-canvas px-3 py-2.5 text-sm">
+              <p className="font-semibold">{room}</p>
+              <ul>
+                {items.map((i) => (
+                  <li key={i.id} className="flex justify-between gap-2"><span>{i.name}</span><span className="tabular-nums text-ink-secondary">× {i.quantity}</span></li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </Section>
+      ) : (
       <Section title={`Pièces et vidéos (${draft.rooms.length})`} edit={edit("videos")}>
         <ul className="flex flex-col gap-2">
           {draft.rooms.map((room) => {
@@ -77,6 +106,7 @@ export function DraftSummary({ slug, draft, editable }: { slug: string; draft: D
           })}
         </ul>
       </Section>
+      )}
     </div>
   );
 }

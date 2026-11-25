@@ -43,3 +43,25 @@ export function parseAddressResponse(json: unknown): AddressSuggestion[] {
     })
     .filter((s) => s.label && s.city);
 }
+
+/**
+ * Coordonnées d'une adresse saisie sans choisir de suggestion (côté serveur, délai court).
+ * Sans réponse fiable, renvoie null : la distance sera alors à confirmer par le déménageur.
+ */
+export async function geocodeAddress(street: string, postalCode: string, city: string, timeoutMs = 4000): Promise<{ latitude: number; longitude: number } | null> {
+  const q = [street, postalCode, city].filter(Boolean).join(" ").trim();
+  if (q.length < 3) return null;
+  try {
+    const params = new URLSearchParams({ q, limit: "1", index: "address" });
+    if (/^\d{5}$/.test(postalCode)) params.set("postcode", postalCode);
+    const res = await fetch(`${ADDRESS_API_URL}?${params.toString()}`, { signal: AbortSignal.timeout(timeoutMs), cache: "no-store" });
+    if (!res.ok) return null;
+    const json = (await res.json()) as { features?: (Feature & { properties?: { score?: number } })[] };
+    const best = json.features?.[0];
+    const [lon, lat] = best?.geometry?.coordinates ?? [];
+    if (typeof lat !== "number" || typeof lon !== "number" || (best?.properties?.score ?? 0) < 0.4) return null;
+    return { latitude: lat, longitude: lon };
+  } catch {
+    return null;
+  }
+}

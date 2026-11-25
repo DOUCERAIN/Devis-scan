@@ -37,9 +37,11 @@ const STATUS_TEXT: Record<string, string> = {
  * Suivi côté particulier : progression réelle de l'analyse (étapes enregistrées en base),
  * puis estimation ou devis. Aucune étape n'est simulée à l'écran.
  */
-export function FollowUp({ view, companyName, pdfHref, respond, versionPdfHref }: {
+export function FollowUp({ view, companyName, pdfHref, respond, versionPdfHref, resumeManually }: {
   view: PublicQuoteView; companyName: string; pdfHref: string | null;
   respond?: (quoteId: string, label?: string) => React.ReactNode; versionPdfHref?: (version: number) => string;
+  /** Analyse impossible : le client peut compléter lui-même son inventaire (il n'attend pas le déménageur). */
+  resumeManually?: React.ReactNode;
 }) {
   const a = view.analysis;
   const state = customerQuoteState(view.quotes);
@@ -135,6 +137,11 @@ export function FollowUp({ view, companyName, pdfHref, respond, versionPdfHref }
       ) : view.status === "customer_validated" ? (
         <Alert tone="info" title="Votre inventaire est validé">
           {companyName} finalise votre devis. Vous le retrouverez sur cette page dès qu&apos;il sera prêt.
+        </Alert>
+      ) : a?.status === "failed" && resumeManually ? (
+        <Alert tone="warning" title="L'analyse automatique de vos vidéos n'a pas pu être réalisée">
+          <p>Vous pouvez compléter votre inventaire vous-même pour recevoir votre devis tout de suite. Vos vidéos restent transmises à {companyName}, qui vérifiera votre inventaire.</p>
+          <div className="mt-3">{resumeManually}</div>
         </Alert>
       ) : (
         <Alert tone="info" title="Votre demande est entre les mains de votre déménageur">

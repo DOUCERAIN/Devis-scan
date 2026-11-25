@@ -26,6 +26,7 @@ assert.match(DB_URL, /127\.0\.0\.1|localhost/, "Test réservé à Supabase local
 const admin = createClient(DB_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } });
 const stamp = Date.now().toString(36);
 let step = 0;
+let current = null; // page affichée en cas d'échec
 const log = (m) => console.log(`✓ ${String(++step).padStart(2, "0")} ${m}`);
 const media = (f) => {
   const p = path.join(MEDIA, f);
@@ -66,19 +67,36 @@ async function text(page, t, timeout = 15000) {
 async function chooseAddress(page, label, typed) {
   const input = page.getByLabel(label, { exact: true });
   await input.fill(typed);
-  await page.getByRole("option").first().click();
+  await page.getByRole("listbox").getByRole("option").first().click();
 }
 
+const day = (days) => new Date(Date.now() + days * 86400000).toISOString().slice(0, 10);
+
+/** Étape 1 « Déménagement » : adresses, logements (étage obligatoire), date et deux dates alternatives. */
 async function fillTrip(page) {
   await chooseAddress(page, "Adresse de départ", "8 bd du port");
   await chooseAddress(page, "Adresse d'arrivée", "12 rue de la république lyon");
-  const d = (days) => new Date(Date.now() + days * 86400000).toISOString().slice(0, 10);
-  await page.locator("#moving_date").fill(d(30));
-  await page.locator("#alternative_moving_date").fill(d(37));
-  await page.getByLabel("Nom et prénom").fill("Lina Martin");
+  await page.getByRole("radio", { name: "Appartement" }).first().check({ force: true });
+  await page.locator("#origin-floor").selectOption("4");
+  await page.getByRole("radio", { name: "Pas d'ascenseur" }).first().check({ force: true });
+  await page.getByRole("radio", { name: "Maison" }).nth(1).check({ force: true });
+  await page.locator("#destination-floor").selectOption("0");
+  await page.getByRole("radio", { name: "Pas d'ascenseur" }).nth(1).check({ force: true });
+  await page.locator("#moving_date").fill(day(30));
+  for (const d of [37, 44, 51]) {
+    await page.getByRole("button", { name: "Ajouter une date alternative" }).click();
+    await page.getByLabel(/^Date alternative \d/).last().fill(day(d));
+  }
+  await page.getByRole("button", { name: "Retirer la date alternative 2" }).click();
+}
+
+/** Étape 2 « Coordonnées » (particulier). */
+async function fillContact(page) {
+  await page.getByLabel("Prénom").fill("Lina");
+  await page.getByLabel("Nom", { exact: true }).fill("Martin");
   await page.getByLabel("E-mail").fill(`lina-${stamp}@example.com`);
   await page.getByLabel("Téléphone").fill("06 12 34 56 78");
-  await page.getByRole("checkbox", { name: /J'accepte/ }).check();
+  await page.getByRole("checkbox", { name: /J'accepte que mes informations/ }).check();
 }
 
 async function requestRow(email) {
@@ -107,6 +125,7 @@ async function requestRow(email) {
   await ctx.route("https://data.geopf.fr/geocodage/search**", (route) =>
     route.fulfill({ json: ADDRESS_FIXTURE(new URL(route.request().url()).searchParams.get("q") ?? ""), headers: { "access-control-allow-origin": "*" } }));
   const page = await ctx.newPage();
+  current = page;
   page.on("pageerror", (e) => errors.push(String(e)));
   page.on("dialog", (d) => d.accept());
 
@@ -120,53 +139,74 @@ async function requestRow(email) {
   assert.equal((await page.goto(`${APP}/d/entreprise-inexistante-${stamp}`)).status(), 404);
   log("Lien d'entreprise inconnu : page introuvable");
 
-  // 2. Trajet : validation puis saisie avec suggestions d'adresse
+  // 2. Déménagement : validation (étage obligatoire) puis saisie avec suggestions d'adresse
   await page.goto(`${APP}/d/${slug}`);
   await page.getByRole("link", { name: "Commencer ma demande" }).click();
   await page.waitForURL(/\/demande\/trajet$/);
   await page.getByRole("button", { name: "Continuer" }).click();
   await text(page, "Certains champs sont à corriger");
-  await text(page, "Votre accord est nécessaire");
-  log("Étape trajet : erreurs de validation affichées");
+  await text(page, "Indiquez l'étage (rez-de-chaussée compris).");
+  log("Étape déménagement : erreurs de validation affichées (étage obligatoire)");
   await fillTrip(page);
   assert.equal(await page.getByLabel("Code postal").first().inputValue(), "95000");
-  await shot(page, "c02-trajet");
+  assert.equal(await page.getByLabel(/^Date alternative \d/).count(), 2, "dates alternatives ajoutées puis une retirée");
+  await page.getByLabel(/^Date alternative 2/).fill(day(20 - 30));
   await page.getByRole("button", { name: "Continuer" }).click();
-  await page.waitForURL(/\/demande\/logements$/);
+  await text(page, "Cette date doit être dans le futur.");
+  await page.getByLabel(/^Date alternative 2/).fill(day(30));
+  await page.getByRole("button", { name: "Continuer" }).click();
+  await text(page, "Cette date est déjà votre date souhaitée.");
+  await page.getByLabel(/^Date alternative 2/).fill(day(51));
+  await shot(page, "c02-demenagement");
+  await page.getByRole("button", { name: "Continuer" }).click();
+  await page.waitForURL(/\/demande\/coordonnees$/);
   const cookies = await ctx.cookies();
   const session = cookies.find((c) => c.name.startsWith("dsr_"));
   assert.ok(session && session.httpOnly && session.path === `/d/${slug}`, "cookie de session httpOnly limité au lien");
   assert.ok(!page.url().match(/[0-9a-f]{8}-[0-9a-f]{4}/), "aucun identifiant dans l'adresse");
-  log("Adresses choisies parmi les suggestions, brouillon créé (cookie httpOnly, aucune donnée dans l'URL)");
+  log("Adresses choisies parmi les suggestions, étages (dont rez-de-chaussée), dates alternatives contrôlées ; brouillon créé (cookie httpOnly)");
 
-  // 3. Logements
+  // 3. Coordonnées : profils, téléphone obligatoire, consentements
   await page.getByRole("button", { name: "Continuer" }).click();
-  await text(page, "Choisissez le type de logement");
-  const fieldsets = page.locator("fieldset fieldset");
-  await page.getByText("Appartement").first().click();
-  await page.locator("#origin-surface").fill("65");
-  await page.locator("#origin-rooms").fill("3");
-  await page.locator("#origin-floor").fill("4");
-  await page.getByText("Pas d'ascenseur").first().click();
-  await page.locator("#origin-carrying").fill("20");
-  await page.locator("#origin-access").fill("Escalier étroit au 3e");
-  await page.locator("#origin-parking").fill("Rue piétonne");
-  await page.getByText("Maison").nth(1).click();
-  await page.getByText("Pas d'ascenseur").nth(1).click();
-  assert.ok((await fieldsets.count()) >= 4);
+  await text(page, "Votre accord est nécessaire pour établir votre devis.");
+  await text(page, "Le téléphone est obligatoire.");
+  await page.getByText("Entreprise", { exact: true }).click();
+  await page.getByLabel("Nom de l'entreprise").waitFor();
+  assert.ok(await page.getByLabel(/SIRET/).isVisible(), "SIRET proposé (facultatif) au profil entreprise");
+  await page.getByText("Particulier", { exact: true }).click();
+  assert.equal(await page.getByLabel("Nom de l'entreprise").count(), 0, "champs entreprise masqués pour un particulier");
+  await fillContact(page);
+  assert.equal(await page.getByRole("checkbox", { name: /recevoir des offres/ }).isChecked(), false, "offres commerciales non cochées par défaut");
+  await shot(page, "c02b-coordonnees");
+  await page.getByRole("button", { name: "Continuer" }).click();
+  await page.waitForURL(/\/demande\/methode$/);
+  log("Coordonnées : profil particulier, champs entreprise masqués, téléphone et accord exigés, offres facultatives");
+
+  // 4. Méthode : vidéo
+  await page.getByRole("button", { name: "Continuer" }).click();
+  await text(page, "Choisissez comment établir votre inventaire.");
+  await shot(page, "c02c-methode");
+  await page.getByTestId("method-video").click();
   await page.getByRole("button", { name: "Continuer" }).click();
   await page.waitForURL(/\/demande\/pieces$/);
-  log("Étape logements enregistrée");
+  log("Choix de la méthode : « Filmer mon logement »");
 
   // Retour en arrière : les informations sont conservées
-  await page.getByRole("link", { name: "← Étape précédente" }).click();
-  await page.waitForURL(/\/demande\/logements$/);
-  assert.equal(await page.locator("#origin-surface").inputValue(), "65");
-  assert.equal(await page.locator("#origin-access").inputValue(), "Escalier étroit au 3e");
   await page.goto(`${APP}/d/${slug}/demande/trajet`);
-  assert.equal(await page.getByLabel("Nom et prénom").inputValue(), "Lina Martin");
+  assert.equal(await page.locator("#origin-floor").inputValue(), "4");
+  assert.equal(await page.locator("#destination-floor").inputValue(), "0");
+  assert.equal(await page.getByLabel(/^Date alternative \d/).count(), 2);
+  await page.goto(`${APP}/d/${slug}/demande/coordonnees`);
+  assert.equal(await page.getByLabel("Prénom").inputValue(), "Lina");
+  const { data: saved } = await admin.from("customers").select("customer_type, first_name, last_name, full_name, phone, privacy_accepted_at, marketing_consent, quote_requests(alternative_moving_dates, inventory_method, dwellings(kind, floor))").eq("email", `lina-${stamp}@example.com`).single();
+  assert.equal(saved.full_name, "Lina Martin");
+  assert.ok(saved.privacy_accepted_at);
+  assert.equal(saved.marketing_consent, false);
+  assert.deepEqual(saved.quote_requests[0].alternative_moving_dates, [day(37), day(51)]);
+  assert.equal(saved.quote_requests[0].inventory_method, "video");
+  assert.deepEqual(saved.quote_requests[0].dwellings.map((w) => [w.kind, w.floor]).sort(), [["destination", 0], ["origin", 4]]);
   await page.goto(`${APP}/d/${slug}/demande/pieces`);
-  log("Retour aux étapes précédentes sans perte de données");
+  log("Retour aux étapes précédentes sans perte de données ; base : profil, consentements, dates, étages, méthode");
 
   // 4. Pièces : ajout, modification, suppression
   for (const name of ["Salon", "Cuisine", "Chambre principale"]) {
@@ -269,7 +309,7 @@ async function requestRow(email) {
   await page.getByRole("link", { name: /au récapitulatif/i }).click();
   await page.waitForURL(/recapitulatif$/);
   await text(page, "1 pièce sans vidéo");
-  await text(page, "Escalier étroit au 3e");
+  await text(page, "Dates alternatives");
   await page.getByLabel("Protection renforcée des meubles").check();
   await page.getByRole("button", { name: "Enregistrer mes options" }).click();
   await text(page, "Options enregistrées.");
@@ -319,6 +359,15 @@ async function requestRow(email) {
   assert.equal(await toCheck.locator("input[type=radio][required]").count(), 2, "réponse obligatoire");
   assert.equal(await page.locator("input[name=acknowledged][required]").count(), 1, "avertissement à confirmer");
   await shot(page, "c06a-elements-a-verifier");
+  // L'inventaire de l'analyse est modifiable : objet oublié ajouté, quantité corrigée (modifications tracées).
+  await page.getByPlaceholder(/Rechercher/).fill("vélo");
+  await page.getByRole("button", { name: /^Ajouter un Vélo/ }).first().click();
+  await text(page, "ajouté.");
+  await page.getByRole("button", { name: /^Augmenter la quantité : Vélo/ }).click();
+  await page.waitForFunction(() => [...document.querySelectorAll("[data-testid=inventory-item]")].some((li) => /Vélo/.test(li.textContent) && /\b2\b/.test(li.textContent)));
+  const { data: added } = await admin.from("inventory_item_changes").select("action, actor").eq("request_id", row.id).eq("actor", "customer").order("changed_at");
+  assert.deepEqual(added.map((a) => a.action), ["add", "update"], "ajout et modification du client tracés");
+  log("Après l'analyse, le client ajoute un objet oublié et corrige une quantité (modifications tracées)");
   await toCheck.getByLabel("C'est le même meuble : ne le compter qu'une fois").check();
   await page.getByLabel("J'ai pris connaissance de cet avertissement.").check();
   await page.getByRole("button", { name: "Valider mon inventaire et recevoir mon devis" }).click();
@@ -364,8 +413,8 @@ async function requestRow(email) {
   await p.waitForURL(/\/espace\/demandes\/[0-9a-f-]{36}$/);
   const proRequestUrl = p.url();
   await text(p, "Lien client");
-  await text(p, "date alternative");
-  await text(p, "Rue piétonne");
+  await text(p, "dates alternatives");
+  await text(p, "Inventaire par vidéo");
   await text(p, "Images extraites");
   const playable = await p.evaluate(async () => {
     const vids = [...document.querySelectorAll("video")];
@@ -452,7 +501,7 @@ async function requestRow(email) {
   await p.reload();
   await text(p, "Nouvelle version refusée");
   const { data: history } = await admin.from("inventory_item_changes").select("actor, action").eq("request_id", row.id).order("changed_at");
-  assert.deepEqual(history.map((h) => [h.actor, h.action]), [["customer", "customer_decision"], ["mover", "update"]], "historique complet : réponse du client puis correction du déménageur");
+  assert.deepEqual(history.map((h) => [h.actor, h.action]), [["customer", "add"], ["customer", "update"], ["customer", "customer_decision"], ["mover", "update"]], "historique complet : ajouts et réponse du client puis correction du déménageur");
   log("Le client voit l'avenant et les différences, le refuse : V1 acceptée reste en vigueur ; historique complet");
 
   // 10. Autre entreprise : aucun accès
@@ -470,11 +519,17 @@ async function requestRow(email) {
   await denied.route("https://data.geopf.fr/geocodage/search**", (route) =>
     route.fulfill({ json: ADDRESS_FIXTURE(new URL(route.request().url()).searchParams.get("q") ?? "") }));
   const d = await denied.newPage();
+  current = d;
   await d.goto(`${APP}/d/${slug}/demande/trajet`);
   await fillTrip(d);
   await d.getByRole("button", { name: "Continuer" }).click();
-  await d.waitForURL(/logements$/);
-  await d.goto(`${APP}/d/${slug}/demande/pieces`);
+  await d.waitForURL(/coordonnees$/);
+  await fillContact(d);
+  await d.getByRole("button", { name: "Continuer" }).click();
+  await d.waitForURL(/methode$/);
+  await d.getByTestId("method-video").click();
+  await d.getByRole("button", { name: "Continuer" }).click();
+  await d.waitForURL(/pieces$/);
   await d.getByRole("button", { name: "Salon", exact: true }).click();
   await d.getByRole("button", { name: "Ajouter la pièce" }).click();
   await text(d, "« Salon » ajoutée");
@@ -553,7 +608,8 @@ async function requestRow(email) {
   await deniedBrowser.close();
   await browser.close();
   console.log(`\nParcours client complet réussi (${step} vérifications).`);
-})().catch((e) => {
+})().catch(async (e) => {
   console.error("\n✗ ÉCHEC :", e.message);
+  if (current) console.error("Page :", current.url(), "\nErreurs :", await current.locator(".text-danger-text").allInnerTexts().catch(() => []));
   process.exit(1);
 });

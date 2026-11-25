@@ -131,7 +131,7 @@ declare
   marketing boolean := coalesce((c ->> 'marketing_consent')::boolean, false);
   cust uuid := req.customer_id;
 begin
-  if ctype not in ('individual', 'company') then raise exception 'Invalid customer type' using errcode = '22023'; end if;
+  if ctype is null or ctype not in ('individual', 'company') then raise exception 'Invalid customer type' using errcode = '22023'; end if;
   if char_length(first_n) not between 1 and 80 or char_length(last_n) not between 1 and 80 then
     raise exception 'First and last names are required' using errcode = '22023';
   end if;
@@ -175,7 +175,8 @@ as $$
 declare
   result date[];
 begin
-  if jsonb_typeof(payload -> 'alternative_moving_dates') <> 'array' then return null; end if;
+  -- Clé absente (autre étape du parcours) : liste inchangée.
+  if jsonb_typeof(payload -> 'alternative_moving_dates') is distinct from 'array' then return null; end if;
   if jsonb_array_length(payload -> 'alternative_moving_dates') > 30 then raise exception 'Too many dates' using errcode = '22023'; end if;
   select coalesce(array_agg(distinct x::date order by x::date), '{}') into result
     from jsonb_array_elements_text(payload -> 'alternative_moving_dates') x where x <> '';
@@ -453,7 +454,7 @@ begin
      and (w is null or d is null or h is null or w not between 1 and 2000 or d not between 1 and 2000 or h not between 1 and 2000) then
     raise exception 'Invalid dimensions' using errcode = '22023';
   end if;
-  if size is not null and size not in ('small', 'medium', 'large', 'xlarge') then raise exception 'Invalid size' using errcode = '22023'; end if;
+  if size is not null and size not in ('small', 'medium', 'large', 'xlarge') then raise exception 'Invalid size class' using errcode = '22023'; end if;
   if char_length(coalesce(note, '')) > 1000 then raise exception 'Comment too long' using errcode = '22023'; end if;
 
   if nullif(item ->> 'room_id', '') is not null then
@@ -617,6 +618,64 @@ begin
   end if;
   update public.quote_requests set status = 'awaiting_customer' where id = req.id;
   return 'awaiting_customer';
+end;
+$$;
+
+-- Validation de l'inventaire (analyse ou saisie après échec de l'analyse) : jamais un inventaire vide.
+create or replace function public.validate_public_inventory(token text, decisions jsonb, acknowledgement text)
+returns text
+language plpgsql
+volatile
+security definer
+set search_path = ''
+as $$
+declare
+  req public.quote_requests := private.request_for_any_token(token);
+  item record;
+  decision text;
+  unit_volume numeric;
+begin
+  if req.status <> 'awaiting_customer' then
+    raise exception 'Inventory cannot be validated in this state' using errcode = '55000';
+  end if;
+  if not exists (select 1 from public.inventory_items i where i.request_id = req.id and not i.removed and i.merged_into_item_id is null) then
+    raise exception 'Inventory is empty' using errcode = '22023';
+  end if;
+  if acknowledgement is null or char_length(trim(acknowledgement)) < 20 or char_length(acknowledgement) > 2000 then
+    raise exception 'The warning must be acknowledged' using errcode = '22023';
+  end if;
+  if decisions is null or jsonb_typeof(decisions) <> 'object' then
+    raise exception 'Invalid decisions' using errcode = '22023';
+  end if;
+  -- Aucune réponse pour un objet qui n'est pas un doublon possible de cette demande.
+  if exists (select 1 from jsonb_object_keys(decisions) k
+              where not exists (select 1 from public.inventory_items i
+                                 where i.id::text = k and i.request_id = req.id and i.possible_duplicate
+                                   and not i.removed and i.mover_duplicate_decision is null)) then
+    raise exception 'Unknown item' using errcode = '22023';
+  end if;
+  for item in
+    select i.id, i.name, i.quantity, i.unit_volume_m3 from public.inventory_items i
+     where i.request_id = req.id and i.possible_duplicate and not i.removed
+       and i.mover_duplicate_decision is null and i.merged_into_item_id is null
+     for update
+  loop
+    decision := decisions ->> item.id::text;
+    if decision is null or decision not in ('distinct', 'same') then
+      raise exception 'Every item to check must be answered' using errcode = '22023';
+    end if;
+    update public.inventory_items set customer_duplicate_decision = decision, customer_decided_at = now() where id = item.id;
+    unit_volume := item.quantity * item.unit_volume_m3;
+    insert into public.inventory_item_changes (item_id, request_id, company_id, action, actor, changes, volume_before_m3, volume_after_m3)
+    values (item.id, req.id, req.company_id, 'customer_decision', 'customer',
+            jsonb_build_object('name', item.name, 'decision', decision),
+            unit_volume, case when decision = 'same' then 0 else unit_volume end);
+  end loop;
+  update public.quote_requests
+     set status = 'customer_validated', customer_validated_at = now(), customer_acknowledged_at = now(),
+         customer_acknowledgement = acknowledgement, verification_status = 'pending'
+   where id = req.id;
+  return 'validated';
 end;
 $$;
 

@@ -4,7 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { getDraft, getPublicCompany, type Draft, type PublicCompany } from "@/lib/public-request/service";
 import { isExpiredSession } from "@/lib/public-request/errors";
 import { readDraftToken } from "@/lib/public-request/session";
-import { stepHref } from "@/lib/public-request/steps";
+import { reachableStep, STEPS, stepHref } from "@/lib/public-request/steps";
 
 export type CustomerContext = { company: PublicCompany; token: string | null; draft: Draft | null; expired: boolean };
 
@@ -22,10 +22,15 @@ export const loadContext = cache(async (slug: string): Promise<CustomerContext> 
   }
 });
 
-/** Étapes 2 à 5 : exige un brouillon modifiable. */
-export async function requireDraft(slug: string) {
+/**
+ * Étapes 2 à 5 : exige un brouillon modifiable dont les étapes précédentes sont remplies
+ * (`step` = index de l'étape demandée) ; sinon, renvoie vers la première étape à compléter.
+ */
+export async function requireDraft(slug: string, step = 1) {
   const ctx = await loadContext(slug);
   if (!ctx.draft || !ctx.token) redirect(`${stepHref(slug, "trajet")}${ctx.expired ? "?session=expiree" : ""}`);
   if (ctx.draft.status !== "draft") redirect(stepHref(slug, "envoyee"));
-  return { ...ctx, draft: ctx.draft, token: ctx.token };
+  const reachable = reachableStep(ctx.draft);
+  if (reachable < step) redirect(stepHref(slug, STEPS[reachable].key, ctx.draft.inventory_method));
+  return { ...ctx, draft: ctx.draft, token: ctx.token, reachable };
 }
