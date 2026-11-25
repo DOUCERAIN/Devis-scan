@@ -24,7 +24,7 @@ CLASSES_ANCIEN = [
     ("ANC-TABLE", r"\b(?:table|tafel|tisch|tavolo|mesa|gueridon|console)\b"),
     ("ANC-BUREAU", r"\b(?:bureau|desk|secretaire|secretary|schreibtisch|schrijfbureau|scrittoio|escritorio|writing)\b"),
     ("ANC-LIT", r"\b(?:lit|bed|bett|letto|cama|daybed|cradle|berceau|wieg)\b"),
-    ("DIV-HORLOGE-COMTOISE", r"\b(?:longcase|grandfather clock|horloge comtoise|horloge de parquet|staande klok|standuhr)\b"),
+    ("DIV-HORLOGE-COMTOISE", r"\b(?:longcase|long case clock|tall[\s-]*case clock|grandfather clock|horloge comtoise|horloge de parquet|staande klok|standuhr|staand horloge)\b"),
     ("MUS-PIANO-DROIT", r"\b(?:upright piano|piano droit|pianino)\b"),
     ("MUS-PIANO-QUEUE", r"\b(?:grand piano|piano a queue|flugel|vleugel)\b"),
     ("ANC-AUTRE", r"\b(?:screen|paravent|kamerscherm|furniture|meuble|mobel|meubel|mobile|mueble|stand|etagere|shelf)\b"),
@@ -67,12 +67,22 @@ def lire_wikidata(dossier: str, date_collecte: str):
         texte = normaliser(" ".join(labels.get(l, "") for l in ("en", "fr", "nl", "de"))) + " | " + classes_txt
         if re.search(EXCLUS_WD, texte):
             continue
-        ancien = bool(e["collection"]) or any(t and t[:5].lstrip("+-").isdigit() and int(t[1:5]) < 1950 for t in e["inception"])
+        annees = [int(t[1:5]) for t in e["inception"] if t and len(t) >= 5 and t[1:5].isdigit()]
+        # Ancien : daté d'avant 1950, ou objet de collection non daté. Un objet de collection daté d'après 1950
+        # (mobilier de designer) est classé comme mobilier moderne.
+        ancien = (bool(annees) and min(annees) < 1950) or (bool(e["collection"]) and not annees)
         sc = None
         if ancien:
-            for sid, motif in CLASSES_ANCIEN:
-                if re.search(motif, classes_txt) or re.search(motif, texte):
-                    sc = PAR_ID[sid]
+            nom_txt = texte.split(" | ")[0]
+            # Le nom de l'objet (plus précis) passe avant sa classe générique.
+            for zone in (nom_txt, classes_txt):
+                for sid, motif in CLASSES_ANCIEN:
+                    if sid == "ANC-AUTRE" and zone is nom_txt:
+                        continue
+                    if re.search(motif, zone):
+                        sc = PAR_ID[sid]
+                        break
+                if sc:
                     break
         else:
             sc = classer(texte, None)

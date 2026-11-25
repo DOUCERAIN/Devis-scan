@@ -263,7 +263,8 @@ def statistiques(produits_sc):
         "volume_median_m3": round(med, 3), "volume_q1_m3": round(q1, 3), "volume_q3_m3": round(q3, 3),
         "volume_min_m3": round(min(vols), 3), "volume_max_m3": round(max(vols), 3),
         "dispersion": round((q3 - q1) / med, 2) if med else None,
-        "n_marques": len({norm_marque(p["marque"]) for p in ok}),
+        # Indépendance : la marque pour les produits du commerce ; chaque objet réel pour les collections (Wikidata).
+        "n_marques": len({norm_marque(p["marque"]) if "WIKIDATA" not in p["sources"] else p["id_produit"] for p in ok}),
     })
     return st
 

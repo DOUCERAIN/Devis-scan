@@ -1,13 +1,13 @@
 {
- "references_commerciales_collectees": 10512,
+ "references_commerciales_collectees": 11536,
  "observations_par_source": {
-  "WIKIDATA": 22,
-  "ABO": 10366,
+  "WIKIDATA": 1101,
+  "ABO": 10311,
   "ITEMFITS": 124
  },
- "produits_independants": 5645,
- "produits_independants_utilisables": 3084,
- "sources_documentaires_distinctes_url": 10424,
+ "produits_independants": 6701,
+ "produits_independants_utilisables": 3741,
+ "sources_documentaires_distinctes_url": 11448,
  "jeux_de_donnees": [
   "ABO",
   "ITEMFITS",
@@ -15,21 +15,21 @@
  ],
  "familles": 30,
  "sous_categories": 197,
- "variantes_de_taille": 93,
- "references_trois_dimensions": 9003,
- "references_utilisables_volume": 6550,
+ "variantes_de_taille": 111,
+ "references_trois_dimensions": 9763,
+ "references_utilisables_volume": 7186,
  "fiabilite_sous_categories": {
-  "faible": 45,
-  "moyenne": 54,
-  "non vérifiée": 72,
-  "élevée": 26
+  "faible": 42,
+  "moyenne": 63,
+  "non vérifiée": 63,
+  "élevée": 29
  },
- "anciennes_references_ameliorees": 30,
+ "anciennes_references_ameliorees": 33,
  "anciennes_references_total": 134,
  "correspondance_statuts": {
-  "documentée (fiabilité équivalente)": 55,
-  "non améliorée (aucun modèle documenté)": 49,
-  "améliorée": 30
+  "documentée (fiabilité équivalente)": 54,
+  "non améliorée (aucun modèle documenté)": 47,
+  "améliorée": 33
  },
- "wikidata_sans_libelle": 3122
+ "wikidata_sans_libelle": 0
 }

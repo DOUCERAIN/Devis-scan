@@ -21,8 +21,8 @@ Références normalisées (catalogue_devis_scan.csv / .json)  une sous-catégori
 ## 2. Classification
 
 - **Familles** (30) : `ARM` armoires, `CAN` canapés, `LIT` lits, `ELM` gros électroménager, `ANC` mobilier ancien, etc.
-- **Sous-catégories** (≈ 195) : une différence **physique** qui change le volume ou l'aspect (nombre de portes, de places, de tiroirs, taille de couchage, diagonale…). Une sous-catégorie « … (non précisé) » (`-NC`) accueille les produits dont la fiche ne dit pas la caractéristique discriminante : ils ne sont jamais rangés d'office dans une sous-catégorie précise.
-- **Variantes de taille** (`-C` compacte, `-S` standard, `-L` grande) : créées automatiquement quand une sous-catégorie compte au moins 15 modèles et que Q3 dépasse 1,8 × Q1 ; chaque variante regroupe un tiers des modèles, avec ses propres statistiques. Exemple : `ARM-NC-C`, `ARM-NC-S`, `ARM-NC-L`.
+- **Sous-catégories** (197) : une différence **physique** qui change le volume ou l'aspect (nombre de portes, de places, de tiroirs, taille de couchage, diagonale…). Une sous-catégorie « … (non précisé) » (`-NC`) accueille les produits dont la fiche ne dit pas la caractéristique discriminante : ils ne sont jamais rangés d'office dans une sous-catégorie précise.
+- **Variantes de taille** (`-C` compacte, `-S` standard, `-L` grande) : créées automatiquement quand une sous-catégorie compte au moins 15 modèles et que Q3 dépasse 1,8 × Q1 ; chaque variante regroupe un tiers des modèles, avec ses propres statistiques (111 variantes à ce jour). Exemple : `ARM-NC-C`, `ARM-NC-S`, `ARM-NC-L`.
 - **Identifiants stables** : un identifiant publié ne change jamais. Une nouvelle distinction crée un nouvel identifiant (éventuellement avec `variante_de`).
 - Règles de reconnaissance : `scripts/catalogue_v2/taxonomie.py` (motifs multilingues, exclusions des housses et accessoires, types de produit autorisés, bornes de plausibilité).
 
