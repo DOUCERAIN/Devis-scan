@@ -32,7 +32,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/espace
   ]);
   const firstName = profile.data?.full_name?.split(" ")[0];
 
-  const toHandle = stats.byStatus.submitted + stats.byStatus.analyzing + stats.byStatus.to_review;
+  const toHandle = stats.byStatus.submitted + stats.byStatus.analyzing + stats.byStatus.awaiting_customer + stats.byStatus.customer_validated + stats.byStatus.to_review;
   const tiles = [
     { label: "À traiter", value: toHandle, hint: "nouvelles ou à vérifier", href: "/espace/demandes?filtre=a_traiter" },
     { label: "Devis envoyés", value: stats.byStatus.quote_sent, hint: "en attente de réponse", href: "/espace/demandes?filtre=envoyees" },

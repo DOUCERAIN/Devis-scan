@@ -16,7 +16,8 @@
     "db:types": "supabase gen types typescript --local --schema public > src/lib/supabase/database.types.ts",
     "test:integration": "node tests/integration/stockage.int.mjs",
     "test:media": "bash tests/e2e/generate-media.sh",
-    "test:e2e:client": "node tests/e2e/parcours-client.e2e.cjs"
+    "test:e2e:client": "node tests/e2e/parcours-client.e2e.cjs",
+    "test:e2e:verification": "node tests/e2e/verification.e2e.cjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "1.7.0",

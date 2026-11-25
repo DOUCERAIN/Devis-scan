@@ -37,6 +37,8 @@ Schéma PostgreSQL (Supabase), défini **uniquement** par les migrations de `sup
 | `video_frames` | Images extraites des vidéos | serveur uniquement |
 | `analysis_runs` | Analyses IA : statut, modèle, erreurs, réponse brute | serveur uniquement |
 | `inventory_items` | Inventaire : nom, quantité, volume, dimensions, source (ia / client / déménageur), confiance, doublon possible (compté « à vérifier ») et ses indices (`duplicate_reason`), validation humaine, retrait | membres |
+| `inventory_verifications` | Vérifications du déménageur : confirmation, ou correction (devis inchangé, nouvelle version, avenant), avec la raison, les corrections, le volume et le montant avant et après. Jamais modifiées | membres |
+| `customer_notifications` | E-mails préparés pour les clients ; statut « not_configured » tant qu'aucun service d'e-mail n'est branché (jamais présentés comme envoyés) | membres |
 | `inventory_item_frames` | Images où un élément a été repéré | serveur uniquement |
 | `quotes` | Devis (lignes, totaux HT/TVA/TTC, validité, PDF) — calcul en phase 4 | membres |
 | `request_events` | Historique automatique (création, changements de statut) + notes | automatique ; notes par les membres |

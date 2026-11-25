@@ -207,9 +207,15 @@ export type PublicQuote = {
   request: { reference: string; moving_date: string | null; alternative_moving_date: string | null; moving_date_flexible: boolean; customer: { full_name: string; email: string | null; phone: string | null } | null; origin: Record<string, unknown> | null; destination: Record<string, unknown> | null };
   inventory: { name: string; room: string; quantity: number; unit_volume_m3: number; bucket: string; level: string }[];
   assumptions: string[]; review_reasons?: string[]; changes: unknown; sent_at: string | null; accepted_at: string | null;
+  refused_at?: string | null; amends_quote_id?: string | null; supersedes_id?: string | null;
+};
+export type PublicCorrection = {
+  outcome: "corrected_same_terms" | "corrected_new_version" | "corrected_amendment"; reason: string | null;
+  changes: { kind: "added" | "removed" | "corrected"; label: string }[]; created_at: string;
+  volume_before_m3: number | null; volume_after_m3: number | null; total_before_cents: number | null; total_after_cents: number | null;
 };
 export type PublicQuoteView = {
-  status: string; submitted_at: string | null;
+  status: string; submitted_at: string | null; customer_validated_at?: string | null; corrections?: PublicCorrection[];
   analysis: { status: string; stage: string | null; rooms_total: number | null; rooms_done: number | null; simulated: boolean; error_code: string | null } | null;
   quotes: PublicQuote[];
 };
@@ -242,4 +248,38 @@ export async function setDraftOptions(token: string, options: { option_id: strin
 export async function getDraftOptions(token: string): Promise<{ option_id: string; quantity: number }[]> {
   const { data } = await anonClient().rpc("get_public_selected_options", { access_token: token });
   return Array.isArray(data) ? (data as { option_id: string; quantity: number }[]) : [];
+}
+
+export type PublicInventoryItem = {
+  id: string; name: string; room: string; room_position: number; quantity: number;
+  possible_duplicate: boolean; duplicate_reason: string | null;
+  duplicate_of: { id: string; name: string; room: string } | null;
+  customer_decision: "distinct" | "same" | null;
+  frames: string[]; duplicate_frames: string[];
+};
+export type PublicInventory = { status: string; customer_validated_at: string | null; items: PublicInventoryItem[] };
+
+/**
+ * Inventaire à valider par le client (jeton vérifié en base). Les images des éléments à vérifier sont
+ * servies par des liens temporaires (10 min) créés côté serveur : les chemins viennent de la fonction SQL,
+ * qui ne renvoie que les images de cette demande.
+ */
+export async function getPublicInventory(token: string): Promise<{ inventory: PublicInventory; imageUrls: Map<string, string> } | null> {
+  if (!/^[0-9a-f]{64}$/.test(token)) return null;
+  const { data, error } = await anonClient().rpc("get_public_inventory", { token });
+  if (error || !data) return null;
+  const inventory = data as unknown as PublicInventory;
+  const paths = [...new Set(inventory.items.filter((i) => i.possible_duplicate).flatMap((i) => [...i.frames, ...i.duplicate_frames]))];
+  const imageUrls = new Map<string, string>();
+  if (paths.length > 0) {
+    const { data: signed } = await adminClient().storage.from("request-media").createSignedUrls(paths, 10 * 60);
+    for (const s of signed ?? []) if (s.path && s.signedUrl && !s.error) imageUrls.set(s.path, s.signedUrl);
+  }
+  return { inventory, imageUrls };
+}
+
+/** Validation de l'inventaire par le client (toutes les réponses + avertissement accepté, contrôlés en base). */
+export async function validateInventory(token: string, decisions: Record<string, "distinct" | "same">, acknowledgement: string) {
+  const { error } = await anonClient().rpc("validate_public_inventory", { token, decisions: decisions as unknown as Json, acknowledgement });
+  if (error) throw error;
 }

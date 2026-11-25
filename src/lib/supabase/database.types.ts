@@ -73,6 +73,32 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"customer_notifications": {
+                  Row: {
+                    "body_text": string,"company_id": string,"created_at": string,"error": string | null,"id": string,"kind": string,"provider_message_id": string | null,"request_id": string,"sent_at": string | null,"status": string,"subject": string,"to_email": string | null,"verification_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "body_text": string,"company_id": string,"created_at"?: string,"error"?: string | null,"id"?: string,"kind": string,"provider_message_id"?: string | null,"request_id": string,"sent_at"?: string | null,"status"?: string,"subject": string,"to_email"?: string | null,"verification_id"?: string | null
+                  }
+                  Update: {
+                    "body_text"?: string,"company_id"?: string,"created_at"?: string,"error"?: string | null,"id"?: string,"kind"?: string,"provider_message_id"?: string | null,"request_id"?: string,"sent_at"?: string | null,"status"?: string,"subject"?: string,"to_email"?: string | null,"verification_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "customer_notifications_request_id_company_id_fkey"
+      columns: ["request_id","company_id"]
+isOneToOne: false
+      referencedRelation: "quote_requests"
+      referencedColumns: ["id","company_id"]
+    },{
+      foreignKeyName: "customer_notifications_verification_id_fkey"
+      columns: ["verification_id"]
+isOneToOne: false
+      referencedRelation: "inventory_verifications"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"customers": {
                   Row: {
                     "company_id": string,"created_at": string,"email": string | null,"full_name": string,"id": string,"phone": string | null,"updated_at": string
@@ -129,14 +155,14 @@ isOneToOne: false
                   ]
                 },"inventory_item_changes": {
                   Row: {
-                    "action": string,"changed_at": string,"changed_by": string | null,"changes": NonNullable<Json>,"company_id": string,"id": number,"item_id": string | null,"request_id": string,"volume_after_m3": number | null,"volume_before_m3": number | null
+                    "action": string,"actor": string,"changed_at": string,"changed_by": string | null,"changes": NonNullable<Json>,"company_id": string,"id": number,"item_id": string | null,"request_id": string,"volume_after_m3": number | null,"volume_before_m3": number | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "action": string,"changed_at"?: string,"changed_by"?: string | null,"changes"?: NonNullable<Json>,"company_id": string,"id"?: never,"item_id"?: string | null,"request_id": string,"volume_after_m3"?: number | null,"volume_before_m3"?: number | null
+                    "action": string,"actor"?: string,"changed_at"?: string,"changed_by"?: string | null,"changes"?: NonNullable<Json>,"company_id": string,"id"?: never,"item_id"?: string | null,"request_id": string,"volume_after_m3"?: number | null,"volume_before_m3"?: number | null
                   }
                   Update: {
-                    "action"?: string,"changed_at"?: string,"changed_by"?: string | null,"changes"?: NonNullable<Json>,"company_id"?: string,"id"?: never,"item_id"?: string | null,"request_id"?: string,"volume_after_m3"?: number | null,"volume_before_m3"?: number | null
+                    "action"?: string,"actor"?: string,"changed_at"?: string,"changed_by"?: string | null,"changes"?: NonNullable<Json>,"company_id"?: string,"id"?: never,"item_id"?: string | null,"request_id"?: string,"volume_after_m3"?: number | null,"volume_before_m3"?: number | null
                   }
                   Relationships: [
                     {
@@ -175,14 +201,14 @@ isOneToOne: false
                   ]
                 },"inventory_items": {
                   Row: {
-                    "ai_label": string | null,"ai_proposal": Json | null,"analysis_run_id": string | null,"catalog_key": string | null,"category": string | null,"company_id": string,"confidence": number | null,"created_at": string,"duplicate_of_item_id": string | null,"duplicate_reason": string | null,"geometric_volume_m3": number | null,"height_cm": number | null,"human_modified": boolean,"id": string,"is_fragile": boolean,"is_heavy": boolean,"length_cm": number | null,"merged_into_item_id": string | null,"name": string,"needs_disassembly": boolean,"notes": string | null,"possible_duplicate": boolean,"quantity": number,"removed": boolean,"request_id": string,"room_id": string | null,"source": Database["public"]['Enums']["item_source"],"unit_volume_m3": number,"unit_volume_max_m3": number | null,"unit_volume_min_m3": number | null,"updated_at": string,"validated_at": string | null,"validated_by": string | null,"validated_by_human": boolean,"visibility": string | null,"volume_source": string | null,"width_cm": number | null
+                    "ai_label": string | null,"ai_proposal": Json | null,"analysis_run_id": string | null,"catalog_key": string | null,"category": string | null,"company_id": string,"confidence": number | null,"created_at": string,"customer_decided_at": string | null,"customer_duplicate_decision": string | null,"duplicate_of_item_id": string | null,"duplicate_reason": string | null,"geometric_volume_m3": number | null,"height_cm": number | null,"human_modified": boolean,"id": string,"is_fragile": boolean,"is_heavy": boolean,"length_cm": number | null,"merged_into_item_id": string | null,"mover_decided_at": string | null,"mover_decided_by": string | null,"mover_duplicate_decision": string | null,"name": string,"needs_disassembly": boolean,"notes": string | null,"possible_duplicate": boolean,"quantity": number,"removed": boolean,"request_id": string,"room_id": string | null,"source": Database["public"]['Enums']["item_source"],"unit_volume_m3": number,"unit_volume_max_m3": number | null,"unit_volume_min_m3": number | null,"updated_at": string,"validated_at": string | null,"validated_by": string | null,"validated_by_human": boolean,"visibility": string | null,"volume_source": string | null,"width_cm": number | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "ai_label"?: string | null,"ai_proposal"?: Json | null,"analysis_run_id"?: string | null,"catalog_key"?: string | null,"category"?: string | null,"company_id": string,"confidence"?: number | null,"created_at"?: string,"duplicate_of_item_id"?: string | null,"duplicate_reason"?: string | null,"geometric_volume_m3"?: number | null,"height_cm"?: number | null,"human_modified"?: boolean,"id"?: string,"is_fragile"?: boolean,"is_heavy"?: boolean,"length_cm"?: number | null,"merged_into_item_id"?: string | null,"name": string,"needs_disassembly"?: boolean,"notes"?: string | null,"possible_duplicate"?: boolean,"quantity"?: number,"removed"?: boolean,"request_id": string,"room_id"?: string | null,"source": Database["public"]['Enums']["item_source"],"unit_volume_m3": number,"unit_volume_max_m3"?: number | null,"unit_volume_min_m3"?: number | null,"updated_at"?: string,"validated_at"?: string | null,"validated_by"?: string | null,"validated_by_human"?: boolean,"visibility"?: string | null,"volume_source"?: string | null,"width_cm"?: number | null
+                    "ai_label"?: string | null,"ai_proposal"?: Json | null,"analysis_run_id"?: string | null,"catalog_key"?: string | null,"category"?: string | null,"company_id": string,"confidence"?: number | null,"created_at"?: string,"customer_decided_at"?: string | null,"customer_duplicate_decision"?: string | null,"duplicate_of_item_id"?: string | null,"duplicate_reason"?: string | null,"geometric_volume_m3"?: number | null,"height_cm"?: number | null,"human_modified"?: boolean,"id"?: string,"is_fragile"?: boolean,"is_heavy"?: boolean,"length_cm"?: number | null,"merged_into_item_id"?: string | null,"mover_decided_at"?: string | null,"mover_decided_by"?: string | null,"mover_duplicate_decision"?: string | null,"name": string,"needs_disassembly"?: boolean,"notes"?: string | null,"possible_duplicate"?: boolean,"quantity"?: number,"removed"?: boolean,"request_id": string,"room_id"?: string | null,"source": Database["public"]['Enums']["item_source"],"unit_volume_m3": number,"unit_volume_max_m3"?: number | null,"unit_volume_min_m3"?: number | null,"updated_at"?: string,"validated_at"?: string | null,"validated_by"?: string | null,"validated_by_human"?: boolean,"visibility"?: string | null,"volume_source"?: string | null,"width_cm"?: number | null
                   }
                   Update: {
-                    "ai_label"?: string | null,"ai_proposal"?: Json | null,"analysis_run_id"?: string | null,"catalog_key"?: string | null,"category"?: string | null,"company_id"?: string,"confidence"?: number | null,"created_at"?: string,"duplicate_of_item_id"?: string | null,"duplicate_reason"?: string | null,"geometric_volume_m3"?: number | null,"height_cm"?: number | null,"human_modified"?: boolean,"id"?: string,"is_fragile"?: boolean,"is_heavy"?: boolean,"length_cm"?: number | null,"merged_into_item_id"?: string | null,"name"?: string,"needs_disassembly"?: boolean,"notes"?: string | null,"possible_duplicate"?: boolean,"quantity"?: number,"removed"?: boolean,"request_id"?: string,"room_id"?: string | null,"source"?: Database["public"]['Enums']["item_source"],"unit_volume_m3"?: number,"unit_volume_max_m3"?: number | null,"unit_volume_min_m3"?: number | null,"updated_at"?: string,"validated_at"?: string | null,"validated_by"?: string | null,"validated_by_human"?: boolean,"visibility"?: string | null,"volume_source"?: string | null,"width_cm"?: number | null
+                    "ai_label"?: string | null,"ai_proposal"?: Json | null,"analysis_run_id"?: string | null,"catalog_key"?: string | null,"category"?: string | null,"company_id"?: string,"confidence"?: number | null,"created_at"?: string,"customer_decided_at"?: string | null,"customer_duplicate_decision"?: string | null,"duplicate_of_item_id"?: string | null,"duplicate_reason"?: string | null,"geometric_volume_m3"?: number | null,"height_cm"?: number | null,"human_modified"?: boolean,"id"?: string,"is_fragile"?: boolean,"is_heavy"?: boolean,"length_cm"?: number | null,"merged_into_item_id"?: string | null,"mover_decided_at"?: string | null,"mover_decided_by"?: string | null,"mover_duplicate_decision"?: string | null,"name"?: string,"needs_disassembly"?: boolean,"notes"?: string | null,"possible_duplicate"?: boolean,"quantity"?: number,"removed"?: boolean,"request_id"?: string,"room_id"?: string | null,"source"?: Database["public"]['Enums']["item_source"],"unit_volume_m3"?: number,"unit_volume_max_m3"?: number | null,"unit_volume_min_m3"?: number | null,"updated_at"?: string,"validated_at"?: string | null,"validated_by"?: string | null,"validated_by_human"?: boolean,"visibility"?: string | null,"volume_source"?: string | null,"width_cm"?: number | null
                   }
                   Relationships: [
                     {
@@ -221,6 +247,38 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "rooms"
       referencedColumns: ["id","request_id"]
+    }
+                  ]
+                },"inventory_verifications": {
+                  Row: {
+                    "changes": NonNullable<Json>,"company_id": string,"created_at": string,"id": string,"outcome": string,"quote_after_id": string | null,"quote_before_id": string | null,"reason": string | null,"request_id": string,"total_after_cents": number | null,"total_before_cents": number | null,"verified_by": string | null,"volume_after_m3": number | null,"volume_before_m3": number | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "changes"?: NonNullable<Json>,"company_id": string,"created_at"?: string,"id"?: string,"outcome": string,"quote_after_id"?: string | null,"quote_before_id"?: string | null,"reason"?: string | null,"request_id": string,"total_after_cents"?: number | null,"total_before_cents"?: number | null,"verified_by"?: string | null,"volume_after_m3"?: number | null,"volume_before_m3"?: number | null
+                  }
+                  Update: {
+                    "changes"?: NonNullable<Json>,"company_id"?: string,"created_at"?: string,"id"?: string,"outcome"?: string,"quote_after_id"?: string | null,"quote_before_id"?: string | null,"reason"?: string | null,"request_id"?: string,"total_after_cents"?: number | null,"total_before_cents"?: number | null,"verified_by"?: string | null,"volume_after_m3"?: number | null,"volume_before_m3"?: number | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "inventory_verifications_quote_after_id_request_id_fkey"
+      columns: ["quote_after_id","request_id"]
+isOneToOne: false
+      referencedRelation: "quotes"
+      referencedColumns: ["id","request_id"]
+    },{
+      foreignKeyName: "inventory_verifications_quote_before_id_request_id_fkey"
+      columns: ["quote_before_id","request_id"]
+isOneToOne: false
+      referencedRelation: "quotes"
+      referencedColumns: ["id","request_id"]
+    },{
+      foreignKeyName: "inventory_verifications_request_id_company_id_fkey"
+      columns: ["request_id","company_id"]
+isOneToOne: false
+      referencedRelation: "quote_requests"
+      referencedColumns: ["id","company_id"]
     }
                   ]
                 },"pricing_item_surcharges": {
@@ -299,14 +357,14 @@ isOneToOne: true
                   ]
                 },"quote_requests": {
                   Row: {
-                    "access_token_expires_at": string | null,"access_token_hash": string | null,"alternative_moving_date": string | null,"company_id": string,"created_at": string,"customer_id": string | null,"customer_notes": string | null,"distance_km": number | null,"distance_method": string | null,"estimated_volume_m3": number | null,"id": string,"internal_notes": string | null,"moving_date": string | null,"moving_date_flexible": boolean,"request_number": number,"selected_options": NonNullable<Json>,"source": Database["public"]['Enums']["request_source"],"status": Database["public"]['Enums']["request_status"],"submitted_at": string | null,"updated_at": string,"view_token_hash": string | null
+                    "access_token_expires_at": string | null,"access_token_hash": string | null,"alternative_moving_date": string | null,"company_id": string,"created_at": string,"customer_acknowledged_at": string | null,"customer_acknowledgement": string | null,"customer_id": string | null,"customer_notes": string | null,"customer_validated_at": string | null,"distance_km": number | null,"distance_method": string | null,"estimated_volume_m3": number | null,"id": string,"internal_notes": string | null,"moving_date": string | null,"moving_date_flexible": boolean,"request_number": number,"selected_options": NonNullable<Json>,"source": Database["public"]['Enums']["request_source"],"status": Database["public"]['Enums']["request_status"],"submitted_at": string | null,"updated_at": string,"verification_status": string,"verified_at": string | null,"verified_by": string | null,"view_token_hash": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "access_token_expires_at"?: string | null,"access_token_hash"?: string | null,"alternative_moving_date"?: string | null,"company_id": string,"created_at"?: string,"customer_id"?: string | null,"customer_notes"?: string | null,"distance_km"?: number | null,"distance_method"?: string | null,"estimated_volume_m3"?: number | null,"id"?: string,"internal_notes"?: string | null,"moving_date"?: string | null,"moving_date_flexible"?: boolean,"request_number": number,"selected_options"?: NonNullable<Json>,"source"?: Database["public"]['Enums']["request_source"],"status"?: Database["public"]['Enums']["request_status"],"submitted_at"?: string | null,"updated_at"?: string,"view_token_hash"?: string | null
+                    "access_token_expires_at"?: string | null,"access_token_hash"?: string | null,"alternative_moving_date"?: string | null,"company_id": string,"created_at"?: string,"customer_acknowledged_at"?: string | null,"customer_acknowledgement"?: string | null,"customer_id"?: string | null,"customer_notes"?: string | null,"customer_validated_at"?: string | null,"distance_km"?: number | null,"distance_method"?: string | null,"estimated_volume_m3"?: number | null,"id"?: string,"internal_notes"?: string | null,"moving_date"?: string | null,"moving_date_flexible"?: boolean,"request_number": number,"selected_options"?: NonNullable<Json>,"source"?: Database["public"]['Enums']["request_source"],"status"?: Database["public"]['Enums']["request_status"],"submitted_at"?: string | null,"updated_at"?: string,"verification_status"?: string,"verified_at"?: string | null,"verified_by"?: string | null,"view_token_hash"?: string | null
                   }
                   Update: {
-                    "access_token_expires_at"?: string | null,"access_token_hash"?: string | null,"alternative_moving_date"?: string | null,"company_id"?: string,"created_at"?: string,"customer_id"?: string | null,"customer_notes"?: string | null,"distance_km"?: number | null,"distance_method"?: string | null,"estimated_volume_m3"?: number | null,"id"?: string,"internal_notes"?: string | null,"moving_date"?: string | null,"moving_date_flexible"?: boolean,"request_number"?: number,"selected_options"?: NonNullable<Json>,"source"?: Database["public"]['Enums']["request_source"],"status"?: Database["public"]['Enums']["request_status"],"submitted_at"?: string | null,"updated_at"?: string,"view_token_hash"?: string | null
+                    "access_token_expires_at"?: string | null,"access_token_hash"?: string | null,"alternative_moving_date"?: string | null,"company_id"?: string,"created_at"?: string,"customer_acknowledged_at"?: string | null,"customer_acknowledgement"?: string | null,"customer_id"?: string | null,"customer_notes"?: string | null,"customer_validated_at"?: string | null,"distance_km"?: number | null,"distance_method"?: string | null,"estimated_volume_m3"?: number | null,"id"?: string,"internal_notes"?: string | null,"moving_date"?: string | null,"moving_date_flexible"?: boolean,"request_number"?: number,"selected_options"?: NonNullable<Json>,"source"?: Database["public"]['Enums']["request_source"],"status"?: Database["public"]['Enums']["request_status"],"submitted_at"?: string | null,"updated_at"?: string,"verification_status"?: string,"verified_at"?: string | null,"verified_by"?: string | null,"view_token_hash"?: string | null
                   }
                   Relationships: [
                     {
@@ -325,17 +383,23 @@ isOneToOne: false
                   ]
                 },"quotes": {
                   Row: {
-                    "accepted_at": string | null,"assumptions": NonNullable<Json>,"changes_summary": Json | null,"company_id": string,"company_snapshot": Json | null,"created_at": string,"created_by": string | null,"currency": string,"distance_km": number | null,"distance_method": string | null,"id": string,"inventory_snapshot": Json | null,"kind": string,"lines": NonNullable<Json>,"origin": string,"pdf_path": string | null,"pricing_snapshot": Json | null,"refused_at": string | null,"request_id": string,"request_snapshot": Json | null,"review_reasons": NonNullable<Json>,"sent_at": string | null,"status": Database["public"]['Enums']["quote_status"],"supersedes_id": string | null,"total_ht": number | null,"total_ht_cents": number | null,"total_ttc": number | null,"total_ttc_cents": number | null,"updated_at": string,"valid_until": string | null,"vat_amount": number | null,"vat_cents": number | null,"vat_rate": number | null,"version": number,"volume_snapshot": Json | null
+                    "accepted_at": string | null,"amends_quote_id": string | null,"assumptions": NonNullable<Json>,"changes_summary": Json | null,"company_id": string,"company_snapshot": Json | null,"created_at": string,"created_by": string | null,"currency": string,"distance_km": number | null,"distance_method": string | null,"id": string,"inventory_snapshot": Json | null,"kind": string,"lines": NonNullable<Json>,"origin": string,"pdf_path": string | null,"pricing_snapshot": Json | null,"refused_at": string | null,"request_id": string,"request_snapshot": Json | null,"review_reasons": NonNullable<Json>,"sent_at": string | null,"status": Database["public"]['Enums']["quote_status"],"supersedes_id": string | null,"total_ht": number | null,"total_ht_cents": number | null,"total_ttc": number | null,"total_ttc_cents": number | null,"updated_at": string,"valid_until": string | null,"vat_amount": number | null,"vat_cents": number | null,"vat_rate": number | null,"version": number,"volume_snapshot": Json | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "accepted_at"?: string | null,"assumptions"?: NonNullable<Json>,"changes_summary"?: Json | null,"company_id": string,"company_snapshot"?: Json | null,"created_at"?: string,"created_by"?: string | null,"currency"?: string,"distance_km"?: number | null,"distance_method"?: string | null,"id"?: string,"inventory_snapshot"?: Json | null,"kind"?: string,"lines"?: NonNullable<Json>,"origin"?: string,"pdf_path"?: string | null,"pricing_snapshot"?: Json | null,"refused_at"?: string | null,"request_id": string,"request_snapshot"?: Json | null,"review_reasons"?: NonNullable<Json>,"sent_at"?: string | null,"status"?: Database["public"]['Enums']["quote_status"],"supersedes_id"?: string | null,"total_ht"?: number | null,"total_ht_cents"?: number | null,"total_ttc"?: number | null,"total_ttc_cents"?: number | null,"updated_at"?: string,"valid_until"?: string | null,"vat_amount"?: number | null,"vat_cents"?: number | null,"vat_rate"?: number | null,"version"?: number,"volume_snapshot"?: Json | null
+                    "accepted_at"?: string | null,"amends_quote_id"?: string | null,"assumptions"?: NonNullable<Json>,"changes_summary"?: Json | null,"company_id": string,"company_snapshot"?: Json | null,"created_at"?: string,"created_by"?: string | null,"currency"?: string,"distance_km"?: number | null,"distance_method"?: string | null,"id"?: string,"inventory_snapshot"?: Json | null,"kind"?: string,"lines"?: NonNullable<Json>,"origin"?: string,"pdf_path"?: string | null,"pricing_snapshot"?: Json | null,"refused_at"?: string | null,"request_id": string,"request_snapshot"?: Json | null,"review_reasons"?: NonNullable<Json>,"sent_at"?: string | null,"status"?: Database["public"]['Enums']["quote_status"],"supersedes_id"?: string | null,"total_ht"?: number | null,"total_ht_cents"?: number | null,"total_ttc"?: number | null,"total_ttc_cents"?: number | null,"updated_at"?: string,"valid_until"?: string | null,"vat_amount"?: number | null,"vat_cents"?: number | null,"vat_rate"?: number | null,"version"?: number,"volume_snapshot"?: Json | null
                   }
                   Update: {
-                    "accepted_at"?: string | null,"assumptions"?: NonNullable<Json>,"changes_summary"?: Json | null,"company_id"?: string,"company_snapshot"?: Json | null,"created_at"?: string,"created_by"?: string | null,"currency"?: string,"distance_km"?: number | null,"distance_method"?: string | null,"id"?: string,"inventory_snapshot"?: Json | null,"kind"?: string,"lines"?: NonNullable<Json>,"origin"?: string,"pdf_path"?: string | null,"pricing_snapshot"?: Json | null,"refused_at"?: string | null,"request_id"?: string,"request_snapshot"?: Json | null,"review_reasons"?: NonNullable<Json>,"sent_at"?: string | null,"status"?: Database["public"]['Enums']["quote_status"],"supersedes_id"?: string | null,"total_ht"?: number | null,"total_ht_cents"?: number | null,"total_ttc"?: number | null,"total_ttc_cents"?: number | null,"updated_at"?: string,"valid_until"?: string | null,"vat_amount"?: number | null,"vat_cents"?: number | null,"vat_rate"?: number | null,"version"?: number,"volume_snapshot"?: Json | null
+                    "accepted_at"?: string | null,"amends_quote_id"?: string | null,"assumptions"?: NonNullable<Json>,"changes_summary"?: Json | null,"company_id"?: string,"company_snapshot"?: Json | null,"created_at"?: string,"created_by"?: string | null,"currency"?: string,"distance_km"?: number | null,"distance_method"?: string | null,"id"?: string,"inventory_snapshot"?: Json | null,"kind"?: string,"lines"?: NonNullable<Json>,"origin"?: string,"pdf_path"?: string | null,"pricing_snapshot"?: Json | null,"refused_at"?: string | null,"request_id"?: string,"request_snapshot"?: Json | null,"review_reasons"?: NonNullable<Json>,"sent_at"?: string | null,"status"?: Database["public"]['Enums']["quote_status"],"supersedes_id"?: string | null,"total_ht"?: number | null,"total_ht_cents"?: number | null,"total_ttc"?: number | null,"total_ttc_cents"?: number | null,"updated_at"?: string,"valid_until"?: string | null,"vat_amount"?: number | null,"vat_cents"?: number | null,"vat_rate"?: number | null,"version"?: number,"volume_snapshot"?: Json | null
                   }
                   Relationships: [
                     {
+      foreignKeyName: "quotes_amends_fk"
+      columns: ["amends_quote_id","request_id"]
+isOneToOne: false
+      referencedRelation: "quotes"
+      referencedColumns: ["id","request_id"]
+    },{
       foreignKeyName: "quotes_request_id_company_id_fkey"
       columns: ["request_id","company_id"]
 isOneToOne: false
@@ -531,6 +595,9 @@ isOneToOne: false
               "description": string,"id": string,"name": string,"price": number,"pricing_mode": Database["public"]['Enums']["pricing_mode"]
             }[]
                            },
+"get_public_inventory":
+{ Args: { "token": string }; Returns: Json
+                           },
 "get_public_quote_view":
 { Args: { "token": string }; Returns: Json
                            },
@@ -568,10 +635,13 @@ isOneToOne: false
                            },
 "update_public_room":
 { Args: { "access_token": string,"room_description"?: string,"room_id": string,"room_kind"?: string,"room_name": string }; Returns: undefined
+                           },
+"validate_public_inventory":
+{ Args: { "acknowledgement": string,"decisions": Json,"token": string }; Returns: string
                            }
           }
           Enums: {
-            "analysis_status": "queued"|"running"|"succeeded"|"failed","dwelling_kind": "origin"|"destination","elevator_type": "none"|"small"|"standard"|"large","housing_type": "apartment"|"house"|"storage_unit"|"office"|"other","item_source": "ai"|"customer"|"mover","member_role": "owner"|"admin"|"member","pricing_mode": "fixed"|"per_m3"|"per_item","quote_status": "draft"|"sent"|"accepted"|"refused"|"expired"|"cancelled"|"generated"|"corrected"|"superseded","request_source": "customer_link"|"mover_manual","request_status": "draft"|"submitted"|"analyzing"|"to_review"|"quote_sent"|"accepted"|"refused"|"cancelled"|"archived","video_status": "awaiting_upload"|"uploaded"|"processing"|"ready"|"failed"|"deleted"
+            "analysis_status": "queued"|"running"|"succeeded"|"failed","dwelling_kind": "origin"|"destination","elevator_type": "none"|"small"|"standard"|"large","housing_type": "apartment"|"house"|"storage_unit"|"office"|"other","item_source": "ai"|"customer"|"mover","member_role": "owner"|"admin"|"member","pricing_mode": "fixed"|"per_m3"|"per_item","quote_status": "draft"|"sent"|"accepted"|"refused"|"expired"|"cancelled"|"generated"|"corrected"|"superseded","request_source": "customer_link"|"mover_manual","request_status": "draft"|"submitted"|"analyzing"|"awaiting_customer"|"customer_validated"|"to_review"|"quote_sent"|"accepted"|"refused"|"cancelled"|"archived","video_status": "awaiting_upload"|"uploaded"|"processing"|"ready"|"failed"|"deleted"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -687,7 +757,7 @@ export type CompositeTypes<
 export const Constants = {
   "public": {
           Enums: {
-            "analysis_status": ["queued", "running", "succeeded", "failed"],"dwelling_kind": ["origin", "destination"],"elevator_type": ["none", "small", "standard", "large"],"housing_type": ["apartment", "house", "storage_unit", "office", "other"],"item_source": ["ai", "customer", "mover"],"member_role": ["owner", "admin", "member"],"pricing_mode": ["fixed", "per_m3", "per_item"],"quote_status": ["draft", "sent", "accepted", "refused", "expired", "cancelled", "generated", "corrected", "superseded"],"request_source": ["customer_link", "mover_manual"],"request_status": ["draft", "submitted", "analyzing", "to_review", "quote_sent", "accepted", "refused", "cancelled", "archived"],"video_status": ["awaiting_upload", "uploaded", "processing", "ready", "failed", "deleted"]
+            "analysis_status": ["queued", "running", "succeeded", "failed"],"dwelling_kind": ["origin", "destination"],"elevator_type": ["none", "small", "standard", "large"],"housing_type": ["apartment", "house", "storage_unit", "office", "other"],"item_source": ["ai", "customer", "mover"],"member_role": ["owner", "admin", "member"],"pricing_mode": ["fixed", "per_m3", "per_item"],"quote_status": ["draft", "sent", "accepted", "refused", "expired", "cancelled", "generated", "corrected", "superseded"],"request_source": ["customer_link", "mover_manual"],"request_status": ["draft", "submitted", "analyzing", "awaiting_customer", "customer_validated", "to_review", "quote_sent", "accepted", "refused", "cancelled", "archived"],"video_status": ["awaiting_upload", "uploaded", "processing", "ready", "failed", "deleted"]
           }
         }
 } as const

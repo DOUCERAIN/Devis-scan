@@ -2,7 +2,7 @@ import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import { dbErrorMessage } from "@/lib/errors";
 import { STATUS_FILTERS, type RequestStatus, type StatusFilter } from "@/lib/requests/status";
-import type { InventoryItem } from "@/lib/inventory/volume";
+import { effectiveDuplicateDecision, type InventoryItem } from "@/lib/inventory/volume";
 import type { Database } from "@/lib/supabase/database.types";
 
 /**
@@ -17,7 +17,7 @@ export type DwellingRow = Tables["dwellings"]["Row"];
 
 export class DataError extends Error {}
 
-const PENDING: RequestStatus[] = ["submitted", "analyzing", "to_review"];
+const PENDING: RequestStatus[] = ["submitted", "analyzing", "awaiting_customer", "customer_validated", "to_review"];
 
 export async function countPendingRequests(companyId: string): Promise<number> {
   const supabase = await createClient();
@@ -79,7 +79,7 @@ export async function dashboardStats(companyId: string): Promise<DashboardStats>
   const { data, error } = await supabase.from("quote_requests").select("status").eq("company_id", companyId).neq("status", "draft");
   if (error) throw new DataError(dbErrorMessage(error, "dashboardStats"));
   const byStatus = Object.fromEntries(
-    (["draft", "submitted", "analyzing", "to_review", "quote_sent", "accepted", "refused", "cancelled", "archived"] as const).map((s) => [s, 0]),
+    (["draft", "submitted", "analyzing", "awaiting_customer", "customer_validated", "to_review", "quote_sent", "accepted", "refused", "cancelled", "archived"] as const).map((s) => [s, 0]),
   ) as Record<RequestStatus, number>;
   for (const row of data ?? []) byStatus[row.status] += 1;
   return { total: data?.length ?? 0, byStatus };
@@ -118,6 +118,7 @@ export function toInventoryItems(rows: Tables["inventory_items"]["Row"][], roomN
     confidence: r.confidence === null ? undefined : Number(r.confidence),
     validatedByHuman: r.validated_by_human,
     possibleDuplicate: r.possible_duplicate,
+    duplicateDecision: effectiveDuplicateDecision(r.customer_duplicate_decision, r.mover_duplicate_decision),
     removed: r.removed,
   }));
 }

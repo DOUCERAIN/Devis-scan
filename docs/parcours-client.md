@@ -12,7 +12,7 @@ Le particulier ouvre le lien de son déménageur, `/d/<identifiant-de-l-entrepri
 | 3 | `/demande/pieces` | Pièces (raccourcis Salon, Cuisine…, nom libre, description) : ajout, modification, suppression |
 | 4 | `/demande/videos` | Une vidéo par pièce : tournage, revue, compression, images, envoi |
 | 5 | `/demande/recapitulatif` | Tout le dossier, liens « Modifier », pièces sans vidéo signalées, options proposées par l'entreprise, message final, envoi définitif |
-| — | `/devis/<jeton>` | Après l'envoi : lien secret de suivi (progression de l'analyse, estimation ou devis, PDF, acceptation) — voir `docs/devis.md` |
+| — | `/devis/<jeton>` | Après l'envoi : lien secret de suivi. On y trouve la progression de l'analyse, puis l'**inventaire à valider** (rubrique « Éléments à vérifier » avec une réponse obligatoire, avertissement à confirmer), puis le devis final (PDF, acceptation ou refus) et, s'il y en a, les nouvelles versions ou avenants avec leurs différences. Voir `docs/devis.md` |
 | — | `/demande/envoyee` | Confirmation (retour sur l'appareil après envoi) ; le dossier n'est plus modifiable |
 
 La barre de progression permet de revenir aux étapes déjà remplies ; chaque étape est enregistrée en base, rien n'est perdu en revenant en arrière.

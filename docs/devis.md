@@ -30,6 +30,42 @@ Chaque ligne est arrondie au centime (demi-centime vers le haut). La distance vi
 ### Grille non configurée
 La grille créée avec l'entreprise contient des valeurs d'exemple. Tant que l'entreprise ne l'a pas **enregistrée** (`pricing_settings.configured_at`), aucune estimation n'est présentée : le client est informé que son déménageur va compléter son tarif, et le déménageur voit une alerte sur la fiche et la page Tarifs.
 
+## Validation par le client, devis final et vérification (depuis le 26/11/2026)
+
+Parcours des demandes venues du lien client (`src/lib/quotes/customer-validation.ts`, `src/lib/quotes/verification.ts`) :
+
+1. **Analyse IA terminée** → la demande passe « Inventaire en attente de validation client » (`awaiting_customer`). Aucun prix n'est calculé à ce stade.
+2. **Validation par le client** (page de suivi `/d/<slug>/devis/<jeton>`) :
+   - il voit son inventaire par pièce ;
+   - les doublons possibles sont regroupés dans **« Éléments à vérifier »**, avec une explication en français simple et les images concernées ;
+   - pour chacun, il répond « C'est un autre meuble : garder les deux » ou « C'est le même meuble : ne le compter qu'une fois ». Une réponse est **obligatoire** pour chaque élément (contrôle dans le navigateur, sur le serveur et en base) ;
+   - il confirme l'avertissement de responsabilité. Son texte exact est enregistré (`customer_acknowledgement`), avec la date.
+3. **Devis final immédiat** : inventaire et volume recalculés avec ses réponses, prix calculé avec la grille de l'entreprise, version figée **transmise aussitôt** (`origin = customer_validation`). Le client peut le consulter, le télécharger en PDF, l'accepter ou le refuser **sans attendre** le déménageur.
+   - Seuls trois empêchements objectifs retardent ce devis : grille non enregistrée, identité légale incomplète, prix impossible à calculer. La demande passe alors « Inventaire validé par le client » et le déménageur est prévenu.
+4. **Vérification par le déménageur, en parallèle**. Son suivi est indépendant de celui du devis (`verification_status` : en attente → vérifié ou corrigé). Le dossier de vérification de la fiche réunit :
+   - les vidéos et les images ;
+   - l'inventaire initial (proposition de l'IA conservée) ;
+   - les doublons possibles et les réponses du client ;
+   - le volume ;
+   - le devis transmis et la réponse du client.
+5. **Le déménageur confirme** : aucun changement de volume ni de prix, aucune nouvelle version, aucune notification. Le dossier passe « Vérifié par le déménageur » et le client n'a plus rien à faire.
+6. **Le déménageur corrige** (ajout, retrait, quantité, décision sur un doublon) : chaque correction est journalisée avec son auteur, puis il indique la raison et enregistre. Le devis est recalculé et **comparé** à la version transmise (montant, détail des prix, volume facturé) :
+   - **conditions identiques** (cas C) : aucune nouvelle version, trace conservée, client informé sans nouvelle acceptation ;
+   - **devis pas encore accepté** (cas A) : nouvelle version transmise, qui remplace la précédente (conservée) ; le client l'accepte ou la refuse ;
+   - **devis déjà accepté** (cas B) : **avenant** (`quotes.amends_quote_id`) soumis à l'accord explicite du client. Le devis accepté reste **inchangé et en vigueur** ; un avenant refusé le laisse en vigueur. Un avenant n'est jamais accepté d'office (contrôle en base).
+
+   Le client voit les différences entre les deux versions, la raison et peut télécharger chaque version (`/pdf?version=N`).
+
+Les **réponses du client ne sont jamais écrasées** : elles sont stockées à part (`customer_duplicate_decision`) et ne peuvent plus changer, même par un membre de l'entreprise (déclencheur). La décision du déménageur est stockée à côté (`mover_duplicate_decision`) et prime pour le calcul.
+
+**E-mail au client après une correction** : il est préparé avec la vérification humaine, les meubles ajoutés, retirés ou corrigés, l'ancien et le nouveau volume, l'ancien et le nouveau montant, la raison et la suite à donner. **Aucun service d'e-mail n'est configuré à ce jour** : le message est conservé (`customer_notifications`, statut « not_configured ») et affiché au déménageur comme **non envoyé**. Rien n'est simulé. Le client voit néanmoins la modification sur sa page de suivi. Limite : seul le hachage du lien de suivi est en base, l'e-mail ne peut donc pas contenir ce lien.
+
+| Suivi du devis | Suivi de la vérification |
+| --- | --- |
+| Analyse IA terminée · Inventaire en attente de validation client · Inventaire validé par le client · Devis transmis au client · Devis accepté / refusé · Nouvelle version (ou avenant) transmise · Nouvelle version acceptée / refusée | Vérification humaine en attente · Vérifié par le déménageur · Inventaire corrigé par le déménageur |
+
+L'ancien réglage « Envoyer automatiquement un devis formel quand l'analyse est fiable » ne s'applique plus aux demandes du lien client. Il a été retiré de la page Entreprise ; la colonne `companies.auto_formal_quotes` est conservée sans être utilisée. Les demandes saisies à la main par le déménageur gardent le fonctionnement manuel : recalculer, puis valider et envoyer.
+
 ## Estimation ou devis
 
 ### Devis formel automatique (option de l'entreprise)
@@ -52,7 +88,11 @@ Chaque calcul crée une **nouvelle version** (`quotes.version`), avec ses instan
 | Accepté / Refusé / Expiré | réponse du client, ou date de validité dépassée |
 | Remplacé | `superseded` : version antérieure, conservée |
 
-Garanties en base : une version n'est **jamais modifiée** (déclencheur `freeze_quote`, motifs de validation compris), seul son statut évolue ; un devis accepté ne change plus de statut ; un devis n'est jamais supprimé ; **aucune nouvelle version ne peut être créée** pour une demande dont un devis est accepté (déclencheur `forbid_quote_after_acceptance`, en plus des contrôles de l'application).
+Garanties en base :
+- une version n'est **jamais modifiée** (déclencheur `freeze_quote`, motifs de validation et lien d'avenant compris), seul son statut évolue ;
+- un devis accepté ne change plus de statut ;
+- un devis n'est jamais supprimé ;
+- après une acceptation, **seul un avenant au dernier devis accepté** peut être créé, et jamais au statut accepté (déclencheur `forbid_quote_after_acceptance`, en plus des contrôles de l'application).
 
 ## Corrections de l'inventaire
 

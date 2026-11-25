@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { Check, CopyX, RotateCcw, Trash2 } from "lucide-react";
+import { Check, Copy, CopyX, RotateCcw, Trash2 } from "lucide-react";
 import { addInventoryItem, updateInventoryItem } from "./inventory-actions";
 import { idleState } from "@/lib/errors";
 import { TextField, SelectField } from "@/components/ui/Field";
@@ -27,6 +27,10 @@ export type EditableItem = {
   validatedByHuman: boolean;
   possibleDuplicate: boolean;
   duplicateReason: string | null;
+  /** Réponse du client (jamais modifiée) et décision du déménageur (prime pour le calcul). */
+  customerDecision: "distinct" | "same" | null;
+  moverDecision: "distinct" | "same" | null;
+  duplicateDecision: "distinct" | "same" | null;
   removed: boolean;
   volumeSource: string | null;
   isHeavy: boolean;
@@ -41,7 +45,7 @@ function ItemRow({ item, requestId, rooms }: { item: EditableItem; requestId: st
   const level = item.confidence === undefined ? null : confidenceLevel(item.confidence);
   const stripe = item.removed
     ? ""
-    : item.possibleDuplicate && !item.validatedByHuman
+    : item.possibleDuplicate && !item.validatedByHuman && item.duplicateDecision === null
       ? "border-l-duplicate"
       : item.validatedByHuman || item.source === "manual"
         ? "border-l-success"
@@ -76,7 +80,7 @@ function ItemRow({ item, requestId, rooms }: { item: EditableItem; requestId: st
             <ConfidenceBadge audience="pro" score={item.confidence ?? 0} possibleDuplicate={item.possibleDuplicate} />
           )}
           <span className="w-20 text-right text-sm tabular-nums">
-            {item.removed || bucket === "potential" ? <span className="text-ink-muted">non compté</span> : formatVolume(item.quantity * item.unitVolumeM3)}
+            {item.removed || bucket === "potential" || item.duplicateDecision === "same" ? <span className="text-ink-muted">non compté</span> : formatVolume(item.quantity * item.unitVolumeM3)}
           </span>
         </summary>
         <form action={action} className="flex flex-col gap-3 border-t border-border px-3 py-3">
@@ -84,9 +88,14 @@ function ItemRow({ item, requestId, rooms }: { item: EditableItem; requestId: st
           <input type="hidden" name="request_id" value={requestId} />
           {item.aiLabel && item.aiLabel !== item.name ? <p className="text-xs text-ink-muted">Proposition de l&apos;IA : « {item.aiLabel} »</p> : null}
           {item.possibleDuplicate && !item.removed ? (
-            <p className="rounded-md bg-duplicate-soft px-3 py-2 text-xs text-ink">
-              <strong>Doublon possible, compté en attendant votre décision.</strong> {item.duplicateReason ?? "Peut-être le même meuble qu'un autre élément de l'inventaire."} Comparez les images : s&apos;il s&apos;agit du même meuble, retirez cet élément ; sinon, indiquez « Pas un doublon ».
-            </p>
+            <div className="flex flex-col gap-1 rounded-md bg-duplicate-soft px-3 py-2 text-xs text-ink" data-testid="duplicate-box">
+              <p><strong>Doublon possible.</strong> {item.duplicateReason ?? "Peut-être le même meuble qu'un autre élément de l'inventaire."}</p>
+              <p>
+                Réponse du client :{" "}
+                <strong>{item.customerDecision === "same" ? "le même meuble (compté une fois)" : item.customerDecision === "distinct" ? "un autre meuble (gardé)" : "pas encore de réponse"}</strong>
+                {item.moverDecision ? <> · votre décision : <strong>{item.moverDecision === "same" ? "le même meuble" : "un autre meuble"}</strong>{item.customerDecision && item.moverDecision !== item.customerDecision ? " (correction de la réponse du client, qui reste enregistrée)" : ""}</> : null}
+              </p>
+            </div>
           ) : null}
           {item.frames > 0 ? <p className="text-xs text-ink-muted">Repéré sur {item.frames} image{item.frames > 1 ? "s" : ""} (voir les vidéos ci-dessous).</p> : null}
           <div className="grid gap-3 sm:grid-cols-[2fr_1fr_1fr]">
@@ -104,9 +113,14 @@ function ItemRow({ item, requestId, rooms }: { item: EditableItem; requestId: st
               </SubmitButton>
             ) : null}
             {item.possibleDuplicate && !item.removed ? (
-              <SubmitButton name="intent" value="not_duplicate" size="sm" variant="secondary" pendingLabel="…">
-                <CopyX aria-hidden className="size-4" /> Pas un doublon
-              </SubmitButton>
+              <>
+                <SubmitButton name="intent" value="not_duplicate" size="sm" variant="secondary" pendingLabel="…">
+                  <CopyX aria-hidden className="size-4" /> {item.customerDecision === "distinct" ? "Confirmer : un autre meuble" : "Un autre meuble (garder)"}
+                </SubmitButton>
+                <SubmitButton name="intent" value="same_object" size="sm" variant="secondary" pendingLabel="…">
+                  <Copy aria-hidden className="size-4" /> {item.customerDecision === "same" ? "Confirmer : le même meuble" : "Le même meuble (compter une fois)"}
+                </SubmitButton>
+              </>
             ) : null}
             {item.removed ? (
               <SubmitButton name="intent" value="restore" size="sm" variant="tertiary" pendingLabel="…">

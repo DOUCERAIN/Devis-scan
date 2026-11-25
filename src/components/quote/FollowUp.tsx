@@ -2,6 +2,11 @@ import { CheckCircle2, CircleDashed, Download, Loader2 } from "lucide-react";
 import type { PublicQuoteView } from "@/lib/public-request/service";
 import { Alert } from "@/components/ui/Alert";
 import { QuoteDocument, quoteKindLabel } from "./QuoteDocument";
+import { customerQuoteState } from "@/lib/quotes/customer-state";
+
+type VerificationSummary = { verification?: boolean; amendment?: boolean; reason?: string; differences?: string[]; previous_version?: number };
+const verificationOf = (changes: unknown): VerificationSummary | null =>
+  changes && typeof changes === "object" && (changes as VerificationSummary).verification ? (changes as VerificationSummary) : null;
 
 const STAGES = [
   { key: "rooms", label: "Analyse des pièces" },
@@ -22,7 +27,7 @@ export function analysisPending(view: PublicQuoteView): boolean {
 const STATUS_TEXT: Record<string, string> = {
   generated: "Estimation initiale",
   corrected: "Estimation mise à jour par votre déménageur",
-  sent: "Devis envoyé par votre déménageur, en attente de votre réponse",
+  sent: "Devis transmis par votre déménageur, en attente de votre réponse",
   accepted: "Devis accepté",
   refused: "Devis refusé",
   expired: "Devis expiré",
@@ -32,9 +37,17 @@ const STATUS_TEXT: Record<string, string> = {
  * Suivi côté particulier : progression réelle de l'analyse (étapes enregistrées en base),
  * puis estimation ou devis. Aucune étape n'est simulée à l'écran.
  */
-export function FollowUp({ view, companyName, pdfHref, respond }: { view: PublicQuoteView; companyName: string; pdfHref: string | null; respond?: (quoteId: string) => React.ReactNode }) {
+export function FollowUp({ view, companyName, pdfHref, respond, versionPdfHref }: {
+  view: PublicQuoteView; companyName: string; pdfHref: string | null;
+  respond?: (quoteId: string, label?: string) => React.ReactNode; versionPdfHref?: (version: number) => string;
+}) {
   const a = view.analysis;
-  const current = view.quotes.find((q) => q.status !== "superseded") ?? null;
+  const state = customerQuoteState(view.quotes);
+  const current = state.current;
+  const pendingSummary = state.pending ? verificationOf(state.pending.changes) : null;
+  const isAmendment = Boolean(state.pending?.amends_quote_id && state.inForce);
+  // Correction sans changement de conditions : la plus récente, si aucune version plus récente ne l'a suivie.
+  const sameTerms = view.corrections?.[0]?.outcome === "corrected_same_terms" ? view.corrections[0] : null;
   const pending = analysisPending(view);
   const stageIndex = a ? ORDER.indexOf(a.status === "succeeded" ? "done" : (a.stage ?? "queued")) : 0;
 
@@ -84,14 +97,45 @@ export function FollowUp({ view, companyName, pdfHref, respond }: { view: Public
               </a>
             ) : null}
           </section>
-          {current.status === "sent" && respond ? respond(current.id) : null}
-          {current.status === "accepted" ? (
+          {isAmendment && state.inForce && state.pending ? (
+            <Alert tone="warning" title={`Avenant à votre devis accepté (version ${state.pending.version})`}>
+              <p>Votre devis accepté (version {state.inForce.version}) reste valable et inchangé. Après vérification de votre inventaire, {companyName} vous propose cet avenant : il ne s&apos;appliquera que si vous l&apos;acceptez.</p>
+              <Differences summary={pendingSummary} />
+              {versionPdfHref ? <a className="font-medium text-brand underline" href={versionPdfHref(state.inForce.version)}>Télécharger votre devis accepté (version {state.inForce.version})</a> : null}
+            </Alert>
+          ) : state.pending && pendingSummary ? (
+            <Alert tone="info" title={`Nouvelle version de votre devis (version ${state.pending.version})`}>
+              <p>{companyName} a vérifié votre inventaire. Cette version remplace la précédente{pendingSummary.previous_version ? ` (version ${pendingSummary.previous_version})` : ""}.</p>
+              <Differences summary={pendingSummary} />
+              {versionPdfHref && pendingSummary.previous_version ? <a className="font-medium text-brand underline" href={versionPdfHref(pendingSummary.previous_version)}>Télécharger la version précédente</a> : null}
+            </Alert>
+          ) : null}
+          {state.lastRefused?.amends_quote_id && state.inForce ? (
+            <Alert tone="info" title="Vous avez refusé l'avenant">
+              Votre devis accepté (version {state.inForce.version}) reste en vigueur. {companyName} reviendra vers vous si nécessaire.
+            </Alert>
+          ) : null}
+          {sameTerms && !state.pending ? (
+            <Alert tone="success" title="Votre inventaire a été vérifié">
+              <p>{companyName} a corrigé votre inventaire. Le montant et les conditions de votre devis sont inchangés : vous n&apos;avez rien à faire.</p>
+              {sameTerms.reason ? <p>Raison : {sameTerms.reason}</p> : null}
+              {sameTerms.changes.length ? <ul className="list-disc pl-5">{sameTerms.changes.map((c, i) => <li key={i}>{c.label}</li>)}</ul> : null}
+            </Alert>
+          ) : null}
+          {state.pending && respond
+            ? respond(state.pending.id, isAmendment ? "En acceptant, vous donnez votre accord sur cet avenant, qui remplacera votre devis accepté. En le refusant, votre devis accepté reste en vigueur." : undefined)
+            : null}
+          {current.status === "accepted" && !state.pending ? (
             <Alert tone="success" title="Vous avez accepté ce devis">
               {companyName} a été informé de votre accord{current.accepted_at ? ` (le ${new Date(current.accepted_at).toLocaleDateString("fr-FR")})` : ""}.
             </Alert>
           ) : null}
           <QuoteDocument quote={current} audience="customer" />
         </>
+      ) : view.status === "customer_validated" ? (
+        <Alert tone="info" title="Votre inventaire est validé">
+          {companyName} finalise votre devis. Vous le retrouverez sur cette page dès qu&apos;il sera prêt.
+        </Alert>
       ) : (
         <Alert tone="info" title="Votre demande est entre les mains de votre déménageur">
           {a?.status === "failed"
@@ -99,6 +143,21 @@ export function FollowUp({ view, companyName, pdfHref, respond }: { view: Public
             : `Votre inventaire est prêt. ${companyName} doit encore le vérifier et compléter son tarif avant de vous communiquer un prix : vous serez recontacté.`}
         </Alert>
       )}
+    </div>
+  );
+}
+
+function Differences({ summary }: { summary: VerificationSummary | null }) {
+  if (!summary) return null;
+  return (
+    <div className="mt-2 flex flex-col gap-1">
+      {summary.reason ? <p>Raison : {summary.reason}</p> : null}
+      {summary.differences?.length ? (
+        <>
+          <p className="font-medium">Différences avec la version précédente :</p>
+          <ul className="list-disc pl-5">{summary.differences.map((d, i) => <li key={i}>{d}</li>)}</ul>
+        </>
+      ) : null}
     </div>
   );
 }

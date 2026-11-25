@@ -31,6 +31,9 @@ export const SIMULATED_ROOMS: Record<string, DetectedObject[]> = {
     base({ label: "Table basse", catalog_id: "table-basse", confidence: 0.88 }),
     base({ label: "Meuble TV", catalog_id: "meuble-tv", confidence: 0.72, visibility: "partial" }),
     base({ label: "Lampe sur pied", catalog_id: "lampadaire", confidence: 0.45, visibility: "uncertain" }),
+    // Deux chaises jamais visibles ensemble : le post-traitement les signale « à vérifier » (doublon possible).
+    base({ label: "Chaise en bois", catalog_id: "chaise", confidence: 0.9, image_indexes: [0], location_in_room: "près de la fenêtre" }),
+    base({ label: "Chaise en bois", catalog_id: "chaise", confidence: 0.9, image_indexes: [2], location_in_room: "près de la porte" }),
   ],
   cuisine: [
     base({ label: "Réfrigérateur", catalog_id: "refrigerateur", confidence: 0.95 }),

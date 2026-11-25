@@ -31,7 +31,7 @@ export async function runRequestAnalysis(requestId: string): Promise<AnalysisOut
   const admin = createAdminClient();
   if (!admin) return { status: "skipped", reason: "SUPABASE_SECRET_KEY absente" };
 
-  const { data: request } = await admin.from("quote_requests").select("id, company_id, status").eq("id", requestId).single();
+  const { data: request } = await admin.from("quote_requests").select("id, company_id, status, source, view_token_hash").eq("id", requestId).single();
   if (!request) return { status: "skipped", reason: "demande introuvable" };
   if (request.status !== "submitted") return { status: "skipped", reason: `statut ${request.status}` };
 
@@ -187,28 +187,35 @@ export async function runRequestAnalysis(requestId: string): Promise<AnalysisOut
       if (links.length > 0) await admin.from("inventory_item_frames").insert(links);
     }
 
-    // Devis initial
-    await admin.from("analysis_runs").update({ stage: "pricing" }).eq("id", run.id);
-    const { count: declaredRooms } = await admin.from("rooms").select("id", { count: "exact", head: true }).eq("request_id", requestId);
-    const quote = await generateQuote(admin, requestId, {
-      origin: "automatic",
-      analysis: {
-        simulated: provider.simulated,
-        failedRooms: failures.length,
-        roomsWithoutImages: Math.max(0, (declaredRooms ?? 0) - roomsWithFrames.length),
-      },
-    });
-    await admin.from("analysis_runs").update({ stage: "quote" }).eq("id", run.id);
+    // Demande venue du lien client : le client vérifie et valide d'abord son inventaire (doublons possibles
+    // compris) ; le devis final est établi à sa validation (src/lib/quotes/customer-validation.ts).
+    const customerValidates = request.source === "customer_link" && request.view_token_hash !== null;
+    let quote: Awaited<ReturnType<typeof generateQuote>> | null = null;
+    if (!customerValidates) {
+      await admin.from("analysis_runs").update({ stage: "pricing" }).eq("id", run.id);
+      const { count: declaredRooms } = await admin.from("rooms").select("id", { count: "exact", head: true }).eq("request_id", requestId);
+      quote = await generateQuote(admin, requestId, {
+        origin: "automatic",
+        analysis: {
+          simulated: provider.simulated,
+          failedRooms: failures.length,
+          roomsWithoutImages: Math.max(0, (declaredRooms ?? 0) - roomsWithFrames.length),
+        },
+      });
+      await admin.from("analysis_runs").update({ stage: "quote" }).eq("id", run.id);
+    }
 
     await admin
       .from("analysis_runs")
       .update({ status: "succeeded", stage: "done", finished_at: new Date().toISOString(), error_message: failures.length ? failures.join(" ; ").slice(0, 2000) : null })
       .eq("id", run.id);
-    // Devis formel envoyé automatiquement : la demande est déjà « devis envoyé » ; sinon validation humaine.
-    if (!(quote.status === "created" && quote.formal)) {
+    if (customerValidates) {
+      await admin.from("quote_requests").update({ status: "awaiting_customer" }).eq("id", requestId);
+    } else if (!(quote?.status === "created" && quote.formal)) {
+      // Devis formel envoyé automatiquement : la demande est déjà « devis envoyé » ; sinon validation humaine.
       await admin.from("quote_requests").update({ status: "to_review" }).eq("id", requestId);
     }
-    return { status: "done", runId: run.id, quote: quote.status };
+    return { status: "done", runId: run.id, quote: quote?.status ?? "awaiting_customer" };
   } catch (error) {
     console.error("[analyse] échec", error);
     return await fail("internal_error", "Erreur interne pendant l'analyse.");

@@ -8,6 +8,7 @@ import { formToObject } from "@/lib/form-data";
 import { itemAddSchema, itemUpdateSchema } from "@/lib/validation/inventory";
 import { generateQuote, hasLegalIdentity } from "@/lib/quotes/generate";
 import type { Database, Json } from "@/lib/supabase/database.types";
+import { effectiveDuplicateDecision } from "@/lib/inventory/volume";
 
 /**
  * Corrections de l'inventaire par le déménageur. Chaque modification est journalisée
@@ -16,7 +17,9 @@ import type { Database, Json } from "@/lib/supabase/database.types";
  * Le devis n'est jamais modifié en silence : une nouvelle version est créée à la demande.
  */
 
-const lineVolume = (i: { quantity: number; unit_volume_m3: number | string; removed: boolean }) => (i.removed ? 0 : i.quantity * Number(i.unit_volume_m3));
+/** Volume compté d'une ligne : 0 si retirée ou déclarée « même meuble » (décision du déménageur, sinon du client). */
+const lineVolume = (i: { quantity: number; unit_volume_m3: number | string; removed: boolean; customer_duplicate_decision?: string | null; mover_duplicate_decision?: string | null }) =>
+  i.removed || effectiveDuplicateDecision(i.customer_duplicate_decision, i.mover_duplicate_decision) === "same" ? 0 : i.quantity * Number(i.unit_volume_m3);
 
 export async function updateInventoryItem(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const membership = await requireMembership();
@@ -30,7 +33,7 @@ export async function updateInventoryItem(_prev: ActionState, formData: FormData
   const supabase = await createClient();
   const { data: item } = await supabase
     .from("inventory_items")
-    .select("id, request_id, name, quantity, unit_volume_m3, room_id, removed, possible_duplicate, duplicate_reason, validated_by_human")
+    .select("id, request_id, name, quantity, unit_volume_m3, room_id, removed, possible_duplicate, duplicate_reason, validated_by_human, customer_duplicate_decision, mover_duplicate_decision")
     .eq("id", v.id)
     .eq("request_id", v.request_id)
     .eq("company_id", company.id)
@@ -38,7 +41,7 @@ export async function updateInventoryItem(_prev: ActionState, formData: FormData
   if (!item) return failure("Élément introuvable.");
 
   const patch: Database["public"]["Tables"]["inventory_items"]["Update"] = { human_modified: true };
-  let action: "update" | "remove" | "restore" | "confirm" = "update";
+  let action: "update" | "remove" | "restore" | "confirm" | "duplicate_decision" = "update";
   if (v.intent === "save") {
     Object.assign(patch, { name: v.name, quantity: v.quantity, unit_volume_m3: v.unit_volume_m3, room_id: v.room_id || null, validated_by_human: true, validated_by: user.id, validated_at: new Date().toISOString(), volume_source: "human" });
   } else if (v.intent === "confirm") {
@@ -51,10 +54,15 @@ export async function updateInventoryItem(_prev: ActionState, formData: FormData
     action = "restore";
     patch.removed = false;
   } else {
-    Object.assign(patch, { possible_duplicate: false, duplicate_of_item_id: null, duplicate_reason: null });
+    // Décision du déménageur sur un doublon possible : enregistrée à part. Le signalement d'origine et la
+    // réponse du client restent intacts (inventaire initial et décisions du client préservés).
+    const decision = v.intent === "same_object" ? "same" : "distinct";
+    Object.assign(patch, { mover_duplicate_decision: decision, mover_decided_at: new Date().toISOString(), mover_decided_by: user.id });
+    // Même avis que le client : simple confirmation, pas une modification de l'inventaire.
+    action = item.customer_duplicate_decision === decision ? "confirm" : "duplicate_decision";
   }
 
-  const before = { name: item.name, quantity: item.quantity, unit_volume_m3: Number(item.unit_volume_m3), room_id: item.room_id, removed: item.removed, possible_duplicate: item.possible_duplicate, duplicate_reason: item.duplicate_reason, validated_by_human: item.validated_by_human };
+  const before = { name: item.name, quantity: item.quantity, unit_volume_m3: Number(item.unit_volume_m3), room_id: item.room_id, removed: item.removed, possible_duplicate: item.possible_duplicate, duplicate_reason: item.duplicate_reason, validated_by_human: item.validated_by_human, mover_duplicate_decision: item.mover_duplicate_decision };
   const after = { ...before, ...Object.fromEntries(Object.entries(patch).filter(([k]) => k in before)) } as typeof before;
   const changes = Object.fromEntries(
     Object.keys(before)
@@ -69,10 +77,10 @@ export async function updateInventoryItem(_prev: ActionState, formData: FormData
     item_id: item.id,
     request_id: item.request_id,
     company_id: company.id,
-    action: v.intent === "not_duplicate" ? "update" : action,
-    changes: changes as unknown as Json[],
+    action,
+    changes: (action === "duplicate_decision" || action === "confirm" ? { ...changes, name: item.name, decision: after.mover_duplicate_decision ?? undefined } : changes) as unknown as Json[],
     volume_before_m3: lineVolume(item),
-    volume_after_m3: lineVolume({ quantity: after.quantity, unit_volume_m3: after.unit_volume_m3, removed: after.removed }),
+    volume_after_m3: lineVolume({ quantity: after.quantity, unit_volume_m3: after.unit_volume_m3, removed: after.removed, customer_duplicate_decision: item.customer_duplicate_decision, mover_duplicate_decision: after.mover_duplicate_decision }),
     changed_by: user.id,
   });
   revalidatePath(`/espace/demandes/${item.request_id}`);
@@ -151,7 +159,10 @@ export async function recalculateQuote(_prev: ActionState, formData: FormData): 
   const supabase = await createClient();
   const { data: request } = await supabase.from("quote_requests").select("id, status").eq("id", requestId).eq("company_id", company.id).maybeSingle();
   if (!request) return failure("Demande introuvable.");
-  if (request.status === "accepted") return failure("Le client a accepté un devis : il ne peut plus être remplacé. Contactez-le pour convenir d'un avenant.");
+  if (request.status === "accepted") return failure("Le client a accepté un devis : il ne peut plus être remplacé. Terminez la vérification avec vos corrections : un avenant lui sera proposé.");
+  // Un devis a déjà été transmis au client : toute modification passe par la vérification (traçabilité, information du client).
+  const { count: transmitted } = await supabase.from("quotes").select("id", { count: "exact", head: true }).eq("request_id", requestId).in("status", ["sent", "accepted", "refused", "expired"]);
+  if ((transmitted ?? 0) > 0) return failure("Un devis a déjà été transmis au client : enregistrez vos corrections avec « Terminer la vérification ».");
 
   if (send) {
     const { data: c } = await supabase.from("companies").select("legal_name, siret, address_line1, postal_code, city").eq("id", company.id).single();
@@ -180,6 +191,7 @@ export async function recalculateQuote(_prev: ActionState, formData: FormData): 
   if (outcome.status === "pricing_not_configured") return failure("Enregistrez d'abord votre grille tarifaire (page Tarifs).");
   if (outcome.status === "blocked") return failure(outcome.blockers.join(" "));
   if (outcome.status === "error") return failure(outcome.message);
+  if (outcome.status !== "created") return failure("Le devis n'a pas pu être enregistré.");
   revalidatePath("/espace", "layout");
   return success(send ? `Devis V${outcome.version} envoyé : le client le voit sur son lien de suivi.` : `Version ${outcome.version} calculée.`);
 }

@@ -1,17 +1,19 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json } from "@/lib/supabase/database.types";
-import { summarizeVolume, volumeBucket, type InventoryItem } from "@/lib/inventory/volume";
+import { effectiveDuplicateDecision, isExcluded, summarizeVolume, volumeBucket, type InventoryItem } from "@/lib/inventory/volume";
 import { confidenceLevel } from "@/lib/inventory/confidence";
 import { computePrice, type PricingResult, type SelectedOption } from "@/lib/pricing/engine";
 import { distanceBetween } from "@/lib/address/distance";
 import { requestReference } from "@/lib/requests/status";
 import { formalQuoteEligibility } from "@/lib/quotes/eligibility";
+import type { QuoteTerms } from "@/lib/quotes/compare";
 
 type Client = SupabaseClient<Database>;
 
 export type GenerateOutcome =
   | { status: "created"; quoteId: string; version: number; formal: boolean; reasons: string[] }
+  | { status: "draft"; terms: QuoteTerms; estimatedM3: number }
   | { status: "pricing_not_configured" }
   | { status: "blocked"; blockers: string[] }
   | { status: "error"; message: string };
@@ -29,18 +31,24 @@ export function hasLegalIdentity(c: { legal_name: string | null; siret: string |
  * - « automatic » : après l'analyse ; devis FORMEL envoyé automatiquement seulement si l'entreprise l'a activé
  *   et que toutes les conditions de fiabilité sont réunies (eligibility.ts), sinon ESTIMATION + motifs de validation.
  * - « correction » : après modification de l'inventaire ou des paramètres par le déménageur (statut corrected).
- * La version précédente (non acceptée) passe en « superseded » ; un devis accepté n'est jamais modifié.
+ * - « customer_validation » : devis final transmis dès que le client a validé son inventaire.
+ * - « verification » : nouvelle version ou avenant après la vérification du déménageur.
+ * La version précédente (non acceptée) passe en « superseded » ; un devis accepté n'est jamais modifié :
+ * après une acceptation, seul un AVENANT (amendsQuoteId = devis accepté) peut être proposé, jamais accepté d'office.
+ * dryRun : calcule le devis sans rien enregistrer (comparaison avec la version transmise).
  * Toutes les données utilisées sont figées dans des instantanés (grille, entreprise, demande, inventaire).
  */
 export async function generateQuote(
   supabase: Client,
   requestId: string,
   options: {
-    origin: "automatic" | "correction";
+    origin: "automatic" | "correction" | "customer_validation" | "verification";
     userId?: string | null;
     changesSummary?: Json | null;
     send?: boolean;
     analysis?: { simulated: boolean; failedRooms: number; roomsWithoutImages: number };
+    amendsQuoteId?: string | null;
+    dryRun?: boolean;
   },
 ): Promise<GenerateOutcome> {
   const { data: request, error } = await supabase
@@ -65,9 +73,9 @@ export async function generateQuote(
     supabase.from("rooms").select("id, name, position").eq("request_id", requestId).order("position"),
     supabase
       .from("inventory_items")
-      .select("id, room_id, name, catalog_key, quantity, unit_volume_m3, source, confidence, possible_duplicate, validated_by_human, removed, merged_into_item_id, is_heavy, volume_source, furniture_catalog(name)")
+      .select("id, room_id, name, catalog_key, quantity, unit_volume_m3, source, confidence, possible_duplicate, customer_duplicate_decision, mover_duplicate_decision, validated_by_human, removed, merged_into_item_id, is_heavy, volume_source, furniture_catalog(name)")
       .eq("request_id", requestId),
-    supabase.from("quotes").select("id, version, status").eq("request_id", requestId).order("version", { ascending: false }),
+    supabase.from("quotes").select("id, version, status, amends_quote_id").eq("request_id", requestId).order("version", { ascending: false }),
   ]);
   const company = companyRes.data;
   const settings = settingsRes.data;
@@ -93,7 +101,8 @@ export async function generateQuote(
 
   // Volume (règles validées : seuls confirmé + à vérifier sont comptés)
   const roomName = new Map((roomsRes.data ?? []).map((r) => [r.id, r.name]));
-  const dbItems = (itemsRes.data ?? []).filter((i) => !i.removed && !i.merged_into_item_id);
+  // Éléments retirés, fusionnés ou déclarés « même meuble » (client ou déménageur) : hors du devis.
+  const dbItems = (itemsRes.data ?? []).filter((i) => !i.removed && !i.merged_into_item_id && !isExcluded({ duplicateDecision: effectiveDuplicateDecision(i.customer_duplicate_decision, i.mover_duplicate_decision) }));
   const asVolumeItems: (InventoryItem & { heavy: boolean; catalogName: string | null; volumeSource: string | null })[] = dbItems.map((i) => ({
     id: i.id,
     name: i.name,
@@ -104,6 +113,7 @@ export async function generateQuote(
     confidence: i.confidence === null ? undefined : Number(i.confidence),
     validatedByHuman: i.validated_by_human,
     possibleDuplicate: i.possible_duplicate,
+    duplicateDecision: effectiveDuplicateDecision(i.customer_duplicate_decision, i.mover_duplicate_decision),
     heavy: i.is_heavy,
     catalogName: i.furniture_catalog?.name ?? null,
     volumeSource: i.volume_source,
@@ -140,8 +150,9 @@ export async function generateQuote(
   const heavyOf = (items: typeof asVolumeItems) => items.filter((i) => i.heavy).map((i) => ({ name: i.name, catalogName: i.catalogName, quantity: i.quantity }));
   const price: PricingResult = computePrice({ ...pricingInputBase, volumeM3: volume.estimatedM3, heavyItems: heavyOf(asVolumeItems.filter(counted)) });
   if (!price.ok) return { status: "blocked", blockers: price.blockers };
-  if ((quotesRes.data ?? []).some((q) => q.status === "accepted")) {
-    return { status: "blocked", blockers: ["Le client a accepté un devis : aucune nouvelle version ne peut le remplacer."] };
+  const lastAccepted = (quotesRes.data ?? []).find((q) => q.status === "accepted") ?? null;
+  if (lastAccepted && !options.dryRun && options.amendsQuoteId !== lastAccepted.id) {
+    return { status: "blocked", blockers: ["Le client a accepté un devis : il ne peut pas être remplacé, seul un avenant peut lui être proposé."] };
   }
   const upper = computePrice({ ...pricingInputBase, volumeM3: volume.maxM3, heavyItems: heavyOf(asVolumeItems) });
 
@@ -156,6 +167,13 @@ export async function generateQuote(
   if (unknownVolumeItems > 0) assumptions.push(`${unknownVolumeItems} objet${unknownVolumeItems > 1 ? "s" : ""} sans volume de référence, à évaluer par le déménageur.`);
 
   const previous = quotesRes.data ?? [];
+  if (options.dryRun) {
+    return {
+      status: "draft",
+      estimatedM3: volume.estimatedM3,
+      terms: { totalTtcCents: price.totalTtcCents, totalHtCents: price.totalHtCents, billableM3: price.billableVolumeM3, lines: price.lines },
+    };
+  }
   const eligibility = formalQuoteEligibility({
     autoFormalEnabled: options.origin === "automatic" ? company.auto_formal_quotes : true,
     legalIdentity: hasLegalIdentity(company),
@@ -188,6 +206,7 @@ export async function generateQuote(
       review_reasons: reviewReasons as unknown as Json[],
       origin: options.origin,
       supersedes_id: previous.find((q) => q.status !== "superseded")?.id ?? null,
+      amends_quote_id: options.amendsQuoteId ?? null,
       lines: price.lines as unknown as Json[],
       total_ht: price.totalHtCents / 100,
       vat_rate: price.vatRate,
@@ -242,6 +261,7 @@ export async function generateQuote(
   if (toSupersede.length > 0) await supabase.from("quotes").update({ status: "superseded" }).in("id", toSupersede);
   await supabase.from("quote_requests").update({ estimated_volume_m3: volume.estimatedM3 }).eq("id", requestId);
 
-  if (send) await supabase.from("quote_requests").update({ status: "quote_sent" }).eq("id", requestId);
+  // Un avenant laisse la demande « acceptée » : le devis accepté reste en vigueur tant que l'avenant n'est pas accepté.
+  if (send && !options.amendsQuoteId) await supabase.from("quote_requests").update({ status: "quote_sent" }).eq("id", requestId);
   return { status: "created", quoteId: inserted.id, version, formal: send, reasons: reviewReasons };
 }

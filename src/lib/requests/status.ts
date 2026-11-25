@@ -5,6 +5,8 @@ export const REQUEST_STATUSES = [
   "draft",
   "submitted",
   "analyzing",
+  "awaiting_customer",
+  "customer_validated",
   "to_review",
   "quote_sent",
   "accepted",
@@ -19,6 +21,8 @@ export const STATUS_META: Record<RequestStatus, { label: string; tone: BadgeTone
   draft: { label: "Brouillon", tone: "neutral", description: "Le client n'a pas encore envoyé sa demande." },
   submitted: { label: "Nouvelle", tone: "brand", description: "Demande reçue, à prendre en charge." },
   analyzing: { label: "Analyse en cours", tone: "neutral", description: "Les vidéos sont en cours d'analyse." },
+  awaiting_customer: { label: "Validation client", tone: "warning", description: "Analyse terminée : le client vérifie son inventaire avant de recevoir son devis." },
+  customer_validated: { label: "Inventaire validé", tone: "brand", description: "Le client a validé son inventaire ; le devis n'a pas pu être établi automatiquement (grille ou identité de l'entreprise à compléter)." },
   to_review: { label: "À vérifier", tone: "warning", description: "Inventaire prêt, à vérifier avant le devis." },
   quote_sent: { label: "Devis envoyé", tone: "neutral", description: "En attente de la réponse du client." },
   accepted: { label: "Acceptée", tone: "success", description: "Le client a accepté le devis." },
@@ -41,7 +45,7 @@ export const MANUAL_STATUSES: readonly RequestStatus[] = [
 /** Regroupements utilisés par les filtres de la liste des demandes. */
 export const STATUS_FILTERS = {
   toutes: { label: "Toutes", statuses: null },
-  a_traiter: { label: "À traiter", statuses: ["submitted", "analyzing", "to_review"] },
+  a_traiter: { label: "À traiter", statuses: ["submitted", "analyzing", "awaiting_customer", "customer_validated", "to_review"] },
   envoyees: { label: "Devis envoyés", statuses: ["quote_sent"] },
   terminees: { label: "Terminées", statuses: ["accepted", "refused", "cancelled", "archived"] },
 } as const satisfies Record<string, { label: string; statuses: readonly RequestStatus[] | null }>;

@@ -6,6 +6,8 @@ import { confidenceLevel, CONFIDENCE_THRESHOLDS } from "./confidence.ts";
  * - `source: "manual"` : ajouté par le particulier ou le déménageur.
  * `validatedByHuman` passe à vrai quand une personne confirme l'élément.
  * `possibleDuplicate` : peut-être le même objet physique qu'un autre élément (doute à trancher par une personne).
+ * `duplicateDecision` : réponse retenue pour ce doute (celle du déménageur si elle existe, sinon celle du client) :
+ *   « same » = le même meuble, déjà compté → cet élément n'est pas compté ; « distinct » = un autre meuble → compté.
  */
 export type InventoryItem = {
   id: string;
@@ -17,8 +19,22 @@ export type InventoryItem = {
   confidence?: number;
   validatedByHuman?: boolean;
   possibleDuplicate?: boolean;
+  duplicateDecision?: DuplicateDecision | null;
   removed?: boolean;
 };
+
+export type DuplicateDecision = "same" | "distinct";
+
+/** Décision retenue : le déménageur prime pour le calcul, sans effacer la réponse du client. */
+export function effectiveDuplicateDecision(customer: string | null | undefined, mover: string | null | undefined): DuplicateDecision | null {
+  const pick = mover ?? customer ?? null;
+  return pick === "same" || pick === "distinct" ? pick : null;
+}
+
+/** Élément exclu du calcul : retiré, ou déclaré « même meuble » qu'un élément déjà compté. */
+export function isExcluded(item: Pick<InventoryItem, "removed" | "duplicateDecision">): boolean {
+  return Boolean(item.removed) || item.duplicateDecision === "same";
+}
 
 /** Catégorie d'un élément pour le calcul du volume. */
 export type VolumeBucket = "confirmed" | "toVerify" | "potential";
@@ -37,7 +53,7 @@ export function volumeBucket(
 ): VolumeBucket {
   if (item.source === "manual" || item.validatedByHuman) return "confirmed";
   const level = confidenceLevel(item.confidence ?? 0, thresholds);
-  if (item.possibleDuplicate) return level === "uncertain" ? "potential" : "toVerify";
+  if (item.possibleDuplicate && item.duplicateDecision !== "distinct") return level === "uncertain" ? "potential" : "toVerify";
   if (level === "sure") return "confirmed";
   if (level === "verify") return "toVerify";
   return "potential";
@@ -75,14 +91,14 @@ export function summarizeVolume(
   let itemsToReview = 0;
 
   for (const item of items) {
-    if (item.removed) continue;
+    if (isExcluded(item)) continue;
     const quantity = Math.max(0, Math.floor(item.quantity));
     const unit = Math.max(0, item.unitVolumeM3);
     const volume = quantity * unit;
     if (quantity === 0) continue;
 
     const bucket = volumeBucket(item, thresholds);
-    if (bucket === "toVerify" && item.possibleDuplicate) duplicates += volume;
+    if (bucket === "toVerify" && item.possibleDuplicate && item.duplicateDecision !== "distinct") duplicates += volume;
     if (bucket === "confirmed") confirmed += volume;
     else {
       itemsToReview += 1;

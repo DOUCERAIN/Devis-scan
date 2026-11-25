@@ -11,7 +11,8 @@ export const volumeField = z
   .pipe(z.number({ error: "Le volume doit être un nombre." }).min(0, { error: "Le volume ne peut pas être négatif." }).max(100, { error: "Le volume ne doit pas dépasser 100 m³ par objet." }))
   .transform((n) => Math.round(n * 1000) / 1000);
 
-export const ITEM_ACTIONS = ["save", "confirm", "remove", "restore", "not_duplicate"] as const;
+/** not_duplicate / same_object : décision du déménageur sur un doublon possible (la réponse du client est conservée). */
+export const ITEM_ACTIONS = ["save", "confirm", "remove", "restore", "not_duplicate", "same_object"] as const;
 
 export const itemUpdateSchema = z
   .object({
@@ -38,3 +39,14 @@ export const itemAddSchema = z.object({
 });
 
 export type ItemUpdate = z.infer<typeof itemUpdateSchema>;
+
+export const verificationSchema = z
+  .object({
+    request_id: uuid,
+    intent: z.enum(["confirm", "correct"], { error: "Action inconnue." }),
+    reason: z.string().trim().max(1000, { error: "1 000 caractères au plus." }).optional(),
+  })
+  .refine((v) => v.intent !== "correct" || (v.reason !== undefined && v.reason.length >= 5), {
+    error: "Expliquez la raison de la modification (elle sera communiquée au client).",
+    path: ["reason"],
+  });

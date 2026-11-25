@@ -97,7 +97,11 @@ export function QuoteDocument({ quote, audience }: { quote: PublicQuote; audienc
         <p className="rounded-md border border-brand/30 bg-brand-soft p-3 text-sm">
           {quote.origin === "automatic"
             ? `Devis établi automatiquement selon les conditions de ${String(c.name)} : l'inventaire a été reconnu sans incertitude.`
-            : `Devis vérifié et envoyé par ${String(c.name)}.`}
+            : quote.origin === "customer_validation"
+              ? `Devis établi selon la grille de ${String(c.name)} à partir de l'inventaire que vous avez validé. Vous pouvez l'accepter dès maintenant ; ${String(c.name)} vérifie votre inventaire et vous informera de toute modification.`
+              : quote.origin === "verification"
+                ? `Devis établi par ${String(c.name)} après vérification de votre inventaire.`
+                : `Devis vérifié et envoyé par ${String(c.name)}.`}
           {quote.valid_until ? ` Valable jusqu'au ${formatDate(quote.valid_until)}.` : ""}
         </p>
       )}
