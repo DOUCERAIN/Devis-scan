@@ -45,3 +45,4 @@ next-env.d.ts
 
 # Vidéos de test générées
 /tests/e2e/media/
+__pycache__/
