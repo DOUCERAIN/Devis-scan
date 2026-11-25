@@ -1,0 +1,101 @@
+n	groupe	source	sous_categorie	nom	dimensions_v5_cm	dimensions_v4_cm	orientation	correction	volume_m3
+1	AMB	ABO	CAN-3P	Marque Amazon - Alkove Seulement Canapé 3 Places	98.0 × 201.0 × 83.0		ambiguë (hauteur intermédiaire dimension, alors que 88 % des		1.6349
+2	AMB	ENERGYSTAR	ELM-CUISINIERE	Bertazzoni PRO365INMXV PRO365INMXV (cuisinières électriques, Range)	81.3 × 91.4 × 68.6		ambiguë (hauteur intermédiaire dimension, alors que 92 % des		0.5098
+3	AMB	ABO	CAN-2P	Amazon Brand - Movian Lina - Divano a 2 posti e mezzo, 82 x 184 x 82 cm (Lu x La x A), colore rame, 	82.0 × 184.0 × 82.0	82.0 × 252.0 × 146.0	ambiguë (dimensions du nom sans lettres)	dimensions publiées remplacées par les trois dimensions anno	1.2372
+4	AMB	MET	ANC-FAUTEUIL	"LAR" Armchair	61.6 × 63.5 × 63.2		ambiguë (hauteur plus petite dimension, alors que 95 % des m		0.2472
+5	AMB	MET	DEC-LAMPE	"Patroclo" Lamp	39.5 × 49.0 × 29.0		ambiguë (hauteur intermédiaire dimension, alors que 81 % des		0.0561
+6	AMB	ABO	CAN-3P	Amazon Brand - Solimo Eric Fabric 3 seater Sofa (Light Grey)	81.0 × 185.0 × 76.0		ambiguë (hauteur intermédiaire dimension, alors que 88 % des		1.1389
+7	AMB	ABO	DEC-MIROIR-GRAND	Amazon Brand – Rivet Jonathan Mid-Century Modern Mirror Wood Frame, 52", Walnut	101.6 × 132.1 × 4.1		ambiguë (hauteur intermédiaire dimension, alors que 86 % des		0.055
+8	AMB	ABO	ARM-PORT	AmazonBasics Chrome Rail Clothes Garment Rack with Shoe Shelf on Wheels	180.0 × 189.0 × 56.0		ambiguë (hauteur intermédiaire dimension, alors que 88 % des		1.9051
+9	AMB	MET	ANC-FAUTEUIL	"31" Armchair	65.4 × 77.8 × 62.2		ambiguë (hauteur intermédiaire dimension, alors que 95 % des		0.3165
+10	AMB	ABO	POU-STD	Amazon Brand – Rivet Six-Sided Modern Ottoman, 19"W, Midnight	48.3 × 48.3 × 43.2		ambiguë (hauteur plus grande dimension, alors que 82 % des m		0.1008
+11	AMB	ABO	LIT-KING	Marchio Amazon - Movian, letto King-Size rialzabile con scomparto, modello Lahn, 174 x 94 x 221 cm, 	94.0 × 221.0 × 174.0	94.0 × 221.0 × 194.0	ambiguë (dimensions du nom sans lettres)	dimensions publiées remplacées par les trois dimensions anno	3.6147
+12	AMB	MOMA	DEC-LAMPE	On Off Table Lamp	19.0 × 34.6 × 20.3		ambiguë (hauteur plus petite dimension, alors que 81 % des m		0.0133
+13	AMB	ABO	LIT-TETE	Amazon Brand – Stone & Beam Avondale Nailhead Trim King Bed with Headboard, 79.5"W, Stone	132.1 × 218.4 × 201.9		ambiguë (hauteur plus petite dimension, alors que 87 % des m		5.8249
+14	AMB	ENERGYSTAR	ELM-CUISINIERE	Bertazzoni PRO365INMXE PRO365INMXE (cuisinières électriques, Range)	81.3 × 91.4 × 68.6		ambiguë (hauteur intermédiaire dimension, alors que 92 % des		0.5098
+15	AMB	ABO	BUR-ANGLE	Amazon Brand - Movian Salto - Corner Desk, 141.8 x 116.5 x 74 cm	74.0 × 141.8 × 116.5	74.0 × 141.8 × 55.0	ambiguë (dimensions du nom sans lettres)	dimensions publiées remplacées par les trois dimensions anno	1.2225
+16	AMB	ABO	POU-STD	Movian Up Round	45.0 × 36.0 × 36.0		ambiguë (hauteur plus grande dimension, alors que 82 % des m		0.0583
+17	AMB	MOMA	ANC-CANAPE	Settee	124.5 × 121.9 × 61.0		ambiguë (hauteur plus grande dimension, alors que 94 % des m		0.9258
+18	AMB	MOMA	DEC-LAMPE	'Psycho' Table Lamp	45.7 × 55.9 × 55.9		ambiguë (hauteur plus petite dimension, alors que 81 % des m		0.1428
+19	AMB	ABO	CHF-RADIATEUR	AmazonBasics Portable Space Heater 1500W, Wood Casing	38.2 × 39.9 × 32.2		ambiguë (hauteur intermédiaire dimension, alors que 95 % des		0.0491
+20	AMB	ABO	RAN-BUFFET	Marchio Amazon - Movian, credenza a 2 sportelli e 2 cassetti modello Lek, 100 x 119 x 40 cm, colore 	119.0 × 100.0 × 40.0		ambiguë (hauteur plus grande dimension, alors que 92 % des m		0.476
+21	AMB	ABO	TAB-4	Amazon Brand - Solimo Zen Solid Wood 4 Seater Dining Table with Bench (Wenge Finish)	73.6 × 114.3 × 71.1		ambiguë (hauteur intermédiaire dimension, alors que 80 % des		0.5981
+22	AMB	ABO	TAB-BASSE	Marca Amazon - Rivet - Mesa de centro redonda con estante, 50 x 50 x 55 cm, negro	55.0 × 50.0 × 50.0		ambiguë (hauteur plus grande dimension, alors que 94 % des m		0.1375
+23	AMB	WIKIDATA	ANC-AUTRE	Q27575800	83.0 × 115.5 × 85.0		ambiguë (hauteur plus petite dimension, alors que 85 % des m		0.8149
+24	AMB	ABO	DEC-MIROIR-GRAND	Amazon Basics Rectangular Wall Mirror 16" x 20" - Peaked Trim, Brass	55.2 × 63.5 × 31.4		ambiguë (hauteur intermédiaire dimension, alors que 86 % des		0.1101
+25	AMB	ABO	CAN-3P	Amazon Brand - Alkove Just 3 Seater Sofa Ash	98.0 × 201.0 × 83.0		ambiguë (hauteur intermédiaire dimension, alors que 88 % des		1.6349
+26	AMB	CMA	ANC-FAUTEUIL	Armchair	88.0 × 97.5 × 87.6		ambiguë (hauteur intermédiaire dimension, alors que 95 % des		0.7516
+27	AMB	ABO	CAN-3P	Amazon Brand - Solimo Elton Fabric 3 seater Sofa (Brown)	81.0 × 183.0 × 79.0		ambiguë (hauteur intermédiaire dimension, alors que 88 % des		1.171
+28	AMB	ABO	TAB-CONSOLE	Amazon Brand - Movian -Drawer Console Desk, 100 x 80 x 40 cm, High Gloss White	80.0 × 100.0 × 40.0	60.0 × 100.0 × 40.0	ambiguë (dimensions du nom sans lettres)	dimensions publiées remplacées par les trois dimensions anno	0.32
+29	AMB	WIKIDATA	ANC-AUTRE	Scenes of Fables	261.9 × 304.9 × 10.9		ambiguë (hauteur intermédiaire dimension, alors que 85 % des		0.8704
+30	AMB	ABO	LIT-TETE	Amazon Brand – Ravenna Home Wolcott Adjustable Height Arched Tufted Headboard, Full / Queen Size Bed	157.5 × 152.7 × 10.2		ambiguë (hauteur plus grande dimension, alors que 87 % des m		0.2453
+31	AMB	ABO	DEC-LAMPE	Amazon merk - Movian Lamp Table, Glass, White Marble Print, Base Gold Chrome	42.0 × 50.0 × 50.0		ambiguë (hauteur plus petite dimension, alors que 81 % des m		0.105
+32	AMB	ABO	CHF-PURIFICATEUR	AmazonBasics Dehumidifier with Drain Pump - For Areas Up to 4,000 Square Feet, 50-Pint, Energy Star 	28.2 × 61.6 × 39.2		ambiguë (hauteur plus petite dimension, alors que 84 % des m		0.0681
+33	AMB	SMITHSONIAN	ART-SOCLE	table-pedestal	58.4 × 61.0 × 61.0		ambiguë (hauteur plus petite dimension, alors que 83 % des m		0.2173
+34	AMB	ABO	ARM-PORT	Iris Ohyama 530478 Perchero/Espacio de almacenajecon Ganchos movibles para Accesorios de Metal y MDF	150.0 × 90.0 × 64.0	150.0 × 90.0 × 49.5	ambiguë (dimensions du nom sans lettres)	dimensions publiées remplacées par les trois dimensions anno	0.864
+35	AMB	SMITHSONIAN	MAC-ECRIRE	American Typewriter, Index Machine	18.7 × 27.9 × 10.8		ambiguë (hauteur intermédiaire dimension, alors que 93 % des		0.0056
+36	COR	ABO	DEC-TABLEAU	Amazon Brand – Stone & Beam Abstract Blue and Green Ocean Coastal Framed Print Wall Art Decor, 32"W 	43.2 × 81.3 × 3.8	3.8 × 81.3 × 43.2	corrigée (hauteur écrite dans le nom)	orientation corrigée : la profondeur publiée (43.2 cm) est l	0.0133
+37	COR	ABO	DEC-TABLEAU	Amazon Brand – Rivet Abstract Asian Influenced Grey and Black Print on Canvas Wall Art Decor, 36"W x	61.0 × 91.4 × 3.8	3.8 × 91.4 × 61.0	corrigée (hauteur écrite dans le nom)	orientation corrigée : la profondeur publiée (61.0 cm) est l	0.0212
+38	COR	ABO	ARM-2P	Marque Amazon - Movian - Armoire à 2 portes, 65 x 41 x 198 cm, Blanc	198.0 × 65.0 × 41.0	192.0 × 98.0 × 58.0	ambiguë (dimensions du nom sans lettres)	dimensions publiées remplacées par les trois dimensions anno	0.5277
+39	COR	ABO	TAB-BASSE	Amazon Brand - Movian Gauja - Mesa de centro, 50 x 50 x 45 cm (largo x ancho x alto), marrón	45.0 × 50.0 × 50.0	8.0 × 58.0 × 50.0	vérifiée (ordre des dimensions écrit dans le nom)	dimensions publiées remplacées par les trois dimensions anno	0.1125
+40	COR	ABO	DEC-MIROIR-GRAND	Amazon Brand - Rivet Modern Oval Hanging Mirror, 39"H, Black	99.1 × 22.2 × 3.2	22.2 × 99.1 × 3.2	corrigée (hauteur écrite dans le nom)	orientation corrigée : la largeur publiée (99.1 cm) est la h	0.007
+41	COR	ABO	TAB-BASSE	Amazon Brand - Alkove Hayes Solid Wood 2-Drawer Coffee Table with additional Storage Compartments, 8	44.0 × 85.0 × 85.0	44.0 × 110.0 × 70.0	ambiguë (dimensions du nom sans lettres)	dimensions publiées remplacées par les trois dimensions anno	0.3179
+42	COR	ABO	TAB-BASSE	Amazon Brand - Movian Rom - Mesa de centro, 45 x 45 x 50 cm, blanco	45.0 × 50.0 × 45.0	11.0 × 54.0 × 45.0	ambiguë (dimensions du nom sans lettres)	dimensions publiées remplacées par les trois dimensions anno	0.1013
+43	COR	ABO	TAB-APPOINT	Amazon Brand – Rivet Meeks Round Side Table with Fabric Storage Basket, 24"H, Walnut and Grey	59.9 × 42.4 × 42.4	42.4 × 59.9 × 42.4	corrigée (hauteur écrite dans le nom)	orientation corrigée : la largeur publiée (59.9 cm) est la h	0.1077
+44	COR	ABO	RAN-BUFFET	Marque Amazon - Movian - Buffet RTV avec 2 portes, 1 tiroir et 1 étagère en verre, 150 x 42 x 51,5 c	42.0 × 150.0 × 51.5	9.9 × 162.3 × 51.4	ambiguë (dimensions du nom sans lettres)	dimensions publiées remplacées par les trois dimensions anno	0.3245
+45	COR	ABO	ETA-NC	Movian Kairo 4 Tier Shelf Unit, 120 x 150 x 32.5 cm	32.5 × 150.0 × 120.0	6.0 × 200.0 × 49.0	ambiguë (dimensions du nom sans lettres)	dimensions publiées remplacées par les trois dimensions anno	0.585
+46	COR	ABO	TAB-APPOINT	Amazon Brand – Rivet Meeks Round Side Table with Fabric Storage Basket, 24"H, Walnut and Cream	59.9 × 42.4 × 42.4	42.4 × 59.9 × 42.4	corrigée (hauteur écrite dans le nom)	orientation corrigée : la largeur publiée (59.9 cm) est la h	0.1077
+47	COR	ABO	TAB-BASSE	Amazon Brand - Movian Moiry - Mesa de centro, 60 x 120 x 40 cm, vidrio templado	40.0 × 120.0 × 60.0	40.0 × 129.0 × 60.0	ambiguë (dimensions du nom sans lettres)	dimensions publiées remplacées par les trois dimensions anno	0.288
+48	COR	ABO	BUR-DROIT	Amazon Brand Movian Desk 180 x 72.5 x 69 cm High Gloss White	69.0 × 180.0 × 72.0	72.0 × 180.0 × 69.0	corrigée (hauteur écrite dans le nom)	orientation corrigée : la profondeur publiée (69.0 cm) est l	0.8942
+49	COR	ABO	ARM-2P	Movian - Armario de 2 puertas con espejo, 60 x 42 x 198 cm, blanco	42.0 × 198.0 × 60.0	10.3 × 129.4 × 42.6	ambiguë (dimensions du nom sans lettres)	dimensions publiées remplacées par les trois dimensions anno	0.499
+50	COR	ABO	BUR-DROIT	Amazon Brand - Movian Stanberg - Desk with Two Drawers 140 x 110 x 76 cm Core Oak / White Effect	76.0 × 140.0 × 110.0	10.0 × 150.0 × 74.0	ambiguë (dimensions du nom sans lettres)	dimensions publiées remplacées par les trois dimensions anno	1.1704
+51	COR	ABO	JAR-JARDINIERE	Amazon Brand – Rivet Geometric Ceramic Planter, 4.1"H, White and Grey	10.5 × 12.7 × 12.7	12.7 × 12.7 × 10.5	corrigée (hauteur écrite dans le nom)	orientation corrigée : la profondeur publiée (10.5 cm) est l	0.0017
+52	COR	ABO	ETA-MURALE	Stone & Beam - Mensola in Metallo Rustico Industriale con 5 Ganci, 33 x 56 x 12,7 cm, Colore: Nero e	33.0 × 56.0 × 12.7	33.0 × 57.1 × 14.6	ambiguë (dimensions du nom sans lettres)	dimensions publiées remplacées par les trois dimensions anno	0.0235
+53	COR	ABO	TAB-CONSOLE	Amazon Brand - Movian Corona Console Table, 2 Drawer With Shelf, Solid Pine Wood, 70 x 83 x 31 cm	70.0 × 83.0 × 31.0	70.0 × 116.0 × 31.0	ambiguë (dimensions du nom sans lettres)	dimensions publiées remplacées par les trois dimensions anno	0.1801
+54	COR	ABO	RAN-MEUBLE-TV	Amazon Brand – Rivet Mid-Century Modern Wood Media TV Console Stand Table, 59"H, White &amp; Gray	150.1 × 77.0 × 50.0	77.0 × 150.1 × 50.0	corrigée (hauteur écrite dans le nom)	orientation corrigée : la largeur publiée (150.1 cm) est la 	0.5779
+55	COR	ABO	JAR-JARDINIERE	Amazon Brand – Rivet Geometric Ceramic Planter, 8.7"H, White and Grey	21.9 × 26.0 × 26.0	26.0 × 26.0 × 21.9	corrigée (hauteur écrite dans le nom)	orientation corrigée : la profondeur publiée (21.9 cm) est l	0.0148
+56	COR	ABO	INF-TV-43	Amazon Eono 43 Inch HD Smart TV with Prime Video	59.7 × 95.6 × 20.4	20.4 × 95.6 × 59.7	corrigée (diagonale annoncée dans le nom)	orientation corrigée : l'épaisseur du téléviseur était publi	0.1164
+57	COR	ABO	CHA-REPAS	Amazon Brand – Ravenna Home Traditional Dining Chair, 36 Inch Height, Cream	91.4 × 66.0 × 55.1	66.0 × 91.4 × 55.1	corrigée (hauteur écrite dans le nom)	orientation corrigée : la largeur publiée (91.4 cm) est la h	0.3324
+58	COR	ABO	DEC-MIROIR-GRAND	Amazon Brand – Stone & Beam Round Layered Rustic Wood Hanging Wall Mirror Decor, 42 Inch Height, Dar	106.7 × 106.7 × 3.8	3.8 × 106.7 × 106.7	corrigée (hauteur écrite dans le nom)	orientation corrigée : la largeur publiée (106.7 cm) est la 	0.0433
+59	COR	ABO	CHA-REPAS	Rivet Mid-Century Luxe Velvet Dining Chair, 34.1"H, Set of 2, Dark Blue	86.6 × 59.4 × 49.5	59.4 × 86.6 × 49.5	corrigée (hauteur écrite dans le nom)	orientation corrigée : la largeur publiée (86.6 cm) est la h	0.2546
+60	COR	ABO	LUM-LUSTRE	Amazon Brand – Stone & Beam Traditional Woven Globe Pendant Light with White Cloth Cord, 18"H, Natur	45.7 × 49.5 × 45.7	49.5 × 45.7 × 45.7	corrigée (hauteur écrite dans le nom)	orientation corrigée : la largeur publiée (45.7 cm) est la h	0.1034
+61	COR	ABO	DEC-MIROIR-GRAND	Amazon Brand – Stone & Beam Round Distressed Metal Mirror, 36"H, Tin and Gold Finish	91.4 × 91.4 × 10.2	10.2 × 91.4 × 91.4	corrigée (hauteur écrite dans le nom)	orientation corrigée : la largeur publiée (91.4 cm) est la h	0.0852
+62	COR	ABO	TAB-REPAS-NC	AmazonCommercial 20 inch Height Adjustable Round Table, 20inch, White Granite	50.8 × 71.1 × 71.1	71.1 × 71.1 × 50.8	corrigée (hauteur écrite dans le nom)	orientation corrigée : la profondeur publiée (50.8 cm) est l	0.2568
+63	COR	ABO	JAR-JARDINIERE	Amazon Brand – Rivet Hexagonal Wall Mount Planter, 7.7"H, Modern Earthenware, Aqua	19.6 × 15.5 × 6.3	6.3 × 19.6 × 15.5	corrigée (hauteur écrite dans le nom)	orientation corrigée : la largeur publiée (19.6 cm) est la h	0.0019
+64	COR	ABO	POU-STD	An Amazon Brand - Movian Galga - Footstool, 53 x 53 x 42 cm (L x W x H)	42.0 × 53.0 × 53.0	98.0 × 105.0 × 90.0	vérifiée (ordre des dimensions écrit dans le nom)	dimensions publiées remplacées par les trois dimensions anno	0.118
+65	COR	ABO	JAR-JARDINIERE	Amazon Brand – Rivet Westline Modern Indoor Outdoor Hand-Painted Stoneware Planter Flower Pot, 8"H, 	20.0 × 21.5 × 20.0	21.5 × 20.0 × 20.0	corrigée (hauteur écrite dans le nom)	orientation corrigée : la largeur publiée (20.0 cm) est la h	0.0086
+66	P1	ABO	DEC-LAMPE	Amazon Brand – Rivet Modern Ultrathin LED-Integrated Table Lamp, 20"H, Matte Brass	50.8 × 25.4 × 25.4		vérifiée (hauteur écrite dans le nom)		0.0328
+67	P1	MOMA	CHA-REPAS	Flo Chair	86.0 × 53.0 × 53.0		conforme à la forme dominante		0.2416
+68	P1	ABO	DEC-TAPIS-MOYEN	Amazon Brand – Rivet Diamond Trellis Tassel Wool Rug, 5' x 8', Ivory	1.7 × 243.8 × 152.4		conforme à la forme dominante		0.0632
+69	P1	ENERGYSTAR	ELM-SL	Maytag MED8150EC* MED8150EC* (sèche-linge, Electric)	96.5 × 76.2 × 68.6		conforme à la forme dominante		0.5044
+70	P1	ABO	DEC-TABLEAU	AmazonBasics Photo Frame for use with Instax - 8-Opening - 3.25"x2", White	29.7 × 35.6 × 1.9		non évaluable (pas de forme dominante dans la sous-catégorie		0.002
+71	P1	ABO	DEC-TAPIS-GRAND	Amazon Brand – Stone & Beam Contemporary Textured Jute Area Rug, 8 x 10 Foot, Tan	1.3 × 304.8 × 243.8		conforme à la forme dominante		0.0966
+72	P1	ABO	DEC-MIROIR-GRAND	Amazon Basics Rectangular Wall Mirror - 20" x 28", Standard Trim, Nickel	71.1 × 50.8 × 3.9		conforme à la forme dominante		0.0141
+73	P1	ABO	LIT-KING	AmazonBasics Foldable Metal Platform Bed Frame for Under-Bed Storage - Tools-Free Assembley, No Box 	35.6 × 203.2 × 193.0		conforme à la forme dominante		1.3961
+74	P1	ABO	BUR-DROIT	Marca Amazon - Movian Severn - Escritorio móvil, 89 x 48 x 76 cm, color roble San Remo	77.0 × 88.5 × 48.0		non évaluable (pas de forme dominante dans la sous-catégorie		0.3271
+75	P1	ABO	TAB-APPOINT	Amazon Brand – Ravenna Home Moroccan-Pattern Ceramic Garden Stool or Side Table, 16"H, Off-White	40.0 × 33.0 × 33.0		vérifiée (hauteur écrite dans le nom)		0.0436
+76	P1	ABO	LIT-QUEEN	Amazon Brand – Stone & Beam Prudence Tufted Queen Bed, 66"W, Fresh Pewter	142.2 × 233.7 × 167.6		conforme à la forme dominante		5.5697
+77	P1	ABO	FAU-STD	Amazon Brand – Stone & Beam Highland Modern Living Room Wingback Accent Chair, 32"W, Denim	106.9 × 96.0 × 81.0		non évaluable (pas de forme dominante dans la sous-catégorie		0.8313
+78	P1	ABO	DEC-MIROIR-GRAND	Amazon Brand – Stone & Beam Antique-Style Metal Frame Hanging Wall Mirror Decor, 32 Inch Height, Bro	81.3 × 46.4 × 7.0		vérifiée (hauteur écrite dans le nom)		0.0264
+79	P1	ABO	CHA-BAR	Amazon Brand – Rivet Mid-Century Modern Upholstered Low Back Kitchen Counter Height Stool, 37"H, Lig	94.0 × 53.3 × 50.8		vérifiée (hauteur écrite dans le nom)		0.2545
+80	P1	ABO	FAU-STD	Amazon Brand – Stone & Beam Modern Sweeping Arm Accent Chair, 28"W, Sea Blue	86.4 × 73.7 × 71.1		non évaluable (pas de forme dominante dans la sous-catégorie		0.4527
+81	P1	MET	CHA-REPAS	"laleggera" Stacking Chair	78.7 × 49.5 × 43.5		conforme à la forme dominante		0.1695
+82	P1	ABO	FAU-BUR	AmazonBasics Classic Reception Office Chair with Mahogany Wood Finish Legs - Black (Renewed)	88.0 × 69.0 × 66.5		conforme à la forme dominante		0.4038
+83	P1	ABO	DEC-TABLEAU	AmazonBasics Wedge Floating Photo Frame for 4 x 6 Inch Photos - Thick Frame, Brass	14.9 × 20.0 × 10.2		non évaluable (pas de forme dominante dans la sous-catégorie		0.003
+84	P1	ENERGYSTAR	ELM-SL	Asko T7HXLW.U T7HXLW.U (sèche-linge, Electric)	85.1 × 74.7 × 59.7		conforme à la forme dominante		0.3795
+85	P1	ABO	TAB-REPAS-NC	Strathwood Griffen buiten eettafel voor alle weersomstandigheden Rieten en hars NATUURLIJK	74.4 × 169.9 × 90.9		non évaluable (pas de forme dominante dans la sous-catégorie		1.149
+86	P1	ABO	DEC-TABLEAU	Amazon Brand – Rivet Pineapple Speck Print Wall Art in Black Wood Frame, 30" x 30"	76.2 × 76.2 × 3.8		non évaluable (pas de forme dominante dans la sous-catégorie		0.0221
+87	P1	ABO	DEC-LAMPADAIRE	Iluminación moderna Stone & Beam, Lámpara de pie, Cepillado inoxidable	124.5 × 40.6 × 22.9		conforme à la forme dominante		0.1158
+88	P1	ABO	FAU-STD	Amazon Brand – Rivet Goodwin Modern Living Room Accent Chair, 32.3"W x 35.8"H, Light Grey	90.9 × 91.9 × 82.0		vérifiée (hauteur écrite dans le nom)		0.685
+89	P1	ABO	DEC-TABLEAU	AmazonBasics 4-Pane Photo Frame - 4" x 6" Photos, Brass	29.5 × 29.8 × 3.5		non évaluable (pas de forme dominante dans la sous-catégorie		0.0031
+90	P1	ENERGYSTAR	ELM-SL	LG DLEX7880*E DLEX7880*E (sèche-linge, Electric)	102.1 × 73.5 × 68.6		conforme à la forme dominante		0.5148
+91	P1	ABO	BUR-DROIT	Amazon Brand – Stone & Beam Sumner Modern Desk, 54"W, White	77.5 × 137.2 × 55.9		non évaluable (pas de forme dominante dans la sous-catégorie		0.5944
+92	P1	ABO	CHA-REPAS	Movian Elbe – Sedia da pranzo con bottoni, colore blu lago	78.0 × 57.0 × 54.0		conforme à la forme dominante		0.2401
+93	P1	ABO	DEC-TAPIS-MOYEN	Stone & Beam Contemporary Border Jute Rug, 5' x 8', Natural	1.7 × 243.8 × 152.4		conforme à la forme dominante		0.0632
+94	P1	ABO	FAU-STD	Amazon Brand – Ravenna Home Connor Curved Back Club Accent Chair with Ottoman, 27.95"W, Mint Green	77.0 × 74.0 × 71.0		non évaluable (pas de forme dominante dans la sous-catégorie		0.4046
+95	P1	SMITHSONIAN	CHA-REPAS	Folding Chair	73.7 × 55.9 × 38.1		conforme à la forme dominante		0.157
+96	P1	ABO	CAN-2P	Amazon Brand - Solimo Eric Fabric 2 seater Sofa (Light Grey)	81.0 × 131.0 × 76.0		non évaluable (pas de forme dominante dans la sous-catégorie		0.8064
+97	P1	ABO	CAN-2P	Amazon Brand – Rivet Aiden Tufted Mid-Century Modern Velvet Bench Loveseat Sofa, 74"W, Otter Grey	77.0 × 188.0 × 91.9		non évaluable (pas de forme dominante dans la sous-catégorie		1.3303
+98	P1	SMITHSONIAN	DEC-MIROIR-GRAND	Bridal Mirror	78.0 × 46.0 × 5.1		conforme à la forme dominante		0.0183
+99	P1	ABO	CAN-3P	ROSSINI JUST 3 SEATER	82.0 × 200.0 × 100.0		conforme à la forme dominante		1.64
+100	P1	ABO	DEC-TABLEAU	Amazon Brand – Rivet Spring Pink Floral Print in Gold Wood Frame Wall Art, 12" x 12"	30.5 × 30.5 × 3.8		non évaluable (pas de forme dominante dans la sous-catégorie		0.0035
