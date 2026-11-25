@@ -5,7 +5,7 @@
 -- =============================================================================
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(52);
+select plan(54);
 
 insert into auth.users (id, instance_id, aud, role, email, raw_user_meta_data, created_at, updated_at)
 values ('a6a6a6a6-0000-4000-8000-000000000001', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'anna6@test.local', '{}', now(), now()),
@@ -103,6 +103,8 @@ select is((select x.volume_source || ' ' || x.unit_volume_m3 || ' ' || x.custome
   'dimensions 0.220 Vide le jour J', 'Volume = dimensions × coefficient, commentaire conservé');
 select isnt((select (pg_temp.item('Aquarium')).volume_note), null, 'Justification du volume enregistrée');
 select throws_ok($$ select public.public_inventory_add((select access_token from t), '{"label":"Vélo","category":"garage_cave","quantity":0,"size":"medium"}') $$, '22023', null, 'Quantité nulle refusée');
+select lives_ok($$ select public.public_inventory_add((select access_token from t), '{"catalog_key":"chaise","category":"cuisine","quantity":1}') $$, 'Même objet ajouté une seconde fois');
+select is((select (pg_temp.item('chaise')).quantity), 5, 'Quantité augmentée sur la même ligne (pas de doublon de ligne)');
 select lives_ok($$ select public.public_inventory_update((select access_token from t), (select (pg_temp.item('chaise')).id), 6) $$,
   'Quantité modifiée');
 select lives_ok($$ select public.public_inventory_remove((select access_token from t), (select (pg_temp.item('Aquarium')).id)) $$,

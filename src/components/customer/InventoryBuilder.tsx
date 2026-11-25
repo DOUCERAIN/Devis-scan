@@ -110,14 +110,14 @@ export function InventoryBuilder({ slug, viewToken = null, catalog, items }: { s
                   <span className="flex shrink-0 items-center gap-1">
                     {qty > 0 ? (
                       <>
-                        <button type="button" onClick={() => decrement(c)} disabled={pending && busyKey === c.id} aria-label={`Retirer un ${c.name}`}
+                        <button type="button" onClick={() => decrement(c)} disabled={pending} aria-label={`Retirer un ${c.name}`}
                           className="inline-flex size-11 items-center justify-center rounded-md border border-border-input hover:bg-surface-subtle disabled:opacity-50 sm:size-9">
                           <Minus aria-hidden className="size-4" />
                         </button>
                         <span className="w-8 text-center font-semibold tabular-nums" aria-live="polite">{qty}</span>
                       </>
                     ) : null}
-                    <button type="button" onClick={() => increment(c)} disabled={pending && busyKey === c.id} aria-label={`Ajouter un ${c.name}`}
+                    <button type="button" onClick={() => increment(c)} disabled={pending} aria-label={`Ajouter un ${c.name}`}
                       className="inline-flex size-11 items-center justify-center rounded-md border border-brand bg-brand-soft text-brand-pressed hover:bg-brand-soft-strong disabled:opacity-50 sm:size-9">
                       <Plus aria-hidden className="size-4" />
                     </button>
