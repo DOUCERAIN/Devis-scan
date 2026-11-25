@@ -49,7 +49,7 @@ Hypothèses : 6 pièces, 8 images de 1280 × 720 par pièce (≈ 1 200 jetons pa
 | Claude Sonnet 5.5 | 2 / 10 | ≈ 0,25 à 0,40 $ |
 | Claude Haiku 5.5 | 0,10 / 0,50 | ≈ 0,02 à 0,04 $ |
 
-Ce sont des **ordres de grandeur**. Le coût réel de chaque analyse est enregistré (`analysis_runs.input_tokens`, `output_tokens`, `cost_usd`) et affiché sur la fiche de la demande. Tarifs relevés le 24/11/2026 dans la documentation Anthropic, à revérifier.
+Ce sont des **ordres de grandeur**. Le coût réel de chaque analyse est enregistré (`analysis_runs.input_tokens`, `output_tokens`, `cost_usd`) et affiché sur la fiche de la demande. Tarifs relevés le 24/11/2026 dans la documentation Anthropic, à revérifier. Le coût est calculé et enregistré avec 10 décimales et affiché avec 3 chiffres significatifs (`formatCostUsd`) : un coût réel, même minime (ex. 0,0000047 $), n'apparaît jamais comme 0 $.
 
 ## Comparaison des solutions
 

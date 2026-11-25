@@ -6,7 +6,7 @@
  */
 import Anthropic from "@anthropic-ai/sdk";
 import { ANTHROPIC_KEY_ENV, ANTHROPIC_OFFICIAL_BASE_URL, createAnthropicClient, describeAnthropicKey, readAnthropicKey } from "../../src/lib/ai/anthropic-client.ts";
-import { estimateCostUsd } from "../../src/lib/ai/cost.ts";
+import { estimateCostUsd, formatCostUsd } from "../../src/lib/ai/cost.ts";
 
 const key = readAnthropicKey();
 console.log(`${ANTHROPIC_KEY_ENV} : ${describeAnthropicKey()}`);
@@ -37,7 +37,7 @@ try {
   };
   console.log(`Résultat : réponse reçue en ${Date.now() - started} ms, modèle ${r.model}, fin : ${r.stop_reason}, texte : « ${text} »`);
   console.log(`Jetons facturés : ${usage.inputTokens} en entrée, ${usage.outputTokens} en sortie`);
-  console.log(`Coût estimé (tarif public) : ${estimateCostUsd(model, usage)?.toFixed(6)} $`);
+  console.log(`Coût estimé (tarif public) : ${formatCostUsd(estimateCostUsd(model, usage))}`);
 } catch (error) {
   if (error instanceof Anthropic.APIError) {
     // Message d'erreur de l'API uniquement (il ne contient pas la clé).

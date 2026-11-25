@@ -18,7 +18,7 @@ import { ANTHROPIC_KEY_ENV, describeAnthropicKey, readAnthropicKey } from "../..
 import { catalogPrompt } from "../../src/lib/ai/prompt.ts";
 import { buildItems, type CatalogRef, type ItemDraft, type RoomDetections } from "../../src/lib/ai/postprocess.ts";
 import { evaluate, type ReferenceItem, type Evaluation } from "../../src/lib/ai/evaluate.ts";
-import { estimateCostUsd, MODEL_PRICES_USD, type TokenUsage } from "../../src/lib/ai/cost.ts";
+import { estimateCostUsd, formatCostUsd, MODEL_PRICES_USD, type TokenUsage } from "../../src/lib/ai/cost.ts";
 import type { RoomImage } from "../../src/lib/ai/provider.ts";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -64,7 +64,7 @@ for (const m of models) {
   estimate += (((imageTokens + textTokens) * p.input + outTokens * p.output) / 1e6) * repeat;
 }
 console.log(`${manifest.rooms.length} pièces, ${manifest.rooms.reduce((s, r) => s + r.frames.length, 0)} images, modèles : ${models.join(", ")}, ${repeat} passage(s).`);
-console.log(`Coût maximal estimé : ${estimate.toFixed(2)} $ (plafond --max-usd ${maxUsd} $).`);
+console.log(`Coût maximal estimé : ${formatCostUsd(estimate)} (plafond --max-usd ${maxUsd} $).`);
 if (estimate > maxUsd) {
   console.error("Estimation au-dessus du plafond : arrêt.");
   process.exit(2);
@@ -101,7 +101,7 @@ for (const model of models) {
       } else {
         rooms.push({ room: room.id, ok: false, code: result.code, message: result.message, latencyMs, usage: result.usage, costUsd, model: result.model });
       }
-      console.log(`${model} #${pass} ${room.label} : ${result.ok ? `${result.analysis.objects.length} objets` : `ÉCHEC ${result.code}`} — ${(latencyMs / 1000).toFixed(1)} s, ${costUsd?.toFixed(4)} $`);
+      console.log(`${model} #${pass} ${room.label} : ${result.ok ? `${result.analysis.objects.length} objets` : `ÉCHEC ${result.code}`} — ${(latencyMs / 1000).toFixed(1)} s, ${formatCostUsd(costUsd)}`);
     }
     const items = buildItems(detections, catalogMap);
     const evaluation = evaluate(items, refItems, volumes);
@@ -124,7 +124,7 @@ const lines = [
   "| Modèle | Passage | Coût total | Coût moyen / pièce | Durée totale | Rappel | Précision | Inventés | Oubliés | Doublons signalés | Écart volume | Échecs |",
   "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
   ...runs.map((r) =>
-    `| ${r.model} | ${r.pass} | ${r.costUsd.toFixed(4)} $ | ${(r.costUsd / r.rooms.length).toFixed(4)} $ | ${(r.latencyMs / 1000).toFixed(0)} s | ${pct(r.evaluation.recall)} | ${pct(r.evaluation.precision)} | ${r.evaluation.hallucinated.reduce((s, h) => s + h.quantity, 0)} | ${r.evaluation.missed.reduce((s, m) => s + m.quantity, 0)} | ${r.evaluation.duplicatesFlaggedCorrectly} / ${r.items.filter((i) => i.possibleDuplicate).length} | ${r.evaluation.volumeErrorM3.toLocaleString("fr-FR")} m³ | ${r.rooms.filter((x) => !x.ok).length} |`),
+    `| ${r.model} | ${r.pass} | ${formatCostUsd(r.costUsd)} | ${formatCostUsd(r.costUsd / r.rooms.length)} | ${(r.latencyMs / 1000).toFixed(0)} s | ${pct(r.evaluation.recall)} | ${pct(r.evaluation.precision)} | ${r.evaluation.hallucinated.reduce((s, h) => s + h.quantity, 0)} | ${r.evaluation.missed.reduce((s, m) => s + m.quantity, 0)} | ${r.evaluation.duplicatesFlaggedCorrectly} / ${r.items.filter((i) => i.possibleDuplicate).length} | ${r.evaluation.volumeErrorM3.toLocaleString("fr-FR")} m³ | ${r.rooms.filter((x) => !x.ok).length} |`),
   "",
   "## Détail des écarts",
   ...runs.flatMap((r) => [

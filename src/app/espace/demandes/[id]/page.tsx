@@ -20,6 +20,7 @@ import { RoomMedia } from "./RoomMedia";
 import { InventoryEditor, type EditableItem } from "./InventoryEditor";
 import { QuoteActions } from "./QuoteActions";
 import { formatEuros } from "@/lib/pricing/engine";
+import { formatCostUsd } from "@/lib/ai/cost";
 import { QUOTE_STATUS_META } from "@/lib/requests/quote-status";
 
 export const metadata: Metadata = { title: "Demande" };
@@ -277,7 +278,7 @@ export default async function RequestDetailPage({ params, searchParams }: PagePr
                 {run.model ? (<><dt className="text-ink-muted">Modèle</dt><dd>{run.model}</dd></>) : null}
                 {run.rooms_total ? (<><dt className="text-ink-muted">Pièces</dt><dd>{run.rooms_done ?? 0} / {run.rooms_total} · {run.images_count} images</dd></>) : null}
                 {run.input_tokens ? (<><dt className="text-ink-muted">Jetons</dt><dd className="tabular-nums">{run.input_tokens.toLocaleString("fr-FR")} en entrée · {(run.output_tokens ?? 0).toLocaleString("fr-FR")} en sortie</dd></>) : null}
-                {run.cost_usd !== null && !run.simulated ? (<><dt className="text-ink-muted">Coût estimé</dt><dd className="tabular-nums">{Number(run.cost_usd).toLocaleString("fr-FR", { style: "currency", currency: "USD", maximumFractionDigits: 3 })}</dd></>) : null}
+                {run.cost_usd !== null && !run.simulated ? (<><dt className="text-ink-muted">Coût estimé</dt><dd className="tabular-nums">{formatCostUsd(Number(run.cost_usd))}</dd></>) : null}
               </dl>
               {run.error_message ? <p className="text-xs text-ink-muted">{run.error_message}</p> : null}
             </Card>
