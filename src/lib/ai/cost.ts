@@ -1,13 +1,37 @@
 /**
- * Tarifs publics de l'API Claude (USD par million de jetons), relevés le 24/11/2026
- * dans la documentation Anthropic (tarifs « premier niveau », hors offres partenaires).
- * À revérifier avant toute décision commerciale : https://platform.claude.com/docs/en/about-claude/pricing
+ * Tarifs publics de l'API Claude (USD par million de jetons), vérifiés le 25/11/2026 sur
+ * https://platform.claude.com/docs/en/about-claude/pricing (API Anthropic directe, hors offres partenaires,
+ * sans le supplément de 1,1 × de la résidence des données aux États-Unis, non utilisée).
+ * - cacheWrite : écriture en cache 5 minutes (durée utilisée par le projet, cache_control « ephemeral »).
+ * - cacheRead : lecture en cache (0,05 × l'entrée pour Opus 5.5 et Sonnet 5.5, 0,1 × pour Haiku 5.5).
+ * - longPrompt (Haiku 5.5 uniquement) : au-delà de 100 000 jetons d'entrée (cache compris), TOUTE la requête
+ *   est facturée au tarif supérieur.
+ * À revérifier avant toute décision commerciale.
  */
-export const MODEL_PRICES_USD: Record<string, { input: number; output: number }> = {
-  "claude-opus-5-5": { input: 4, output: 20 },
-  "claude-sonnet-5-5": { input: 2, output: 10 },
-  "claude-haiku-5-5": { input: 0.1, output: 0.5 },
+export type ModelPrice = { input: number; output: number; cacheWrite: number; cacheRead: number };
+export type ModelPricing = ModelPrice & { longPrompt?: { thresholdTokens: number } & ModelPrice };
+
+export const PRICES_CHECKED_AT = "2026-11-25";
+
+export const MODEL_PRICES_USD: Record<string, ModelPricing> = {
+  "claude-opus-5-5": { input: 4, output: 20, cacheWrite: 5, cacheRead: 0.2 },
+  "claude-sonnet-5-5": { input: 2, output: 10, cacheWrite: 2.5, cacheRead: 0.1 },
+  "claude-haiku-5-5": {
+    input: 0.1,
+    output: 0.5,
+    cacheWrite: 0.125,
+    cacheRead: 0.01,
+    longPrompt: { thresholdTokens: 100_000, input: 0.5, output: 2.5, cacheWrite: 0.625, cacheRead: 0.05 },
+  },
 };
+
+/** Tarif applicable à une requête (palier « long prompt » de Haiku 5.5 compris). */
+export function priceFor(model: string, promptTokens: number): ModelPrice | null {
+  const pricing = MODEL_PRICES_USD[model];
+  if (!pricing) return null;
+  if (pricing.longPrompt && promptTokens > pricing.longPrompt.thresholdTokens) return pricing.longPrompt;
+  return pricing;
+}
 
 export type TokenUsage = {
   inputTokens: number;
@@ -29,22 +53,27 @@ export function addUsage(a: TokenUsage, b: TokenUsage): TokenUsage {
 
 /**
  * Précision du coût calculé et enregistré : 10 décimales (un dix-milliardième de dollar).
- * Le plus petit coût réel possible (1 jeton lu en cache sur le modèle le moins cher : 1 × 0,1 × 0,10 $ / 1 000 000
+ * Le plus petit coût réel possible (1 jeton lu en cache sur Haiku 5.5 : 1 × 0,01 $ / 1 000 000
  * = 0,00000001 $) est cent fois plus grand : un coût positif n'est donc jamais arrondi à zéro.
  * Doit rester égal à l'échelle de la colonne `analysis_runs.cost_usd` (numeric(16, 10)).
  */
 export const COST_DECIMALS = 10;
 
 /**
- * Coût estimé d'un appel. Lecture en cache : 0,1 × le prix d'entrée ; écriture en cache (5 min) : 1,25 ×.
+ * Coût estimé d'un appel, à partir des jetons réellement facturés renvoyés par l'API.
  * Renvoie null pour un modèle absent de la table (le coût n'est alors pas inventé).
  * Le résultat est arrondi à COST_DECIMALS décimales, uniquement pour effacer le bruit des calculs à virgule.
  */
 export function estimateCostUsd(model: string, usage: TokenUsage): number | null {
-  const price = MODEL_PRICES_USD[model];
+  const promptTokens = usage.inputTokens + usage.cacheReadTokens + usage.cacheWriteTokens;
+  const price = priceFor(model, promptTokens);
   if (!price) return null;
-  const input = usage.inputTokens + usage.cacheReadTokens * 0.1 + usage.cacheWriteTokens * 1.25;
-  const cost = (input * price.input + usage.outputTokens * price.output) / 1_000_000;
+  const cost =
+    (usage.inputTokens * price.input +
+      usage.cacheWriteTokens * price.cacheWrite +
+      usage.cacheReadTokens * price.cacheRead +
+      usage.outputTokens * price.output) /
+    1_000_000;
   return Number(cost.toFixed(COST_DECIMALS));
 }
 

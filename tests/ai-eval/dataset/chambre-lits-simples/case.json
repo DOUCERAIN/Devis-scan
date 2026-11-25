@@ -1,0 +1,97 @@
+{
+  "id": "chambre-lits-simples",
+  "room_label": "Chambre",
+  "room_description": null,
+  "room_type": "chambre",
+  "situations": [
+    "partiellement-visible",
+    "objets-ambigus"
+  ],
+  "source": {
+    "kind": "photo-panoramique",
+    "description": "Photo réelle « Twin room in a German youth hostel with single beds and wardrobe A.jpg » ; vidéo de 10 s simulant un panoramique sur cette seule photo (make-videos.sh), passée par le vrai parcours client (compression, extraction et sélection des images de la phase 3). Une seule prise de vue : pas de vrais angles multiples.",
+    "author": "Profpcde",
+    "license": "CC0",
+    "url": "https://commons.wikimedia.org/?curid=169492856",
+    "consent": null
+  },
+  "frames": [
+    {
+      "file": "00.jpg",
+      "captured_at_ms": 2000
+    },
+    {
+      "file": "01.jpg",
+      "captured_at_ms": 4800
+    },
+    {
+      "file": "02.jpg",
+      "captured_at_ms": 5200
+    },
+    {
+      "file": "03.jpg",
+      "captured_at_ms": 5600
+    },
+    {
+      "file": "04.jpg",
+      "captured_at_ms": 6000
+    },
+    {
+      "file": "05.jpg",
+      "captured_at_ms": 6800
+    },
+    {
+      "file": "06.jpg",
+      "captured_at_ms": 8000
+    },
+    {
+      "file": "07.jpg",
+      "captured_at_ms": 8400
+    }
+  ],
+  "reference": {
+    "status": "provisoire",
+    "annotated_by": "Claude (assistant de développement), d'après la photo d'origine",
+    "annotated_at": "2026-11-25",
+    "validated_by": null,
+    "validated_at": null,
+    "notes": "Seuls les objets à déménager sont comptés. 'alternatives' : identifiants du catalogue également acceptés. 'optional' : objet ambigu ou minime, ni compté comme oubli s'il manque, ni comme erreur s'il est trouvé. Éléments fixes (rideaux, plafonnier, radiateur, cloison, fenêtres) et effets personnels (sacs, tasses) ignorés. À faire valider par un déménageur (mettre status à \"validee\", validated_by et validated_at).",
+    "items": [
+      {
+        "key": "lit-simple",
+        "quantity": 2,
+        "partial": true,
+        "comment": "Le second lit est en partie caché par la cloison de séparation."
+      },
+      {
+        "key": "bureau",
+        "quantity": 1
+      },
+      {
+        "key": "chaise",
+        "quantity": 2,
+        "alternatives": [
+          "chaise-de-bureau"
+        ],
+        "partial": true,
+        "difficult": true,
+        "comment": "Une chaise derrière le bureau (en partie cachée), une chaise verte devant (encombrée d'un sac)."
+      },
+      {
+        "key": "lampe-a-poser",
+        "quantity": 1,
+        "optional": true
+      },
+      {
+        "key": "tableau-cadre",
+        "quantity": 1,
+        "optional": true
+      },
+      {
+        "key": "miroir-mural",
+        "quantity": 1,
+        "optional": true
+      }
+    ]
+  }
+}

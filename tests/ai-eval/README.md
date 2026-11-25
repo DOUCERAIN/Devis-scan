@@ -1,42 +1,39 @@
 # Évaluation réelle de l'analyse IA
 
-Objectif : comparer Haiku 5.5, Sonnet 5.5 et Opus 5.5 **sur les mêmes images**, avec de vrais appels à l'API, et mesurer coûts, oublis, objets inventés et doublons. Aucune simulation.
+Comparaison de Claude Haiku 5.5, Sonnet 5.5 et Opus 5.5 **sur les mêmes images**, avec de vrais appels à l'API : reconnaissance des meubles, catégories, volumes, meubles cachés, doublons, coût et temps de réponse. Aucune simulation.
 
-## Chaîne complète
+- **Protocole complet** (méthode, notation, budget) : [`PROTOCOLE.md`](PROTOCOLE.md)
+- **Jeu de données** (format, images manquantes, comment filmer) : [`dataset/README.md`](dataset/README.md)
 
-1. `images/` : photos réelles d'intérieurs sous licence libre (Wikimedia Commons, voir `images/SOURCES.md`).
-2. `make-videos.sh` : une vidéo de 10 s par photo (panoramique lent, 1280×720), comme un client qui filme la pièce. *Limite : une vraie vidéo montre plusieurs angles ; ici, une seule photo.*
-3. `prepare-frames.e2e.cjs` : chaque vidéo passe par le **vrai parcours client** (navigateur Chromium : compression, extraction et sélection des images de la phase 3, envoi, stockage). Les images réellement stockées sont copiées dans `frames/` avec `frames/manifest.json`.
-4. `reference.json` : inventaire de référence par pièce (objets attendus, équivalences, objets facultatifs). **Annotation provisoire à faire valider par un déménageur.**
-5. `bench.ts` : appelle chaque modèle avec le même code que la production (`AnthropicVisionProvider`, mêmes consignes, même catalogue, même post-traitement), puis compare à la référence (`src/lib/ai/evaluate.ts`). Résultats dans `results/<date>.md` et `.json`.
+## Fichiers
+
+| Fichier | Rôle |
+| --- | --- |
+| `bench.ts` | Banc de comparaison. Sans `--confirm`, contrôle seulement le jeu de données et le budget (aucun appel). |
+| `ping.ts` | Appel de test unique et minimal (clé et réseau). |
+| `dataset/<cas>/` | Une pièce : `case.json` (inventaire de référence) et `frames/` (images envoyées aux modèles). |
+| `images/`, `make-videos.sh`, `videos/` | Photos réelles sous licence libre, et vidéos panoramiques créées à partir de ces photos. |
+| `prepare-frames.e2e.cjs` | Fait passer chaque vidéo par le **vrai parcours client** (navigateur, compression, extraction des images) et remplit `dataset/<cas>/frames/`. |
+| `results/` | Créé au premier passage réel : `ledger.json` (registre des dépenses de la campagne, à committer) et `<passage>/` (rapport, CSV, réponses brutes). |
+| `src/lib/ai/benchmark/` | Modules testés : modèles, estimation des jetons, budget, jeu de données, notation, rapport. |
 
 ## Commandes
 
 ```bash
-node --conditions=react-server tests/ai-eval/ping.ts --check           # détecte la clé, sans aucun appel
-node --conditions=react-server tests/ai-eval/ping.ts                   # appel de test unique et minimal (≈ 0,0001 $)
-bash tests/ai-eval/make-videos.sh
-NODE_PATH=$(npm root -g) node tests/ai-eval/prepare-frames.e2e.cjs     # Supabase local + application lancée
-node --conditions=react-server tests/ai-eval/bench.ts                  # estimation du coût seulement
-node --conditions=react-server tests/ai-eval/bench.ts --confirm        # appels réels (DEVIS_SCAN_ANTHROPIC_API_KEY requise)
+node --conditions=react-server tests/ai-eval/ping.ts --check     # présence de la clé, sans appel
+node --conditions=react-server tests/ai-eval/bench.ts            # contrôle du jeu de données + coût maximal, SANS appel
+node --conditions=react-server tests/ai-eval/bench.ts --confirm  # appels réels, uniquement après accord explicite
+node --conditions=react-server tests/ai-eval/bench.ts --rescore tests/ai-eval/results/<passage>/resultats.json   # renotation sans appel
 ```
 
-Options : `--models haiku,sonnet,opus`, `--effort low|medium|high`, `--repeat 2` (stabilité), `--max-usd 5` (plafond, arrêt avant tout appel si l'estimation le dépasse).
+Options : `--models haiku,sonnet,opus` · `--cases id1,id2` · `--effort low|medium|high` (défaut medium) · `--max-output-tokens 7000` · `--repeat 1` · `--max-usd-per-model 0.75` · `--max-usd-campaign 5` (jamais plus de 5) · `--rooms-per-request 6` (projection du coût par demande).
 
-## Indicateurs
+Préparer des images depuis des vidéos : Supabase local et application lancée **sans** `AI_PROVIDER`, puis :
 
-- **Rappel** : part des objets attendus retrouvés (à la quantité près).
-- **Précision** : part des objets comptés qui sont réellement présents.
-- **Inventés** / **oubliés** : listes détaillées par pièce.
-- **Doublons signalés** : doublons possibles marqués, dont ceux qui étaient justifiés.
-- **Écart de volume** : volume compté − volume de référence (catalogue).
-- **Coût** : calculé à partir des jetons réellement facturés renvoyés par l'API.
-
-Ces mesures portent sur un petit échantillon (photos, pas de vraies vidéos) : elles servent à **choisir un modèle et repérer les défauts**, pas à publier un taux de précision.
+```bash
+NODE_PATH=$(npm root -g) node tests/ai-eval/prepare-frames.e2e.cjs
+```
 
 ## Reprise dans une nouvelle session
 
-Les variables de l'environnement cloud ne sont lues qu'au démarrage d'une session. Dans une nouvelle session sur l'environnement « devis-scan » :
-1. `ping.ts` (un seul appel minimal) pour confirmer la clé ;
-2. démarrer Docker, Supabase et l'application, régénérer `videos/` et `frames/` (non versionnés) ;
-3. `bench.ts` sans `--confirm` (estimation), puis avec `--confirm` après accord du porteur du projet.
+Les variables de l'environnement cloud ne sont lues qu'au démarrage d'une session. Sur l'environnement « devis-scan », la clé est disponible dans `DEVIS_SCAN_ANTHROPIC_API_KEY`. Le registre `results/ledger.json`, versionné, conserve les dépenses déjà faites : le plafond de 5 $ porte donc sur toute la campagne, même d'une session à l'autre.

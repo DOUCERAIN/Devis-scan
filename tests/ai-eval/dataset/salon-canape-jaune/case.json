@@ -1,0 +1,78 @@
+{
+  "id": "salon-canape-jaune",
+  "room_label": "Salon",
+  "room_description": null,
+  "room_type": "salon",
+  "situations": [],
+  "source": {
+    "kind": "photo-panoramique",
+    "description": "Photo réelle « Cozy living room setting with a yellow sofa and a coffee table adorned with cups and a flower pot.jpg » ; vidéo de 10 s simulant un panoramique sur cette seule photo (make-videos.sh), passée par le vrai parcours client (compression, extraction et sélection des images de la phase 3). Une seule prise de vue : pas de vrais angles multiples.",
+    "author": "Shixart1985",
+    "license": "CC BY 2.0",
+    "url": "https://commons.wikimedia.org/?curid=187101683",
+    "consent": null
+  },
+  "frames": [
+    {
+      "file": "00.jpg",
+      "captured_at_ms": 2000
+    },
+    {
+      "file": "01.jpg",
+      "captured_at_ms": 4000
+    },
+    {
+      "file": "02.jpg",
+      "captured_at_ms": 4800
+    },
+    {
+      "file": "03.jpg",
+      "captured_at_ms": 5200
+    },
+    {
+      "file": "04.jpg",
+      "captured_at_ms": 6000
+    },
+    {
+      "file": "05.jpg",
+      "captured_at_ms": 6800
+    },
+    {
+      "file": "06.jpg",
+      "captured_at_ms": 8000
+    },
+    {
+      "file": "07.jpg",
+      "captured_at_ms": 8800
+    }
+  ],
+  "reference": {
+    "status": "provisoire",
+    "annotated_by": "Claude (assistant de développement), d'après la photo d'origine",
+    "annotated_at": "2026-11-25",
+    "validated_by": null,
+    "validated_at": null,
+    "notes": "Seuls les objets à déménager sont comptés. 'alternatives' : identifiants du catalogue également acceptés. 'optional' : objet ambigu ou minime, ni compté comme oubli s'il manque, ni comme erreur s'il est trouvé. Éléments fixes (rideaux, plafonnier, radiateur, cloison, fenêtres) et effets personnels (sacs, tasses) ignorés. À faire valider par un déménageur (mettre status à \"validee\", validated_by et validated_at).",
+    "items": [
+      {
+        "key": "canape-3-places",
+        "quantity": 1,
+        "alternatives": [
+          "canape-convertible",
+          "canape-2-places"
+        ],
+        "difficult": true,
+        "comment": "Taille (2 ou 3 places) et type (convertible ou non) difficiles à juger sur la photo ; alternatives acceptées."
+      },
+      {
+        "key": "table-basse",
+        "quantity": 1
+      },
+      {
+        "key": "plante-grande",
+        "quantity": 1,
+        "optional": true
+      }
+    ]
+  }
+}

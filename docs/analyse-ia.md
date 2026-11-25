@@ -35,9 +35,16 @@ Le fournisseur est interchangeable (`src/lib/ai/provider.ts`) : ajouter un autre
 
 ## Comparaison réelle des modèles
 
-Banc de test : `tests/ai-eval/` (photos réelles sous licence libre → vidéos → **pipeline de la phase 3** → images stockées → appels réels aux trois modèles → comparaison avec un inventaire de référence). Procédure de connexion de la clé : `docs/connexion-cle-anthropic.md`.
+Banc de test : `tests/ai-eval/`. Protocole : `tests/ai-eval/PROTOCOLE.md`. Procédure de connexion de la clé : `docs/connexion-cle-anthropic.md`.
 
-**État au 25/11/2026 : non exécuté.** Aucune clé API n'est disponible dans l'environnement de développement ; aucun résultat n'est donc publié. La requête envoyée à l'API a été vérifiée hors ligne (faux serveur local) : format, sortie structurée, cache, repli de sécurité seulement pour Opus et Sonnet (Haiku 5.5 ne le prend pas en charge).
+Le jeu de données `tests/ai-eval/dataset/` contient une pièce par dossier, avec un inventaire de référence vérifié par une personne. Les images passent par le **pipeline de la phase 3**. Le banc envoie des appels réels aux trois modèles, dans des conditions identiques, sans nouvelle tentative et sans repli vers un autre modèle. Il produit une notation objective (`src/lib/ai/benchmark/score.ts`), un rapport Markdown et des CSV.
+
+Le budget est encadré : 0,75 $ par modèle pour le premier benchmark et 5 $ au maximum pour toute la campagne. Le coût maximal de chaque appel est réservé dans un registre avant l'envoi, et le banc s'arrête dès qu'un plafond risque d'être dépassé.
+
+**État au 25/11/2026 : préparé, non exécuté.**
+- Un seul appel réel a été fait : un test de connexion avec Haiku 5.5, pour un coût de 0,0000047 $.
+- Le jeu de données compte 3 pièces (24 images, issues de 3 photos) avec des références provisoires. Il n'est pas représentatif : il manque cuisine, salle de bain, garage ou cave, et les vraies prises de vue multiples. La liste des pièces à fournir est dans `tests/ai-eval/dataset/README.md`.
+- Aucun résultat n'est publié.
 
 ## Coût estimé par demande (non mesuré)
 

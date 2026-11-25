@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { addUsage, COST_DECIMALS, emptyUsage, estimateCostUsd, formatCostUsd, MODEL_PRICES_USD, type TokenUsage } from "./cost.ts";
+import { addUsage, COST_DECIMALS, emptyUsage, estimateCostUsd, formatCostUsd, MODEL_PRICES_USD, priceFor, type TokenUsage } from "./cost.ts";
 
 const usage = (u: Partial<TokenUsage>): TokenUsage => ({ ...emptyUsage(), ...u });
 // Espaces utilisées par le format français (espace fine insécable pour les milliers) ramenées à une espace simple.
@@ -42,13 +42,27 @@ test("coûts plus élevés : calculs exacts sur les tarifs publics", () => {
   assert.equal(estimateCostUsd("claude-opus-5-5", usage({ inputTokens: 50_000_000, outputTokens: 5_000_000 })), 300);
 });
 
-test("cache : lecture à 0,1 × et écriture à 1,25 × le prix d'entrée", () => {
-  // Sonnet 5.5 : 10 000 lus (= 1 000 jetons plein tarif) + 1 000 écrits (= 1 250) → 2 250 × 2 $ / 1 M
-  assert.equal(estimateCostUsd("claude-sonnet-5-5", usage({ cacheReadTokens: 10_000, cacheWriteTokens: 1_000 })), 0.0045);
+test("cache : tarifs officiels (lecture 0,05 × sur Opus/Sonnet 5.5, 0,1 × sur Haiku 5.5 ; écriture 5 min 1,25 ×)", () => {
+  // Sonnet 5.5 : 10 000 lus × 0,10 $ + 1 000 écrits × 2,50 $ (par million) = 0,001 + 0,0025
+  assert.equal(estimateCostUsd("claude-sonnet-5-5", usage({ cacheReadTokens: 10_000, cacheWriteTokens: 1_000 })), 0.0035);
+  // Opus 5.5 : 1 000 × 4 + 500 × 20 + 20 000 × 0,20 + 4 000 × 5 = 4 000 + 10 000 + 4 000 + 20 000 → 0,038 $
+  assert.equal(estimateCostUsd("claude-opus-5-5", usage({ inputTokens: 1_000, outputTokens: 500, cacheReadTokens: 20_000, cacheWriteTokens: 4_000 })), 0.038);
+  // Haiku 5.5 : 100 000 lus × 0,01 $ = 0,001 $ (0,1 × l'entrée)
+  assert.equal(estimateCostUsd("claude-haiku-5-5", usage({ cacheReadTokens: 100_000 })), 0.001);
+  for (const p of Object.values(MODEL_PRICES_USD)) assert.equal(p.cacheWrite, p.input * 1.25);
+});
+
+test("Haiku 5.5 : au-delà de 100 000 jetons d'entrée (cache compris), toute la requête au tarif supérieur", () => {
+  // Exactement 100 000 : tarif normal
+  assert.equal(estimateCostUsd("claude-haiku-5-5", usage({ inputTokens: 100_000, outputTokens: 1_000 })), 0.0105);
+  // 100 001 dont 50 001 lus en cache : tarif supérieur sur tout (entrée 0,50, lecture 0,05, sortie 2,50)
   assert.equal(
-    estimateCostUsd("claude-opus-5-5", usage({ inputTokens: 1_000, outputTokens: 500, cacheReadTokens: 20_000, cacheWriteTokens: 4_000 })),
-    (1_000 * 4 + 500 * 20 + 20_000 * 0.1 * 4 + 4_000 * 1.25 * 4) / 1_000_000,
+    estimateCostUsd("claude-haiku-5-5", usage({ inputTokens: 50_000, cacheReadTokens: 50_001, outputTokens: 1_000 })),
+    Number(((50_000 * 0.5 + 50_001 * 0.05 + 1_000 * 2.5) / 1_000_000).toFixed(COST_DECIMALS)),
   );
+  assert.equal(priceFor("claude-haiku-5-5", 100_001)?.input, 0.5);
+  assert.equal(priceFor("claude-opus-5-5", 900_000)?.input, 4); // pas de palier pour Opus/Sonnet 5.5
+  assert.equal(priceFor("modele-inconnu", 10), null);
 });
 
 test("aucun jeton : coût nul ; modèle inconnu : null (aucun coût inventé)", () => {

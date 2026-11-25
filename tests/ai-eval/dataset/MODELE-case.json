@@ -1,0 +1,31 @@
+{
+  "id": "cuisine-exemple",
+  "room_label": "Cuisine",
+  "room_description": null,
+  "room_type": "cuisine",
+  "situations": ["partiellement-visible", "multi-angles"],
+  "source": {
+    "kind": "video-reelle",
+    "description": "Vidéo de 30 s filmée au téléphone en faisant le tour de la pièce",
+    "author": "Nom de la personne qui a filmé",
+    "license": "usage interne au benchmark Devis Scan",
+    "url": null,
+    "consent": "Accord écrit des occupants du JJ/MM/AAAA"
+  },
+  "frames": [],
+  "reference": {
+    "status": "provisoire",
+    "annotated_by": "Nom de la personne qui a fait l'inventaire sur place",
+    "annotated_at": "AAAA-MM-JJ",
+    "validated_by": null,
+    "validated_at": null,
+    "notes": "Objets à déménager uniquement ; éléments fixes et effets personnels ignorés.",
+    "items": [
+      { "key": "refrigerateur", "quantity": 1 },
+      { "key": "chaise", "quantity": 3 },
+      { "key": "chaise", "quantity": 1, "partial": true, "comment": "Derrière la table, à peine visible" },
+      { "key": "table-a-manger-4", "quantity": 1, "alternatives": ["table-a-manger-6"], "difficult": true },
+      { "key": "petit-electromenager", "quantity": 2, "optional": true }
+    ]
+  }
+}

@@ -8,6 +8,27 @@ import type { RoomInput, RoomResult, VisionProvider } from "../provider.ts";
 
 type Effort = "low" | "medium" | "high";
 
+/**
+ * Réglages de l'appel. Les valeurs par défaut sont celles de la production ; le banc de comparaison
+ * (tests/ai-eval/bench.ts) les durcit : aucune nouvelle tentative, sortie plafonnée, pas de repli serveur.
+ */
+export type AnthropicProviderOptions = {
+  /** Nouvelles tentatives automatiques du SDK (429, 5xx, réseau). Production : 3. Banc : 0. */
+  maxRetries?: number;
+  /** Plafond de jetons en sortie (réflexion comprise). Production : 16 000. */
+  maxTokens?: number;
+  /** Repli serveur vers un autre modèle en cas de refus (Opus/Sonnet 5.5). Production : oui. Banc : non. */
+  serverFallback?: boolean;
+  timeoutMs?: number;
+};
+
+export const PRODUCTION_PROVIDER_OPTIONS: Required<AnthropicProviderOptions> = {
+  maxRetries: 3,
+  maxTokens: 16000,
+  serverFallback: true,
+  timeoutMs: 180_000,
+};
+
 /** Modèles acceptant le paramètre `fallbacks` (repli serveur après un refus de sécurité). */
 export function supportsFallback(model: string): boolean {
   return /^claude-(opus-5-5|sonnet-5-5|opus-5|fable-5)/.test(model);
@@ -25,11 +46,13 @@ export class AnthropicVisionProvider implements VisionProvider {
   readonly model: string;
   private readonly effort: Effort;
   private readonly client: Anthropic;
+  private readonly options: Required<AnthropicProviderOptions>;
 
-  constructor(apiKey: string, model: string, effort: Effort) {
+  constructor(apiKey: string, model: string, effort: Effort, options: AnthropicProviderOptions = {}) {
     this.model = model;
     this.effort = effort;
-    this.client = createAnthropicClient(apiKey, { maxRetries: 3, timeout: 180_000 });
+    this.options = { ...PRODUCTION_PROVIDER_OPTIONS, ...options };
+    this.client = createAnthropicClient(apiKey, { maxRetries: this.options.maxRetries, timeout: this.options.timeoutMs });
   }
 
   async analyzeRoom(input: RoomInput): Promise<RoomResult> {
@@ -43,9 +66,9 @@ export class AnthropicVisionProvider implements VisionProvider {
     try {
       const response = await this.client.beta.messages.create({
         model: this.model,
-        max_tokens: 16000,
+        max_tokens: this.options.maxTokens,
         // Repli serveur en cas de refus : disponible pour Opus 5.5 et Sonnet 5.5, pas pour Haiku 5.5.
-        ...(supportsFallback(this.model) ? { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" as const } : {}),
+        ...(this.options.serverFallback && supportsFallback(this.model) ? { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" as const } : {}),
         system: [
           { type: "text", text: ANALYSIS_INSTRUCTIONS },
           { type: "text", text: input.catalogText, cache_control: { type: "ephemeral" } },

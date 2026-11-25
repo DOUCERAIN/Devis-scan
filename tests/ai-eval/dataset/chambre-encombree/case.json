@@ -1,0 +1,112 @@
+{
+  "id": "chambre-encombree",
+  "room_label": "Bureau-bibliothèque",
+  "room_description": null,
+  "room_type": "bureau",
+  "situations": [
+    "encombre",
+    "partiellement-visible",
+    "objets-ambigus"
+  ],
+  "source": {
+    "kind": "photo-panoramique",
+    "description": "Photo réelle « Mess at Home - Uptown New Orleans Bedroom January 1990 01.jpg » ; vidéo de 10 s simulant un panoramique sur cette seule photo (make-videos.sh), passée par le vrai parcours client (compression, extraction et sélection des images de la phase 3). Une seule prise de vue : pas de vrais angles multiples.",
+    "author": "Infrogmation of New Orleans",
+    "license": "CC BY-SA 4.0",
+    "url": "https://commons.wikimedia.org/?curid=90188333",
+    "consent": null
+  },
+  "frames": [
+    {
+      "file": "00.jpg",
+      "captured_at_ms": 800
+    },
+    {
+      "file": "01.jpg",
+      "captured_at_ms": 1200
+    },
+    {
+      "file": "02.jpg",
+      "captured_at_ms": 1600
+    },
+    {
+      "file": "03.jpg",
+      "captured_at_ms": 2000
+    },
+    {
+      "file": "04.jpg",
+      "captured_at_ms": 2400
+    },
+    {
+      "file": "05.jpg",
+      "captured_at_ms": 2800
+    },
+    {
+      "file": "06.jpg",
+      "captured_at_ms": 3200
+    },
+    {
+      "file": "07.jpg",
+      "captured_at_ms": 3600
+    }
+  ],
+  "reference": {
+    "status": "provisoire",
+    "annotated_by": "Claude (assistant de développement), d'après la photo d'origine",
+    "annotated_at": "2026-11-25",
+    "validated_by": null,
+    "validated_at": null,
+    "notes": "Seuls les objets à déménager sont comptés. 'alternatives' : identifiants du catalogue également acceptés. 'optional' : objet ambigu ou minime, ni compté comme oubli s'il manque, ni comme erreur s'il est trouvé. Éléments fixes (rideaux, plafonnier, radiateur, cloison, fenêtres) et effets personnels (sacs, tasses) ignorés. À faire valider par un déménageur (mettre status à \"validee\", validated_by et validated_at).",
+    "items": [
+      {
+        "key": "bibliotheque",
+        "quantity": 3,
+        "alternatives": [
+          "etagere"
+        ],
+        "partial": true,
+        "difficult": true,
+        "comment": "Trois éléments côte à côte (un meuble ou trois ?) ; bas caché par le désordre."
+      },
+      {
+        "key": "caisse-plastique",
+        "quantity": 2,
+        "partial": true,
+        "comment": "Caisses rouges empilées à gauche, en partie cachées."
+      },
+      {
+        "key": "carton-standard",
+        "quantity": 1,
+        "alternatives": [
+          "carton-livres"
+        ],
+        "comment": "Carton ouvert au premier plan."
+      },
+      {
+        "key": "tableau-cadre",
+        "quantity": 2,
+        "optional": true
+      },
+      {
+        "key": "miroir-mural",
+        "quantity": 1,
+        "optional": true
+      },
+      {
+        "key": "petit-electromenager",
+        "quantity": 1,
+        "optional": true
+      },
+      {
+        "key": "valise",
+        "quantity": 1,
+        "optional": true
+      },
+      {
+        "key": "lampe-a-poser",
+        "quantity": 1,
+        "optional": true
+      }
+    ]
+  }
+}
