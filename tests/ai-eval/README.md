@@ -13,6 +13,7 @@ Objectif : comparer Haiku 5.5, Sonnet 5.5 et Opus 5.5 **sur les mêmes images**,
 ## Commandes
 
 ```bash
+node --conditions=react-server tests/ai-eval/ping.ts                   # appel de test unique et minimal (≈ 0,0001 $)
 bash tests/ai-eval/make-videos.sh
 NODE_PATH=$(npm root -g) node tests/ai-eval/prepare-frames.e2e.cjs     # Supabase local + application lancée
 node --conditions=react-server tests/ai-eval/bench.ts                  # estimation du coût seulement
@@ -31,3 +32,10 @@ Options : `--models haiku,sonnet,opus`, `--effort low|medium|high`, `--repeat 2`
 - **Coût** : calculé à partir des jetons réellement facturés renvoyés par l'API.
 
 Ces mesures portent sur un petit échantillon (photos, pas de vraies vidéos) : elles servent à **choisir un modèle et repérer les défauts**, pas à publier un taux de précision.
+
+## Reprise dans une nouvelle session
+
+Les variables de l'environnement cloud ne sont lues qu'au démarrage d'une session. Dans une nouvelle session sur l'environnement « devis-scan » :
+1. `ping.ts` (un seul appel minimal) pour confirmer la clé ;
+2. démarrer Docker, Supabase et l'application, régénérer `videos/` et `frames/` (non versionnés) ;
+3. `bench.ts` sans `--confirm` (estimation), puis avec `--confirm` après accord du porteur du projet.
