@@ -1,28 +1,43 @@
-# Parcours client et vidéos (phase 3)
+# Parcours client et vidéos
 
 Le particulier ouvre le lien de son déménageur, `/d/<identifiant-de-l-entreprise>`, sans créer de compte.
 
-## Étapes
+## Étapes (parcours v2, 01/12/2026)
 
 | Étape | Page | Contenu |
 | --- | --- | --- |
-| Accueil | `/d/[slug]` | Présentation aux couleurs de l'entreprise (logo, couleur, téléphone, e-mail), reprise ou nouvelle demande |
-| 1 | `/demande/trajet` | Adresses de départ et d'arrivée (suggestions API Adresse), date souhaitée, date alternative, dates flexibles, coordonnées, accord RGPD. Crée le brouillon |
-| 2 | `/demande/logements` | Pour chaque logement : type, surface, nombre de pièces, étage, ascenseur, portage, difficultés d'accès, contraintes |
-| 3 | `/demande/pieces` | Pièces (raccourcis Salon, Cuisine…, nom libre, description) : ajout, modification, suppression |
-| 4 | `/demande/videos` | Une vidéo par pièce : tournage, revue, compression, images, envoi |
-| 5 | `/demande/recapitulatif` | Tout le dossier, liens « Modifier », pièces sans vidéo signalées, options proposées par l'entreprise, message final, envoi définitif |
-| — | `/devis/<jeton>` | Après l'envoi : lien secret de suivi. On y trouve la progression de l'analyse, puis l'**inventaire à valider** (rubrique « Éléments à vérifier » avec une réponse obligatoire, avertissement à confirmer), puis le devis final (PDF, acceptation ou refus) et, s'il y en a, les nouvelles versions ou avenants avec leurs différences. Voir `docs/devis.md` |
-| — | `/demande/envoyee` | Confirmation (retour sur l'appareil après envoi) ; le dossier n'est plus modifiable |
+| Accueil | `/d/[slug]` | Présentation aux couleurs de l'entreprise, reprise ou nouvelle demande |
+| 1 Déménagement | `/demande/trajet` | Pour chaque logement : adresse (suggestions API Adresse, coordonnées recherchées côté serveur si aucune suggestion n'est choisie), type de logement, **étage obligatoire** (liste avec « Rez-de-chaussée », sous-sols, 1er à 30e), ascenseur, précisions facultatives repliées (surface, pièces, portage, accès, contraintes). Date souhaitée, **dates alternatives en nombre libre** (bouton « Ajouter une date alternative », retrait possible, 30 au plus : futures, distinctes entre elles et de la date souhaitée), dates flexibles. Crée le brouillon (sans coordonnées) |
+| 2 Coordonnées | `/demande/coordonnees` | Profil **Particulier** (prénom, nom, e-mail, téléphone obligatoires) ou **Entreprise** (nom de l'entreprise obligatoire, SIRET facultatif à 14 chiffres, puis la personne à contacter). Information sur les données personnelles, accord obligatoire au traitement pour établir le devis (date enregistrée), accord facultatif aux offres commerciales (jamais coché par défaut) |
+| 3 Méthode | `/demande/methode` | « Filmer mon logement » ou « Faire mon inventaire manuellement » (changement possible tant que la demande n'est pas envoyée) |
+| 4a Vidéo | `/demande/pieces` puis `/demande/videos` | Pièces puis une vidéo par pièce (tournage, revue, compression 720p, images, envoi reprenable) — inchangé |
+| 4b Manuel | `/demande/inventaire` | Sept catégories (Salon, Chambres, Cuisine, Salle de bain, Bureau, Garage et cave, Autres espaces) alimentées par le catalogue, recherche (nom et synonymes, sans accents), quantités (+ / −), retrait. « Vous ne trouvez pas votre meuble ? Ajouter un objet personnalisé. » : description obligatoire, quantité, taille approximative ou dimensions, commentaire facultatif. Chaque modification est enregistrée immédiatement |
+| 5 Récapitulatif | `/demande/recapitulatif` | Tout le dossier avec liens « Modifier », options de l'entreprise, message. Méthode manuelle : avertissement à confirmer, puis « Valider mon inventaire et recevoir mon devis » |
+| — | `/devis/<jeton>` | Lien secret de suivi. Vidéo : progression réelle de l'analyse, puis **inventaire modifiable** (quantités, retraits, objets oubliés, mêmes outils que l'inventaire manuel), « Éléments à vérifier » avec réponse obligatoire, avertissement, validation → devis final immédiat. Analyse impossible : bouton « Compléter mon inventaire moi-même ». Manuel : devis final dès l'envoi. Puis PDF, acceptation ou refus, nouvelles versions et avenants. Voir `docs/devis.md` |
+| — | `/demande/envoyee` | Confirmation ; le dossier n'est plus modifiable |
+| — | `/demande/logements` | Ancienne étape : redirige vers l'étape 1 |
 
-La barre de progression permet de revenir aux étapes déjà remplies ; chaque étape est enregistrée en base, rien n'est perdu en revenant en arrière.
+Chaque étape exige les précédentes (`reachableStep`, `src/lib/public-request/steps.ts`) : un lien direct vers une étape non accessible renvoie vers la première étape à compléter. Rien n'est perdu en revenant en arrière.
+
+## Volume des objets saisis par le client
+
+Le client ne donne jamais de volume. Le volume est calculé en base (`private.customer_item_volume`) et sa justification est enregistrée (`inventory_items.volume_note`, affichée au déménageur) :
+
+1. objet du catalogue avec volume de déménagement : ce volume (`volume_source = catalog`) ;
+2. dimensions indiquées : largeur × profondeur × hauteur × coefficient de manutention (1,1 par défaut, celui de la catégorie de l'objet s'il est connu) (`dimensions`) ;
+3. sinon, taille approximative obligatoire : volume du catalogue d'un objet comparable — petit = « Carton standard », moyen = « Fauteuil », grand = « Armoire 2 portes », très grand = « Canapé 3 places » (`comparable`).
+
+Sans dimensions ni taille, l'ajout est refusé : aucun volume arbitraire. Le devis mentionne les objets estimés par taille approximative ou par dimensions (« à confirmer par le déménageur »). Les objets du client sont marqués « Ajouté par le client » côté pro, avec leur commentaire.
+
+Après l'analyse, chaque ajout, modification ou retrait du client est historisé (`inventory_item_changes`, acteur `customer`) ; l'inventaire initial de l'IA reste consultable (`ai_proposal`). Un retrait marque l'objet retiré sans l'effacer.
 
 ## Sécurité du parcours
 
 - L'entreprise est toujours déduite du lien côté serveur ; le visiteur ne transmet jamais d'identifiant d'entreprise.
 - La demande est identifiée par un **jeton secret** (32 octets aléatoires) remis à la création, stocké dans un **cookie httpOnly** limité au chemin `/d/<slug>` (30 jours). Seul son hachage SHA-256 est en base. Aucune URL ne contient d'identifiant de demande.
 - Toutes les opérations passent par des fonctions SQL qui vérifient le jeton, l'état (brouillon) et des limites (30 pièces, 3 vidéos par pièce, 50 Mo, 12 images par vidéo). Les tables restent fermées aux visiteurs.
-- Après l'envoi, toute modification est refusée (statut `submitted`). Un double envoi est sans effet.
+- Après l'envoi, toute modification est refusée (statut `submitted`). Un double envoi est sans effet. L'inventaire n'est modifiable par le client que dans deux états : brouillon en méthode manuelle, ou inventaire de l'analyse en attente de sa validation (`awaiting_customer`) ; jamais après la validation.
+- L'envoi exige en base : coordonnées avec accord au traitement, date souhaitée, étages des deux logements, et une vidéo (méthode vidéo) ou un inventaire non vide (méthode manuelle).
 - Session expirée ou jeton invalide : retour à l'étape 1 avec un message, sans rien révéler.
 
 ## Vidéos

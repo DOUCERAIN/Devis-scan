@@ -109,3 +109,10 @@ Le déménageur peut renommer, changer la quantité, le volume, la pièce, confi
 Le devis affiche : identité de l'entreprise (raison sociale, adresse, SIRET, TVA), date, numéro et durée de validité, client, adresses, accès, date souhaitée, volume, distance, détail des prix HT, TVA et TTC, type de voyage (réglage de la grille), assurance, conditions de paiement, réserves à la livraison, responsabilité et conditions générales **rédigées par l'entreprise**. Devis Scan n'ajoute aucune clause juridique.
 
 Textes de référence identifiés (arrêté du 27 avril 2010 sur l'information du consommateur en matière de déménagement, fiche service-public F33997) : **non consultés en intégralité** (sites inaccessibles depuis l'environnement de développement). La conformité des mentions doit être vérifiée par un professionnel du droit avant la commercialisation.
+
+## Inventaire saisi par le client (parcours v2, 01/12/2026)
+
+- **Méthode manuelle** : l'envoi (`submit_public_manual_request`) vaut validation de l'inventaire (avertissement accepté, texte enregistré) ; le devis final est calculé immédiatement par `issueFinalQuote`, sans analyse IA, avec la seule grille de l'entreprise. Vérification du déménageur ensuite, comme pour la méthode vidéo (nouvelle version ou avenant si correction).
+- **Méthode vidéo** : avant de valider, le client peut corriger l'inventaire de l'analyse (quantités, retraits, objets oubliés). Analyse impossible : il peut compléter lui-même son inventaire (`public_resume_manual`), puis valider ; un inventaire vide ne peut pas être validé.
+- Les objets estimés par taille approximative ou par dimensions sont signalés dans les hypothèses du devis.
+- Empêchements objectifs inchangés (grille non enregistrée, identité légale incomplète, prix incalculable) : le devis attend alors le déménageur et le client en est informé sur sa page.

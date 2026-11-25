@@ -25,6 +25,7 @@ Le porteur du projet n'est pas développeur : expliquer en français simple, gui
 
   Les réponses du client ne sont jamais écrasées (colonnes séparées, déclencheur). E-mails préparés dans `customer_notifications` : **aucun service d'e-mail configuré**, jamais présentés comme envoyés.
 - **Lien de suivi client** : `/d/<slug>/devis/<jeton>` (jeton de consultation, hachage en base), remis à l'envoi.
+- **Parcours client v2** (01/12/2026, `docs/parcours-client.md`, migration `20261201090000_customer_journey_v2.sql`) : 1 Déménagement (étage obligatoire avec rez-de-chaussée, dates alternatives multiples `alternative_moving_dates`, l'ancienne colonne garde la première) → 2 Coordonnées (particulier / entreprise, SIRET facultatif, téléphone obligatoire, accord au traitement obligatoire et daté, offres facultatives) → 3 Méthode (`inventory_method` : video / manual) → 4 vidéos ou inventaire manuel par 7 catégories (`src/lib/inventory/manual.ts`) → 5 Récapitulatif. Manuel : validation à l'envoi (avertissement sans « vidéos », `MANUAL_INVENTORY_WARNING`) et devis final immédiat, sans IA. Vidéo : inventaire de l'analyse modifiable par le client avant validation (historisé) ; analyse impossible → le client complète lui-même (`public_resume_manual`). Objets du client : volume catalogue, sinon dimensions × coefficient, sinon taille approximative = volume catalogue d'un objet comparable (`volume_source = comparable`, justification `volume_note`) ; jamais de volume arbitraire.
 - **Mode démo personnalisé** pour la prospection : prévu (colonne `companies.is_demo` déjà présente).
 - Branche de travail : `claude/trusting-wozniak-28f6ok`. Ne jamais modifier `main` ni fusionner sans autorisation explicite.
 
@@ -71,6 +72,7 @@ npm run test:e2e          # parcours de l'espace pro en navigateur (Playwright)
 npm run test:media        # génère les vidéos de test (ffmpeg) dans tests/e2e/media/
 npm run test:e2e:client   # parcours client complet (application lancée avec AI_PROVIDER=simulation AI_ALLOW_SIMULATION=1)
 npm run test:e2e:verification  # validation client, devis final, vérification du déménageur (cas 1, A, C)
+npm run test:e2e:manuel   # parcours client « inventaire manuel » jusqu'au devis accepté (application lancée)
 npm run lint && npx tsc --noEmit && npm run build
 ```
 

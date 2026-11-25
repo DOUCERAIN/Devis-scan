@@ -98,3 +98,11 @@ La tâche `/api/taches/purge-videos` (Vercel Cron, chaque jour) supprime réelle
 | Fonctions publiques | `get_public_company_options`, `set_public_options`, `get_public_selected_options`, `submit_public_request` (renvoie le jeton de suivi), `get_public_quote_view`, `respond_public_quote` |
 
 Tests : `supabase/tests/database/phase4_quotes.test.sql`.
+
+## Parcours client v2 (migration `20261201090000_customer_journey_v2.sql`, non destructive)
+
+- `quote_requests.alternative_moving_dates date[]` (30 au plus ; `alternative_moving_date` conservée = première date), `inventory_method` (`video` / `manual`).
+- `customers` : `customer_type` (`individual` / `company`), `first_name`, `last_name`, `company_name`, `siret` (14 chiffres ou vide), `privacy_accepted_at`, `marketing_consent`, `marketing_consent_at`. `full_name` reste rempli (« Prénom Nom »).
+- `inventory_items` : `volume_source` accepte `comparable` ; `size_class`, `customer_comment`, `volume_note` (justification du volume).
+- Fonctions protégées par jeton : `public_inventory_add`, `public_inventory_update`, `public_inventory_remove`, `submit_public_manual_request`, `public_resume_manual` ; `get_public_inventory`, `get_public_request`, `create/update_public_request`, `submit_public_request`, `validate_public_inventory` mises à jour. Tests : `supabase/tests/database/customer_journey_v2.test.sql`.
+- Les catégories de l'inventaire manuel sont des pièces techniques (`rooms.room_type = 'inv:<catégorie>'`), exclues de la liste des pièces filmées.
