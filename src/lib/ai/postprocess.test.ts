@@ -94,3 +94,14 @@ test("sortie du modèle validée : forme stricte, indices d'images hors limites 
   assert.throws(() => parseRoomAnalysis(JSON.stringify({ objects: [{ ...obj({}), confidence: 3 }], room_notes: "" }), 2));
   assert.throws(() => parseRoomAnalysis("pas du json", 2));
 });
+
+test("référence du catalogue sans volume : dimensions estimées → volume « à vérifier », sinon volume à renseigner", () => {
+  const withDims = buildItems([{ roomId: "r", frameIds: ["f"], objects: [obj({ catalog_id: "lampadaire", label: "Lampadaire", confidence: 0.95, dimensions_cm: { width: 30, depth: 30, height: 160 } })] }], catalog);
+  assert.equal(withDims[0].catalogKey, "lampadaire");
+  assert.equal(withDims[0].volumeSource, "dimensions");
+  assert.ok(withDims[0].unitVolumeM3 > 0);
+  assert.ok(withDims[0].confidence <= 0.84);
+  const noDims = buildItems([{ roomId: "r", frameIds: ["f"], objects: [obj({ catalog_id: "lampadaire", label: "Lampadaire" })] }], catalog);
+  assert.equal(noDims[0].volumeSource, "unknown");
+  assert.equal(noDims[0].unitVolumeM3, 0);
+});

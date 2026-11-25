@@ -32,6 +32,10 @@ La grille créée avec l'entreprise contient des valeurs d'exemple. Tant que l'e
 
 ## Estimation ou devis
 
+### Devis formel automatique (option de l'entreprise)
+Réglage « Envoyer automatiquement un devis formel quand l'analyse est fiable » (page Entreprise, désactivé par défaut). Après l'analyse, un devis formel n'est envoyé automatiquement que si **toutes** les conditions sont réunies (`src/lib/quotes/eligibility.ts`) : option activée, identité légale complète, grille enregistrée, analyse réelle (jamais le simulateur), toutes les pièces filmées et analysées, aucun objet à vérifier ni doublon possible, aucun volume potentiel, aucun objet sans volume, aucune hypothèse dans le calcul du prix (étages, portage, distance estimée…). Sinon : **estimation indicative** et demande signalée au déménageur, avec la liste des motifs (`quotes.review_reasons`), visible sur la fiche ; côté client, seuls les motifs qui concernent sa demande sont affichés.
+
+
 - **Estimation indicative** : calculée automatiquement après l'analyse, ou recalculée par le déménageur. Bandeau explicite : elle n'engage pas l'entreprise tant qu'elle n'a pas vérifié l'inventaire.
 - **Devis** : version « Valider et envoyer au client », possible seulement si la raison sociale, le SIRET et l'adresse de l'entreprise sont renseignés. Le client peut alors l'accepter ou le refuser (avant la date de validité).
 
@@ -48,7 +52,7 @@ Chaque calcul crée une **nouvelle version** (`quotes.version`), avec ses instan
 | Accepté / Refusé / Expiré | réponse du client, ou date de validité dépassée |
 | Remplacé | `superseded` : version antérieure, conservée |
 
-Garanties en base : une version n'est **jamais modifiée** (déclencheur `freeze_quote`), seul son statut évolue ; un devis accepté ne change plus de statut ; un devis n'est jamais supprimé ; une demande dont le devis est accepté ne peut plus recevoir de nouvelle version.
+Garanties en base : une version n'est **jamais modifiée** (déclencheur `freeze_quote`, motifs de validation compris), seul son statut évolue ; un devis accepté ne change plus de statut ; un devis n'est jamais supprimé ; **aucune nouvelle version ne peut être créée** pour une demande dont un devis est accepté (déclencheur `forbid_quote_after_acceptance`, en plus des contrôles de l'application).
 
 ## Corrections de l'inventaire
 

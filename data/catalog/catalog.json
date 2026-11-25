@@ -1,5 +1,5 @@
 {
- "version": "2026-11-24",
+ "version": "2026-11-25",
  "categories": {
   "salon": "Salon et séjour",
   "chambre": "Chambres",
@@ -96,7 +96,7 @@
     "Dimensions : percentiles 10/50/90 de 121 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : référence interne du prototype « Canapé 2 places » (1.0 m³) ; fourchette proportionnelle à la dispersion ABO."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "canape-3-places",
@@ -156,7 +156,7 @@
     "Dimensions : percentiles 10/50/90 de 233 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : référence interne du prototype « Canapé 3 places » (1.5 m³) ; fourchette proportionnelle à la dispersion ABO."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "canape-4-places",
@@ -217,7 +217,7 @@
     "Dimensions : percentiles 10/50/90 de 33 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : dérivé de « Canapé 3 places » (1.5 m³) × rapport des volumes géométriques ABO (1.46) — à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "canape-angle",
@@ -279,7 +279,7 @@
     "Dimensions : percentiles 10/50/90 de 166 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : dérivé de « Canapé 3 places » (1.5 m³) × rapport des volumes géométriques ABO (1.08) — à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "canape-convertible",
@@ -342,7 +342,7 @@
     "Dimensions : percentiles 10/50/90 de 26 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : dérivé de « Canapé 3 places » (1.5 m³) × rapport des volumes géométriques ABO (0.86) — à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "canape-panoramique",
@@ -369,7 +369,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "meridienne",
@@ -430,7 +430,7 @@
     "Dimensions : percentiles 10/50/90 de 39 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : référence interne du prototype « Méridienne » (0.8 m³) ; fourchette proportionnelle à la dispersion ABO."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "fauteuil",
@@ -491,7 +491,7 @@
     "Dimensions : percentiles 10/50/90 de 365 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : référence interne du prototype « Fauteuil » (0.5 m³) ; fourchette proportionnelle à la dispersion ABO."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "fauteuil-relax",
@@ -553,7 +553,7 @@
     "Dimensions : percentiles 10/50/90 de 119 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : dérivé de « Fauteuil » (0.5 m³) × rapport des volumes géométriques ABO (1.35) — à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "fauteuil-pivotant",
@@ -613,7 +613,7 @@
     "Dimensions : percentiles 10/50/90 de 75 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : dérivé de « Fauteuil » (0.5 m³) × rapport des volumes géométriques ABO (1.02) — à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "rocking-chair",
@@ -672,7 +672,7 @@
     "Dimensions : percentiles 10/50/90 de 27 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "pouf",
@@ -732,7 +732,7 @@
     "Dimensions : percentiles 10/50/90 de 260 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 1.15 (meuble rembourré, + housse et calage) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "pouf-poire",
@@ -792,7 +792,7 @@
     "Dimensions : percentiles 10/50/90 de 52 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 1.15 (meuble rembourré, + housse et calage) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "table-basse",
@@ -851,7 +851,7 @@
     "Dimensions : percentiles 10/50/90 de 181 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : référence interne du prototype « Table basse » (0.3 m³) ; fourchette proportionnelle à la dispersion ABO."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "bout-de-canape",
@@ -912,7 +912,7 @@
     "Dimensions : percentiles 10/50/90 de 142 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "console",
@@ -972,7 +972,7 @@
     "Dimensions : percentiles 10/50/90 de 35 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "meuble-tv",
@@ -1033,7 +1033,7 @@
     "Dimensions : percentiles 10/50/90 de 58 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "buffet-bas",
@@ -1049,39 +1049,39 @@
    "coco_class": null,
    "handling": "rigide",
    "heavy": false,
-   "sample_size": 35,
+   "sample_size": 38,
    "dims_cm": {
     "width": {
-     "min": 98.0,
-     "avg": 142.0,
+     "min": 93.0,
+     "avg": 140.0,
      "max": 173.0
     },
     "depth": {
      "min": 39.0,
      "avg": 45.0,
-     "max": 53.0
+     "max": 52.0
     },
     "height": {
      "min": 76.0,
-     "avg": 86.0,
-     "max": 111.0
+     "avg": 82.0,
+     "max": 109.0
     }
    },
    "geometric_volume_m3": {
-    "min": 0.37,
-    "avg": 0.53,
+    "min": 0.29,
+    "avg": 0.51,
     "max": 0.72
    },
    "weight_kg": {
     "min": 19.0,
-    "avg": 51.0,
-    "max": 82.0,
-    "sample_size": 35
+    "avg": 49.0,
+    "max": 80.0,
+    "sample_size": 38
    },
    "professional_volume_m3": null,
    "moving_volume_m3": {
-    "min": 0.41,
-    "avg": 0.58,
+    "min": 0.32,
+    "avg": 0.56,
     "max": 0.79
    },
    "dims_reliability": "elevee",
@@ -1091,10 +1091,10 @@
     "ds"
    ],
    "method": [
-    "Dimensions : percentiles 10/50/90 de 35 produits ABO (largeur = plus grand côté horizontal).",
+    "Dimensions : percentiles 10/50/90 de 38 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "bibliotheque",
@@ -1154,7 +1154,7 @@
     "Dimensions : percentiles 10/50/90 de 60 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : référence interne du prototype « Bibliothèque » (0.6 m³) ; fourchette proportionnelle à la dispersion ABO."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "vitrine",
@@ -1169,16 +1169,16 @@
    "coco_class": null,
    "handling": "fragile",
    "heavy": false,
-   "sample_size": 36,
+   "sample_size": 37,
    "dims_cm": {
     "width": {
      "min": 117.0,
-     "avg": 210.0,
+     "avg": 208.0,
      "max": 234.0
     },
     "depth": {
      "min": 10.0,
-     "avg": 14.0,
+     "avg": 15.0,
      "max": 213.0
     },
     "height": {
@@ -1188,19 +1188,19 @@
     }
    },
    "geometric_volume_m3": {
-    "min": 0.23,
+    "min": 0.22,
     "avg": 0.37,
     "max": 7.09
    },
    "weight_kg": {
-    "min": 31.0,
+    "min": 30.0,
     "avg": 40.0,
     "max": 77.0,
-    "sample_size": 36
+    "sample_size": 37
    },
    "professional_volume_m3": null,
    "moving_volume_m3": {
-    "min": 0.3,
+    "min": 0.29,
     "avg": 0.48,
     "max": 9.22
    },
@@ -1211,10 +1211,10 @@
     "ds"
    ],
    "method": [
-    "Dimensions : percentiles 10/50/90 de 36 produits ABO (largeur = plus grand côté horizontal).",
+    "Dimensions : percentiles 10/50/90 de 37 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 1.3 (objet fragile emballé (carton, papier bulle)) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "tapis",
@@ -1240,7 +1240,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "lampadaire",
@@ -1300,7 +1300,7 @@
     "Dimensions : percentiles 10/50/90 de 15 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 1.3 (objet fragile emballé (carton, papier bulle)) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "lampe-a-poser",
@@ -1360,7 +1360,7 @@
     "Dimensions : percentiles 10/50/90 de 49 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 1.3 (objet fragile emballé (carton, papier bulle)) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "miroir-mural",
@@ -1375,19 +1375,52 @@
    "coco_class": null,
    "handling": "fragile",
    "heavy": false,
-   "sample_size": 0,
-   "dims_cm": null,
-   "geometric_volume_m3": null,
-   "weight_kg": null,
+   "sample_size": 87,
+   "dims_cm": {
+    "width": {
+     "min": 46.0,
+     "avg": 61.0,
+     "max": 76.0
+    },
+    "depth": {
+     "min": 3.0,
+     "avg": 4.0,
+     "max": 31.0
+    },
+    "height": {
+     "min": 34.0,
+     "avg": 71.0,
+     "max": 102.0
+    }
+   },
+   "geometric_volume_m3": {
+    "min": 0.01,
+    "avg": 0.02,
+    "max": 0.11
+   },
+   "weight_kg": {
+    "min": 2.0,
+    "avg": 5.0,
+    "max": 7.0,
+    "sample_size": 79
+   },
    "professional_volume_m3": null,
-   "moving_volume_m3": null,
-   "dims_reliability": "aucune",
-   "moving_volume_reliability": "aucune",
-   "sources": [],
-   "method": [
-    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   "moving_volume_m3": {
+    "min": 0.01,
+    "avg": 0.03,
+    "max": 0.14
+   },
+   "dims_reliability": "elevee",
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "abo",
+    "ds"
    ],
-   "updated_at": "2026-11-24"
+   "method": [
+    "Dimensions : percentiles 10/50/90 de 87 produits ABO (largeur = plus grand côté horizontal).",
+    "Volume de déménagement : volume géométrique × 1.3 (objet fragile emballé (carton, papier bulle)) — hypothèse Devis Scan à calibrer."
+   ],
+   "updated_at": "2026-11-25"
   },
   {
    "id": "tableau-cadre",
@@ -1448,7 +1481,7 @@
     "Dimensions : percentiles 10/50/90 de 74 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 1.3 (objet fragile emballé (carton, papier bulle)) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "television",
@@ -1509,7 +1542,7 @@
     "Dimensions : percentiles 10/50/90 de 13 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : référence interne du prototype « Télévision » (0.2 m³) ; fourchette proportionnelle à la dispersion ABO."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "enceinte-colonne",
@@ -1536,7 +1569,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "piano-droit",
@@ -1568,7 +1601,7 @@
    "method": [
     "Volume de déménagement : référence interne du prototype « Piano droit » (2.5 m³) ; fourchette ±25 %."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "piano-a-queue",
@@ -1601,7 +1634,7 @@
    "method": [
     "Volume de déménagement : référence interne du prototype « Piano à queue » (5.0 m³) ; fourchette ±25 %."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "piano-numerique",
@@ -1627,7 +1660,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "aquarium",
@@ -1653,7 +1686,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "coffre-fort",
@@ -1685,7 +1718,7 @@
    "method": [
     "Volume de déménagement : référence interne du prototype « Coffre-fort » (0.8 m³) ; fourchette ±25 %."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "horloge-comtoise",
@@ -1711,7 +1744,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "plante-grande",
@@ -1738,7 +1771,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "table-a-manger-4",
@@ -1798,7 +1831,7 @@
     "Dimensions : percentiles 10/50/90 de 18 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : référence interne du prototype « Table repas » (0.5 m³) ; fourchette proportionnelle à la dispersion ABO."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "table-a-manger-6",
@@ -1858,7 +1891,7 @@
     "Dimensions : percentiles 10/50/90 de 12 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : dérivé de « Table à manger 4 personnes » (0.5 m³) × rapport des volumes géométriques ABO (1.60) — à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "table-a-manger-8",
@@ -1919,7 +1952,7 @@
     "Dimensions : percentiles 10/50/90 de 16 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : dérivé de « Table à manger 4 personnes » (0.5 m³) × rapport des volumes géométriques ABO (2.10) — à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "chaise",
@@ -1979,7 +2012,7 @@
     "Dimensions : percentiles 10/50/90 de 199 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : référence interne du prototype « Chaise » (0.15 m³) ; fourchette proportionnelle à la dispersion ABO."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "tabouret-de-bar",
@@ -2039,7 +2072,7 @@
     "Dimensions : percentiles 10/50/90 de 246 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 0.7 (objet empilable ou imbriquable) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "tabouret",
@@ -2099,7 +2132,7 @@
     "Dimensions : percentiles 10/50/90 de 14 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 0.7 (objet empilable ou imbriquable) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "banc-de-table",
@@ -2158,7 +2191,7 @@
     "Dimensions : percentiles 10/50/90 de 15 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "desserte-cuisine",
@@ -2173,40 +2206,40 @@
    "coco_class": null,
    "handling": "rigide",
    "heavy": false,
-   "sample_size": 36,
+   "sample_size": 44,
    "dims_cm": {
     "width": {
-     "min": 56.0,
+     "min": 57.0,
      "avg": 76.0,
      "max": 102.0
     },
     "depth": {
-     "min": 34.0,
-     "avg": 44.0,
-     "max": 53.0
+     "min": 36.0,
+     "avg": 45.0,
+     "max": 52.0
     },
     "height": {
      "min": 79.0,
-     "avg": 87.0,
+     "avg": 88.0,
      "max": 95.0
     }
    },
    "geometric_volume_m3": {
-    "min": 0.15,
+    "min": 0.18,
     "avg": 0.3,
-    "max": 0.47
+    "max": 0.48
    },
    "weight_kg": {
     "min": 4.0,
-    "avg": 15.0,
-    "max": 31.0,
-    "sample_size": 32
+    "avg": 17.0,
+    "max": 30.0,
+    "sample_size": 37
    },
    "professional_volume_m3": null,
    "moving_volume_m3": {
-    "min": 0.17,
+    "min": 0.2,
     "avg": 0.33,
-    "max": 0.52
+    "max": 0.53
    },
    "dims_reliability": "elevee",
    "moving_volume_reliability": "faible",
@@ -2215,10 +2248,10 @@
     "ds"
    ],
    "method": [
-    "Dimensions : percentiles 10/50/90 de 36 produits ABO (largeur = plus grand côté horizontal).",
+    "Dimensions : percentiles 10/50/90 de 44 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "buffet-cuisine",
@@ -2245,7 +2278,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "etagere-cuisine",
@@ -2272,7 +2305,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "refrigerateur",
@@ -2305,7 +2338,7 @@
    "method": [
     "Volume de déménagement : référence interne du prototype « Réfrigérateur » (0.4 m³) ; fourchette ±25 %."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "refrigerateur-americain",
@@ -2332,7 +2365,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "refrigerateur-top",
@@ -2360,7 +2393,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "congelateur",
@@ -2393,7 +2426,7 @@
    "method": [
     "Volume de déménagement : référence interne du prototype « Congélateur » (0.4 m³) ; fourchette ±25 %."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "cave-a-vin",
@@ -2419,7 +2452,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "lave-linge",
@@ -2451,7 +2484,7 @@
    "method": [
     "Volume de déménagement : référence interne du prototype « Lave-linge » (0.3 m³) ; fourchette ±25 %."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "seche-linge",
@@ -2483,7 +2516,7 @@
    "method": [
     "Volume de déménagement : référence interne du prototype « Sèche-linge » (0.3 m³) ; fourchette ±25 %."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "lave-vaisselle",
@@ -2513,7 +2546,7 @@
    "method": [
     "Volume de déménagement : référence interne du prototype « Lave-vaisselle » (0.3 m³) ; fourchette ±25 %."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "four",
@@ -2540,7 +2573,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "cuisiniere",
@@ -2567,7 +2600,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "micro-ondes",
@@ -2599,7 +2632,7 @@
    "method": [
     "Volume de déménagement : référence interne du prototype « Micro-ondes » (0.05 m³) ; fourchette ±25 %."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "petit-electromenager",
@@ -2633,7 +2666,7 @@
    "method": [
     "Volume de déménagement : référence interne du prototype « Machine à café » (0.05 m³) ; fourchette ±25 %."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "lit-simple",
@@ -2667,7 +2700,7 @@
    "method": [
     "Volume de déménagement : référence interne du prototype « Lit simple » (0.8 m³) ; fourchette ±25 %."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "lit-double",
@@ -2700,7 +2733,7 @@
    "method": [
     "Volume de déménagement : référence interne du prototype « Lit double 140 » (1.2 m³) ; fourchette ±25 %."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "lit-queen-size",
@@ -2760,7 +2793,7 @@
     "Dimensions : percentiles 10/50/90 de 88 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : référence interne du prototype « Lit double 160 » (1.4 m³) ; fourchette proportionnelle à la dispersion ABO."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "lit-king-size",
@@ -2821,7 +2854,7 @@
     "Dimensions : percentiles 10/50/90 de 63 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : dérivé de « Lit queen size » (1.4 m³) × rapport des volumes géométriques ABO (1.48) — à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "lit-superpose",
@@ -2836,7 +2869,7 @@
    "coco_class": "bed",
    "handling": "demontable",
    "heavy": false,
-   "sample_size": 4,
+   "sample_size": 5,
    "dims_cm": null,
    "geometric_volume_m3": null,
    "weight_kg": null,
@@ -2848,7 +2881,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "lit-coffre",
@@ -2909,7 +2942,7 @@
     "Dimensions : percentiles 10/50/90 de 10 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : dérivé de « Lit queen size » (1.4 m³) × rapport des volumes géométriques ABO (0.65) — à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "lit-bebe",
@@ -2936,7 +2969,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "tete-de-lit",
@@ -2995,7 +3028,7 @@
     "Dimensions : percentiles 10/50/90 de 219 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "sommier",
@@ -3028,7 +3061,7 @@
    "method": [
     "Volume de déménagement : référence interne du prototype « Sommier » (0.3 m³) ; fourchette ±25 %."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "matelas-simple",
@@ -3061,7 +3094,7 @@
    "method": [
     "Volume de déménagement : référence interne du prototype « Matelas simple » (0.3 m³) ; fourchette ±25 %."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "matelas-double",
@@ -3095,7 +3128,7 @@
    "method": [
     "Volume de déménagement : référence interne du prototype « Matelas double » (0.5 m³) ; fourchette ±25 %."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "table-de-chevet",
@@ -3155,7 +3188,7 @@
     "Dimensions : percentiles 10/50/90 de 33 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : référence interne du prototype « Table de nuit » (0.1 m³) ; fourchette proportionnelle à la dispersion ABO."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "commode",
@@ -3216,7 +3249,7 @@
     "Dimensions : percentiles 10/50/90 de 42 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : référence interne du prototype « Commode » (0.5 m³) ; fourchette proportionnelle à la dispersion ABO."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "armoire-1-porte",
@@ -3249,7 +3282,7 @@
    "method": [
     "Volume de déménagement : référence interne du prototype « Armoire 1 porte » (0.5 m³) ; fourchette ±25 %."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "armoire-2-portes",
@@ -3309,7 +3342,7 @@
     "Dimensions : percentiles 10/50/90 de 33 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : référence interne du prototype « Armoire 2 portes » (0.8 m³) ; fourchette proportionnelle à la dispersion ABO."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "armoire-3-portes",
@@ -3335,7 +3368,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "armoire-4-portes",
@@ -3394,7 +3427,7 @@
     "Dimensions : percentiles 10/50/90 de 9 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : référence interne du prototype « Grande armoire » (1.2 m³) ; fourchette proportionnelle à la dispersion ABO."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "armoire-basse",
@@ -3408,7 +3441,7 @@
    "coco_class": null,
    "handling": "rigide",
    "heavy": false,
-   "sample_size": 11,
+   "sample_size": 13,
    "dims_cm": {
     "width": {
      "min": 80.0,
@@ -3417,30 +3450,30 @@
     },
     "depth": {
      "min": 33.0,
-     "avg": 38.0,
+     "avg": 40.0,
      "max": 42.0
     },
     "height": {
-     "min": 61.0,
-     "avg": 81.0,
-     "max": 113.0
+     "min": 62.0,
+     "avg": 80.0,
+     "max": 109.0
     }
    },
    "geometric_volume_m3": {
     "min": 0.24,
-    "avg": 0.37,
+    "avg": 0.32,
     "max": 0.5
    },
    "weight_kg": {
-    "min": 16.0,
+    "min": 17.0,
     "avg": 33.0,
-    "max": 45.0,
-    "sample_size": 11
+    "max": 49.0,
+    "sample_size": 13
    },
    "professional_volume_m3": null,
    "moving_volume_m3": {
     "min": 0.26,
-    "avg": 0.41,
+    "avg": 0.35,
     "max": 0.55
    },
    "dims_reliability": "moyenne",
@@ -3450,10 +3483,10 @@
     "ds"
    ],
    "method": [
-    "Dimensions : percentiles 10/50/90 de 11 produits ABO (largeur = plus grand côté horizontal).",
+    "Dimensions : percentiles 10/50/90 de 13 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "dressing",
@@ -3480,7 +3513,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "portant-vetements",
@@ -3494,40 +3527,40 @@
    "coco_class": null,
    "handling": "demontable",
    "heavy": false,
-   "sample_size": 11,
+   "sample_size": 12,
    "dims_cm": {
     "width": {
-     "min": 34.0,
-     "avg": 70.0,
-     "max": 128.0
+     "min": 37.0,
+     "avg": 81.0,
+     "max": 126.0
     },
     "depth": {
-     "min": 2.0,
+     "min": 6.0,
      "avg": 40.0,
-     "max": 55.0
+     "max": 54.0
     },
     "height": {
      "min": 62.0,
-     "avg": 142.0,
+     "avg": 146.0,
      "max": 161.0
     }
    },
    "geometric_volume_m3": {
-    "min": 0.0,
-    "avg": 0.44,
-    "max": 1.0
+    "min": 0.01,
+    "avg": 0.52,
+    "max": 0.96
    },
    "weight_kg": {
-    "min": 2.0,
+    "min": 3.0,
     "avg": 3.0,
-    "max": 7.0,
-    "sample_size": 9
+    "max": 11.0,
+    "sample_size": 10
    },
    "professional_volume_m3": null,
    "moving_volume_m3": {
     "min": 0.0,
-    "avg": 0.2,
-    "max": 0.45
+    "avg": 0.23,
+    "max": 0.43
    },
    "dims_reliability": "moyenne",
    "moving_volume_reliability": "faible",
@@ -3536,10 +3569,10 @@
     "ds"
    ],
    "method": [
-    "Dimensions : percentiles 10/50/90 de 11 produits ABO (largeur = plus grand côté horizontal).",
+    "Dimensions : percentiles 10/50/90 de 12 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 0.45 (meuble transporté démonté (éléments à plat)) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "coiffeuse",
@@ -3553,39 +3586,39 @@
    "coco_class": null,
    "handling": "rigide",
    "heavy": false,
-   "sample_size": 8,
+   "sample_size": 10,
    "dims_cm": {
     "width": {
-     "min": 63.0,
-     "avg": 137.0,
+     "min": 69.0,
+     "avg": 115.0,
      "max": 137.0
     },
     "depth": {
-     "min": 41.0,
-     "avg": 48.0,
+     "min": 38.0,
+     "avg": 45.0,
      "max": 48.0
     },
     "height": {
-     "min": 127.0,
+     "min": 79.0,
      "avg": 131.0,
-     "max": 146.0
+     "max": 136.0
     }
    },
    "geometric_volume_m3": {
-    "min": 0.36,
-    "avg": 0.87,
+    "min": 0.28,
+    "avg": 0.62,
     "max": 0.87
    },
    "weight_kg": {
     "min": 17.0,
-    "avg": 38.0,
+    "avg": 31.0,
     "max": 40.0,
-    "sample_size": 8
+    "sample_size": 10
    },
    "professional_volume_m3": null,
    "moving_volume_m3": {
-    "min": 0.4,
-    "avg": 0.96,
+    "min": 0.31,
+    "avg": 0.68,
     "max": 0.96
    },
    "dims_reliability": "moyenne",
@@ -3595,10 +3628,10 @@
     "ds"
    ],
    "method": [
-    "Dimensions : percentiles 10/50/90 de 8 produits ABO (largeur = plus grand côté horizontal).",
+    "Dimensions : percentiles 10/50/90 de 10 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "coffre-a-jouets",
@@ -3625,7 +3658,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "bureau-enfant",
@@ -3684,7 +3717,7 @@
     "Dimensions : percentiles 10/50/90 de 12 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "chaise-enfant",
@@ -3743,7 +3776,7 @@
     "Dimensions : percentiles 10/50/90 de 16 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 0.7 (objet empilable ou imbriquable) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "meuble-vasque",
@@ -3769,7 +3802,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "colonne-salle-de-bain",
@@ -3795,7 +3828,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "etagere-salle-de-bain",
@@ -3821,7 +3854,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "panier-a-linge",
@@ -3880,7 +3913,7 @@
     "Dimensions : percentiles 10/50/90 de 22 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 0.7 (objet empilable ou imbriquable) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "bureau",
@@ -3940,7 +3973,7 @@
     "Dimensions : percentiles 10/50/90 de 86 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : référence interne du prototype « Bureau » (0.6 m³) ; fourchette proportionnelle à la dispersion ABO."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "bureau-angle",
@@ -4000,7 +4033,7 @@
     "Dimensions : percentiles 10/50/90 de 9 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : dérivé de « Bureau » (0.6 m³) × rapport des volumes géométriques ABO (2.54) — à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "bureau-assis-debout",
@@ -4026,7 +4059,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "chaise-de-bureau",
@@ -4086,7 +4119,7 @@
     "Dimensions : percentiles 10/50/90 de 103 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : référence interne du prototype « Chaise de bureau » (0.3 m³) ; fourchette proportionnelle à la dispersion ABO."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "caisson-de-bureau",
@@ -4146,7 +4179,7 @@
     "Dimensions : percentiles 10/50/90 de 11 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "armoire-de-bureau",
@@ -4173,7 +4206,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "etagere",
@@ -4234,7 +4267,7 @@
     "Dimensions : percentiles 10/50/90 de 54 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : référence interne du prototype « Étagère » (0.3 m³) ; fourchette proportionnelle à la dispersion ABO."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "imprimante",
@@ -4260,7 +4293,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "ordinateur-fixe",
@@ -4288,7 +4321,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "meuble-a-chaussures",
@@ -4348,7 +4381,7 @@
     "Dimensions : percentiles 10/50/90 de 43 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "banc-entree",
@@ -4408,7 +4441,7 @@
     "Dimensions : percentiles 10/50/90 de 22 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "portemanteau",
@@ -4435,7 +4468,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "meuble-d-entree",
@@ -4461,7 +4494,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "etabli",
@@ -4487,7 +4520,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "etagere-metallique",
@@ -4502,40 +4535,40 @@
    "coco_class": null,
    "handling": "demontable",
    "heavy": false,
-   "sample_size": 21,
+   "sample_size": 24,
    "dims_cm": {
     "width": {
      "min": 76.0,
-     "avg": 122.0,
+     "avg": 91.0,
      "max": 152.0
     },
     "depth": {
      "min": 35.0,
-     "avg": 36.0,
+     "avg": 39.0,
      "max": 46.0
     },
     "height": {
-     "min": 91.0,
-     "avg": 164.0,
+     "min": 79.0,
+     "avg": 162.0,
      "max": 193.0
     }
    },
    "geometric_volume_m3": {
-    "min": 0.33,
-    "avg": 0.53,
-    "max": 1.35
+    "min": 0.24,
+    "avg": 0.49,
+    "max": 1.26
    },
    "weight_kg": {
     "min": 11.0,
-    "avg": 17.0,
-    "max": 42.0,
-    "sample_size": 20
+    "avg": 19.0,
+    "max": 41.0,
+    "sample_size": 23
    },
    "professional_volume_m3": null,
    "moving_volume_m3": {
-    "min": 0.15,
-    "avg": 0.24,
-    "max": 0.61
+    "min": 0.11,
+    "avg": 0.22,
+    "max": 0.57
    },
    "dims_reliability": "moyenne",
    "moving_volume_reliability": "faible",
@@ -4544,10 +4577,10 @@
     "ds"
    ],
    "method": [
-    "Dimensions : percentiles 10/50/90 de 21 produits ABO (largeur = plus grand côté horizontal).",
+    "Dimensions : percentiles 10/50/90 de 24 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 0.45 (meuble transporté démonté (éléments à plat)) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "armoire-de-garage",
@@ -4573,7 +4606,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "servante-outils",
@@ -4599,7 +4632,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "tondeuse",
@@ -4626,7 +4659,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "echelle",
@@ -4640,40 +4673,40 @@
    "coco_class": null,
    "handling": "empilable",
    "heavy": false,
-   "sample_size": 31,
+   "sample_size": 40,
    "dims_cm": {
     "width": {
      "min": 48.0,
      "avg": 63.0,
-     "max": 126.0
+     "max": 113.0
     },
     "depth": {
      "min": 36.0,
      "avg": 45.0,
-     "max": 51.0
+     "max": 49.0
     },
     "height": {
-     "min": 36.0,
-     "avg": 97.0,
-     "max": 165.0
+     "min": 29.0,
+     "avg": 93.0,
+     "max": 146.0
     }
    },
    "geometric_volume_m3": {
-    "min": 0.08,
-    "avg": 0.29,
-    "max": 0.76
+    "min": 0.07,
+    "avg": 0.27,
+    "max": 0.56
    },
    "weight_kg": {
     "min": 2.0,
     "avg": 5.0,
-    "max": 15.0,
-    "sample_size": 27
+    "max": 13.0,
+    "sample_size": 36
    },
    "professional_volume_m3": null,
    "moving_volume_m3": {
-    "min": 0.06,
-    "avg": 0.2,
-    "max": 0.53
+    "min": 0.05,
+    "avg": 0.19,
+    "max": 0.39
    },
    "dims_reliability": "elevee",
    "moving_volume_reliability": "faible",
@@ -4682,10 +4715,10 @@
     "ds"
    ],
    "method": [
-    "Dimensions : percentiles 10/50/90 de 31 produits ABO (largeur = plus grand côté horizontal).",
+    "Dimensions : percentiles 10/50/90 de 40 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 0.7 (objet empilable ou imbriquable) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "malle",
@@ -4712,7 +4745,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "valise",
@@ -4727,7 +4760,7 @@
    "coco_class": "suitcase",
    "handling": "empilable",
    "heavy": false,
-   "sample_size": 135,
+   "sample_size": 139,
    "dims_cm": {
     "width": {
      "min": 35.0,
@@ -4737,10 +4770,10 @@
     "depth": {
      "min": 20.0,
      "avg": 26.0,
-     "max": 32.0
+     "max": 33.0
     },
     "height": {
-     "min": 49.0,
+     "min": 46.0,
      "avg": 56.0,
      "max": 79.0
     }
@@ -4748,19 +4781,19 @@
    "geometric_volume_m3": {
     "min": 0.04,
     "avg": 0.06,
-    "max": 0.13
+    "max": 0.14
    },
    "weight_kg": {
     "min": 2.0,
     "avg": 3.0,
     "max": 9.0,
-    "sample_size": 127
+    "sample_size": 131
    },
    "professional_volume_m3": null,
    "moving_volume_m3": {
     "min": 0.03,
     "avg": 0.04,
-    "max": 0.09
+    "max": 0.1
    },
    "dims_reliability": "elevee",
    "moving_volume_reliability": "faible",
@@ -4769,10 +4802,10 @@
     "ds"
    ],
    "method": [
-    "Dimensions : percentiles 10/50/90 de 135 produits ABO (largeur = plus grand côté horizontal).",
+    "Dimensions : percentiles 10/50/90 de 139 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 0.7 (objet empilable ou imbriquable) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "chaise-de-jardin",
@@ -4832,7 +4865,7 @@
     "Dimensions : percentiles 10/50/90 de 36 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 0.7 (objet empilable ou imbriquable) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "table-de-jardin",
@@ -4891,7 +4924,7 @@
     "Dimensions : percentiles 10/50/90 de 32 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 0.45 (meuble transporté démonté (éléments à plat)) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "salon-de-jardin",
@@ -4951,7 +4984,7 @@
     "Dimensions : percentiles 10/50/90 de 15 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 1.15 (meuble rembourré, + housse et calage) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "bain-de-soleil",
@@ -5011,7 +5044,7 @@
     "Dimensions : percentiles 10/50/90 de 12 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 0.7 (objet empilable ou imbriquable) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "parasol",
@@ -5037,7 +5070,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "barbecue",
@@ -5064,7 +5097,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "jardiniere",
@@ -5123,7 +5156,7 @@
     "Dimensions : percentiles 10/50/90 de 8 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 1.1 (meuble rigide transporté monté, + protection) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "abri-de-jardin",
@@ -5150,7 +5183,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "velo",
@@ -5184,7 +5217,7 @@
    "method": [
     "Volume de déménagement : référence interne du prototype « Vélo » (0.5 m³) ; fourchette ±25 %."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "velo-enfant",
@@ -5210,7 +5243,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "trottinette",
@@ -5236,7 +5269,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "velo-appartement",
@@ -5269,7 +5302,7 @@
    "method": [
     "Volume de déménagement : référence interne du prototype « Vélo fitness » (1.0 m³) ; fourchette ±25 %."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "tapis-de-course",
@@ -5295,7 +5328,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "banc-de-musculation",
@@ -5321,7 +5354,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "rameur",
@@ -5347,7 +5380,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "table-de-ping-pong",
@@ -5373,7 +5406,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "baby-foot",
@@ -5399,7 +5432,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "billard",
@@ -5425,7 +5458,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "planche-de-surf",
@@ -5452,7 +5485,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "skis",
@@ -5479,7 +5512,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "sac-de-golf",
@@ -5505,7 +5538,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "poussette",
@@ -5531,7 +5564,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "carton-standard",
@@ -5550,14 +5583,20 @@
    "geometric_volume_m3": null,
    "weight_kg": null,
    "professional_volume_m3": null,
-   "moving_volume_m3": null,
+   "moving_volume_m3": {
+    "min": 0.075,
+    "avg": 0.1,
+    "max": 0.125
+   },
    "dims_reliability": "aucune",
-   "moving_volume_reliability": "aucune",
-   "sources": [],
-   "method": [
-    "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
+   "moving_volume_reliability": "faible",
+   "sources": [
+    "proto"
    ],
-   "updated_at": "2026-11-24"
+   "method": [
+    "Volume de déménagement : « Lot de 10 cartons » (1.0 m³, prototype) ÷ 10 — à calibrer."
+   ],
+   "updated_at": "2026-11-25"
   },
   {
    "id": "carton-livres",
@@ -5584,7 +5623,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "carton-penderie",
@@ -5610,7 +5649,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "lot-10-cartons",
@@ -5642,7 +5681,7 @@
    "method": [
     "Volume de déménagement : référence interne du prototype « Cartons (×10) » (1.0 m³) ; fourchette ±25 %."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "caisse-plastique",
@@ -5702,7 +5741,7 @@
     "Dimensions : percentiles 10/50/90 de 68 produits ABO (largeur = plus grand côté horizontal).",
     "Volume de déménagement : volume géométrique × 0.7 (objet empilable ou imbriquable) — hypothèse Devis Scan à calibrer."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "sac-ou-ballot",
@@ -5729,7 +5768,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   },
   {
    "id": "autre-objet",
@@ -5756,7 +5795,7 @@
    "method": [
     "Aucune donnée ouverte exploitable : volume à renseigner par le déménageur."
    ],
-   "updated_at": "2026-11-24"
+   "updated_at": "2026-11-25"
   }
  ]
 }

@@ -13,7 +13,7 @@ Règles impératives :
 - catalog_id : choisissez l'identifiant du catalogue ci-dessous qui correspond exactement à l'objet ; s'il n'y en a pas, écrivez "autre" et décrivez l'objet dans label.
 - confidence : votre degré de certitude entre 0 et 1 sur l'identification ET la quantité. Ce n'est pas une probabilité garantie ; soyez prudent : objet partiellement visible, flou ou ambigu → valeur basse.
 - visibility : "visible" (objet entier bien visible), "partial" (en partie caché ou coupé), "uncertain" (doute sur la nature même de l'objet).
-- dimensions_cm : uniquement si l'objet ne figure pas au catalogue ET que vous pouvez estimer ses dimensions de façon raisonnable ; sinon null.
+- dimensions_cm : si l'objet ne figure pas au catalogue, ou si sa ligne du catalogue porte la mention [dimensions], et que vous pouvez estimer ses dimensions de façon raisonnable (largeur, profondeur, hauteur en cm) ; sinon null.
 - may_be_same_as : laissez vide, sauf si l'objet semble être le même qu'un objet probablement filmé dans une autre pièce (par exemple vu à travers une porte ouverte) ; expliquez alors en quelques mots.
 - Ne comptez pas les éléments fixes (radiateurs, éléments de cuisine encastrés, placards muraux, luminaires au plafond) sauf s'ils sont manifestement démontables et à déménager.
 - Cartons déjà faits : catalog_id du carton correspondant si présent, quantité visible uniquement.
@@ -24,7 +24,7 @@ Règles impératives :
 export function catalogPrompt(catalog: CatalogRef[]): string {
   const lines = [...catalog]
     .sort((a, b) => a.id.localeCompare(b.id))
-    .map((ref) => `${ref.id} : ${ref.name}${ref.synonyms.length ? ` (${ref.synonyms.join(", ")})` : ""}`);
+    .map((ref) => `${ref.id} : ${ref.name}${ref.synonyms.length ? ` (${ref.synonyms.join(", ")})` : ""}${ref.moving_volume_avg === null ? " [dimensions]" : ""}`);
   return `Catalogue (identifiant : nom) :\n${lines.join("\n")}`;
 }
 

@@ -76,7 +76,8 @@ E = [
     ("canape-convertible", "Canapé convertible", "salon", "Canapés", ["canapé-lit", "clic-clac", "BZ", "futon"], "couch", "rembourre", False,
      R(r"Sofas|Futon", r"sleeper|futon|sofa bed|convertible|click.?clack", COVER + r"|mattress", width=(100, 260)), None),
     ("canape-panoramique", "Canapé panoramique", "salon", "Canapés", ["canapé en U", "grand canapé d'angle"], "couch", "rembourre", False,
-     R(r"Sofas", r"u-shape|u shaped|panoramic|6-piece|7-piece|oversized sectional", COVER, width=(250, 500)), None),
+     # ABO « sectional » : surtout de petits canapés d'angle (largeur médiane 2,24 m), non représentatifs d'un canapé en U.
+     R(".", r"u-shape|u shaped|panoramic", COVER, pt=["SOFA"], width=(280, 500)), None),
     ("meridienne", "Méridienne", "salon", "Canapés", ["chaise longue", "lit de repos", "chaise lounge"], "couch", "rembourre", False,
      R(r"Sofas|Chaise|Chairs", r"chaise lounge|chaise longue|daybed|fainting couch", COVER), "Méridienne"),
     ("fauteuil", "Fauteuil", "salon", "Fauteuils", ["fauteuil club", "bergère", "armchair"], "chair", "rembourre", False,
@@ -111,7 +112,7 @@ E = [
     ("lampe-a-poser", "Lampe à poser", "salon", "Luminaires", ["lampe de chevet", "lampe de table"], None, "fragile", False,
      R(r"Table Lamps", r"lamp", r"bulb|shade only", width=(10, 80)), None),
     ("miroir-mural", "Miroir", "salon", "Décoration", ["grand miroir", "miroir sur pied"], None, "fragile", False,
-     R(r"Mirror", r"mirror", r"car|compact|makeup|vanity|led", width=(40, 200)), None),
+     R(".", r"mirror", r"car\b|compact|makeup|vanity|led\b|lighted", pt=["HOME_MIRROR"], width=(40, 200)), None),
     ("tableau-cadre", "Tableau ou cadre", "salon", "Décoration", ["toile", "cadre", "affiche encadrée"], None, "fragile", False,
      R(r"Wall Art|Frames", r"canvas|print|frame|art", r"tabletop|set of|album|4x6|5x7", width=(40, 200)), None),
     ("television", "Télévision", "salon", "Audio et vidéo", ["TV", "écran plat", "téléviseur"], "tv", "fragile", False,
@@ -309,6 +310,9 @@ E = [
 
 # Variantes dérivées d'une référence parente disposant d'un volume interne :
 # volume de déménagement = volume du parent × (volume géométrique ABO variante / parent).
+# Références unitaires déduites d'un lot de la table interne (même source, simple division).
+UNIT_FROM = {"carton-standard": ("lot-10-cartons", 10)}
+
 DERIVED = {
     "lit-king-size": "lit-queen-size",
     "lit-coffre": "lit-queen-size",
@@ -360,7 +364,7 @@ def select(items, r):
     for it in items:
         if r["pt"] and it["pt"] not in r["pt"]:
             continue
-        if not any(node.search(n) for n in it["nodes"]):
+        if r["node"] != "." and not any(node.search(n) for n in it["nodes"]):
             continue
         if not inc.search(it["name"]) or (exc and exc.search(it["name"])):
             continue
@@ -445,6 +449,15 @@ def main(abo_path):
             c["sources"] = [x for x in c["sources"] if x != "ds"] + ["proto", "ds"]
             c["method"] = [m for m in c["method"] if not m.startswith("Volume de déménagement")] + [
                 f"Volume de déménagement : dérivé de « {p['name']} » ({p['moving_volume_m3']['avg']} m³) × rapport des volumes géométriques ABO ({ratio:.2f}) — à calibrer."]
+
+    for child, (parent, count) in UNIT_FROM.items():
+        c, p = by_id[child], by_id[parent]
+        if c["moving_volume_m3"] is None and p["moving_volume_m3"]:
+            c["moving_volume_m3"] = {k: r2(v / count, 3) for k, v in p["moving_volume_m3"].items()}
+            c["moving_volume_reliability"] = "faible"
+            c["sources"] = c["sources"] + ["proto"]
+            c["method"] = [m for m in c["method"] if not m.startswith("Aucune donnée")] + [
+                f"Volume de déménagement : « {p['name']} » ({p['moving_volume_m3']['avg']} m³, prototype) ÷ {count} — à calibrer."]
 
     os.makedirs(os.path.join(ROOT, "data/catalog"), exist_ok=True)
     with open(os.path.join(ROOT, "data/catalog/catalog.json"), "w", encoding="utf-8") as f:

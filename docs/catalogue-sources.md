@@ -33,6 +33,8 @@ Noms, catégories, synonymes, correspondances COCO, classes et coefficients de m
 | **Roboflow Universe** | Licences propres à chaque jeu de données ; pages inaccessibles depuis l'environnement. Non utilisé. |
 | **Valdelia, annexe IV « Poids moyens mobilier » (2024)** | Volumes et poids de mobilier professionnel trouvés par recherche ; licence non établie. Non utilisé. |
 
+Voir aussi `docs/catalogue-sans-volume.md` (52 références sans volume, traitement et pistes d'enrichissement).
+
 ## Fiabilité
 
 - `dims_reliability` : `elevee` (≥ 30 produits ABO), `moyenne` (8 à 29), `aucune`.

@@ -22,16 +22,22 @@ Les scores de confiance sont ceux du modèle, plafonnés par les règles ci-dess
 | --- | --- |
 | `AI_PROVIDER` | `anthropic` (vraie analyse) ; `simulation` (tests uniquement) ; vide = pas d'analyse automatique |
 | `ANTHROPIC_API_KEY` | Clé API Anthropic (Vercel : variable d'environnement chiffrée) |
-| `AI_MODEL` | Défaut `claude-opus-5-5` ; possible : `claude-sonnet-5-5`, `claude-haiku-5-5` |
+| `AI_MODEL` | **Obligatoire** : `claude-haiku-5-5`, `claude-sonnet-5-5` ou `claude-opus-5-5`. Aucun modèle n'est imposé par défaut : le choix se fait d'après la comparaison réelle (`tests/ai-eval/`) |
 | `AI_EFFORT` | `low`, `medium` (défaut), `high` |
 | `AI_ALLOW_SIMULATION` | `1` pour autoriser le simulateur (refusé si la base n'est pas locale ou sur Vercel) |
 
-Sans `AI_PROVIDER`, aucune dépense : la demande arrive « à vérifier » et le déménageur établit l'inventaire à la main. **Aucun appel payant n'a été effectué pendant le développement** (pas de clé fournie).
+Sans `AI_PROVIDER` (ou sans `AI_MODEL`), aucune dépense : la demande arrive « à vérifier » et le déménageur établit l'inventaire à la main. **Aucun appel payant n'a été effectué pendant le développement** (pas de clé fournie).
 
 Le fournisseur est interchangeable (`src/lib/ai/provider.ts`) : ajouter un autre service revient à écrire une classe `VisionProvider`.
 
 ### Simulateur de test
 `src/lib/ai/providers/simulation.ts` renvoie un inventaire fixe selon le nom de la pièce. Il sert aux tests automatiques. Ses résultats sont marqués `simulated` en base et un bandeau « Environnement de test » s'affiche chez le client et le déménageur. Il est refusé en dehors d'une base Supabase locale et sur Vercel.
+
+## Comparaison réelle des modèles
+
+Banc de test : `tests/ai-eval/` (photos réelles sous licence libre → vidéos → **pipeline de la phase 3** → images stockées → appels réels aux trois modèles → comparaison avec un inventaire de référence). Procédure de connexion de la clé : `docs/connexion-cle-anthropic.md`.
+
+**État au 25/11/2026 : non exécuté.** Aucune clé API n'est disponible dans l'environnement de développement ; aucun résultat n'est donc publié. La requête envoyée à l'API a été vérifiée hors ligne (faux serveur local) : format, sortie structurée, cache, repli de sécurité seulement pour Opus et Sonnet (Haiku 5.5 ne le prend pas en charge).
 
 ## Coût estimé par demande (non mesuré)
 

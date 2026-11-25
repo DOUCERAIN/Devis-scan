@@ -15,9 +15,9 @@ Le porteur du projet n'est pas développeur : expliquer en français simple, gui
 - **Particulier sans compte** : accès par jeton secret (hachage SHA-256 stocké, 30 jours) conservé dans un cookie httpOnly limité à `/d/<slug>` ; jamais d'identifiant dans les URL.
 - **Vidéos** : compressées dans le navigateur (Mediabunny/WebCodecs, 720p, sans son) ; original envoyé si compression impossible ; l'original n'est pas stocké (reste sur le téléphone), ses caractéristiques le sont. Envoi TUS reprenable signé. Jusqu'à 8 images extraites par vidéo.
 - **Paiement Stripe** : reporté après les premiers pilotes.
-- **Analyse IA** : fournisseur interchangeable (`src/lib/ai/`), Claude par défaut (`AI_PROVIDER=anthropic`, `ANTHROPIC_API_KEY`, `AI_MODEL`, défaut `claude-opus-5-5`). Sans configuration : aucune analyse, aucune dépense. Simulateur (`AI_PROVIDER=simulation` + `AI_ALLOW_SIMULATION=1`) refusé hors base locale, résultats marqués `simulated` et signalés à l'écran. Voir `docs/analyse-ia.md`.
-- **Catalogue** : `public.furniture_catalog` (134 références, ABO CC BY 4.0 + prototype), volume géométrique ≠ volume de déménagement, aucune valeur inventée (`docs/catalogue-sources.md`). Régénérer : `python3 scripts/catalog/build_catalog.py` puis `node scripts/catalog/catalog-to-sql.mjs`.
-- **Devis** : moteur pur en centimes (`src/lib/pricing/engine.ts`), uniquement la grille de l'entreprise, aucune estimation tant que la grille n'est pas enregistrée (`configured_at`). Chaque calcul = nouvelle version figée avec instantanés ; devis accepté verrouillé. Estimation automatique ≠ devis envoyé (identité légale requise). Voir `docs/devis.md`.
+- **Analyse IA** : fournisseur interchangeable (`src/lib/ai/`), Claude (`AI_PROVIDER=anthropic`, `ANTHROPIC_API_KEY`, `AI_MODEL` **obligatoire**, aucun modèle imposé avant la comparaison réelle `tests/ai-eval/`). Sans configuration : aucune analyse, aucune dépense. Clé : `docs/connexion-cle-anthropic.md` (jamais dans la conversation). Simulateur (`AI_PROVIDER=simulation` + `AI_ALLOW_SIMULATION=1`) refusé hors base locale, résultats marqués `simulated` et signalés à l'écran. Voir `docs/analyse-ia.md`.
+- **Catalogue** : `public.furniture_catalog` (134 références dont 52 sans volume, ABO CC BY 4.0 + prototype), volume géométrique ≠ volume de déménagement, aucune valeur inventée (`docs/catalogue-sources.md`). Régénérer : `python3 scripts/catalog/build_catalog.py` puis `node scripts/catalog/catalog-to-sql.mjs`.
+- **Devis** : moteur pur en centimes (`src/lib/pricing/engine.ts`), uniquement la grille de l'entreprise, aucune estimation tant que la grille n'est pas enregistrée (`configured_at`). Chaque calcul = nouvelle version figée avec instantanés ; devis accepté verrouillé. Estimation automatique ≠ devis envoyé (identité légale requise). Devis formel automatique seulement si l'entreprise l'a activé (`companies.auto_formal_quotes`) et que toutes les conditions de fiabilité sont réunies (`src/lib/quotes/eligibility.ts`), sinon estimation + motifs de validation (`quotes.review_reasons`). Aucune nouvelle version après acceptation (déclencheur). Voir `docs/devis.md`.
 - **Lien de suivi client** : `/d/<slug>/devis/<jeton>` (jeton de consultation, hachage en base), remis à l'envoi.
 - **Mode démo personnalisé** pour la prospection : prévu (colonne `companies.is_demo` déjà présente).
 - Branche de travail : `claude/trusting-wozniak-28f6ok`. Ne jamais modifier `main` ni fusionner sans autorisation explicite.
@@ -68,6 +68,7 @@ npm run lint && npx tsc --noEmit && npm run build
 ```
 
 Dans l'environnement cloud de Claude : démarrer Docker (`dockerd &`), puis `SUPABASE_INTERNAL_IMAGE_REGISTRY=docker.io npx supabase start -x studio,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta,imgproxy`. Pour l'e2e : `NODE_PATH=$(npm root -g) npm run test:e2e`.
+Évaluation réelle des modèles : `tests/ai-eval/README.md` (environnement cloud « devis-scan », clé dans la variable `ANTHROPIC_API_KEY` de l'environnement, nouvelle session requise).
 
 ## Feuille de route
 
