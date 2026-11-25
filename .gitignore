@@ -46,3 +46,6 @@ next-env.d.ts
 # Vidéos de test générées
 /tests/e2e/media/
 __pycache__/
+
+# Sources brutes du catalogue v2 (téléchargées, volumineuses)
+data/catalogue-v2/cache/
