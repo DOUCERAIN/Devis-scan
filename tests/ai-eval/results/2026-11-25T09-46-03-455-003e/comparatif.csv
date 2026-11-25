@@ -1,0 +1,4 @@
+﻿modele;score_qualite;corrects;reference;oublies;inventes_ou_mal_identifies;en_trop_doublons;rappel;precision;f1;categories_f1;rappel_partiels;rappel_difficiles;doublons_possibles_ecartes;doublons_justifies;erreur_volume_m3;erreur_volume_relative;cout_total_usd;cout_moyen_piece_usd;projection_demande_6_pieces_usd;latence_moyenne_s;latence_max_s;echecs
+claude-haiku-5-5;86,5;12;13;1;5;0;0,923077;0,705882;0,8;0,8;0,888889;1;9;8;0,582;0,0926752;0,00800718;0,00266906;0,0160144;13,823;18,074;0
+claude-sonnet-5-5;87,7;12;13;1;4;0;0,923077;0,75;0,827586;0,827586;0,888889;0,833333;5;5;0,02;0,00318471;0,115142;0,0383808;0,230285;10,3273;14,57;0
+claude-opus-5-5;90,9;13;13;0;4;0;1;0,764706;0,866667;0,866667;1;1;7;7;0,751;0,119586;0,230885;0,0769617;0,46177;15,237;22,275;0

@@ -1,0 +1,10 @@
+﻿piece;modele;passage;etat;corrects;reference;oublies;inventes;en_trop;volume_compte_m3;volume_reference_min_m3;volume_reference_max_m3;jetons_entree;jetons_cache_lus;jetons_cache_ecrits;jetons_sortie;cout_usd;latence_s
+chambre-encombree;claude-haiku-5-5;1;ok;6;6;aucun;"autre-objet ×1 ; tableau-cadre ×1";aucun;2,109;1,98;2,19;9659;0;5755;3512;0,00344128;18,074
+chambre-encombree;claude-sonnet-5-5;1;ok;6;6;aucun;"autre-objet ×1 ; sac-ou-ballot ×1";aucun;2,134;1,98;2,19;9659;0;5755;1963;0,0533355;14,57
+chambre-encombree;claude-opus-5-5;1;ok;6;6;aucun;autre-objet ×1;aucun;2,09;1,98;2,19;9659;0;5755;1794;0,103291;15,91
+chambre-lits-simples;claude-sonnet-5-5;1;ok;4;5;chaise ×1;autre-objet ×1;aucun;2,493;2,5;2,59;9652;5755;0;1273;0,0326095;8,898
+chambre-lits-simples;claude-opus-5-5;1;ok;5;5;aucun;"matelas-simple ×2 ; sac-ou-ballot ×1";aucun;3,341;2,5;2,59;9652;5755;0;1886;0,077479;22,275
+chambre-lits-simples;claude-haiku-5-5;1;ok;4;5;lit-simple ×1;autre-objet ×1;aucun;1,97;2,5;2,59;9652;5755;0;3297;0,00267125;14,78
+salon-canape-jaune;claude-opus-5-5;1;ok;2;2;aucun;aucun;aucun;1,8;1,8;1,8;9651;5755;0;518;0,050115;7,526
+salon-canape-jaune;claude-haiku-5-5;1;ok;2;2;aucun;autre-objet ×2;aucun;1,852;1,8;1,8;9651;5755;0;1744;0,00189465;8,615
+salon-canape-jaune;claude-sonnet-5-5;1;ok;2;2;aucun;autre-objet ×1;aucun;1,813;1,8;1,8;9651;5755;0;932;0,0291975;7,514
