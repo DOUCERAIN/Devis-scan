@@ -1,0 +1,51 @@
+{
+ "version": "3.0-preparatoire",
+ "observations": 23109,
+ "observations_v2": 11536,
+ "nouvelles_observations": 11573,
+ "observations_par_source": {
+  "CMA": 317,
+  "MET": 4851,
+  "SMITHSONIAN": 4964,
+  "WIKIDATA": 1167,
+  "MOMA": 748,
+  "ABO": 10931,
+  "ITEMFITS": 131
+ },
+ "produits_independants": 17792,
+ "produits_independants_utilisables": 9520,
+ "familles": 46,
+ "sous_categories": 311,
+ "variantes_de_taille": 204,
+ "observations_1_dimension": 1649,
+ "observations_2_dimensions": 2423,
+ "observations_3_dimensions": 17432,
+ "observations_utilisables_volume": 13361,
+ "sous_categories_avec_modeles": 227,
+ "sous_categories_au_moins_3_modeles": 180,
+ "sous_categories_prioritaires": 171,
+ "sous_categories_prioritaires_documentees": 130,
+ "fiabilite_sous_categories": {
+  "faible": 74,
+  "moyenne": 112,
+  "élevée": 41,
+  "non vérifiée": 84
+ },
+ "niveaux_droits": {
+  "1 — réutilisable commercialement (licence ouverte vérifiée)": 22978,
+  "2 — accessible, usage documentaire uniquement": 131
+ },
+ "correspondance_statuts": {
+  "documentée (fiabilité équivalente)": 55,
+  "non améliorée (aucun modèle documenté)": 33,
+  "améliorée": 46
+ },
+ "jeux_de_donnees": 7,
+ "url_sources_distinctes": 23019,
+ "musees_ecartes": {
+  "taille": 1956,
+  "exclus": 83889,
+  "sans_dimension": 291,
+  "non_classes": 61699
+ }
+}
