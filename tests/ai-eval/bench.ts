@@ -21,7 +21,7 @@ import { fileURLToPath } from "node:url";
 import { AnthropicVisionProvider } from "../../src/lib/ai/providers/anthropic.ts";
 import { ANTHROPIC_KEY_ENV, ANTHROPIC_OFFICIAL_BASE_URL, describeAnthropicKey, readAnthropicKey } from "../../src/lib/ai/anthropic-client.ts";
 import { ANALYSIS_INSTRUCTIONS, catalogPrompt, roomPrompt } from "../../src/lib/ai/prompt.ts";
-import { ROOM_ANALYSIS_JSON_SCHEMA, type RoomAnalysis } from "../../src/lib/ai/output.ts";
+import { ROOM_ANALYSIS_JSON_SCHEMA, roomAnalysisSchema, type RoomAnalysis } from "../../src/lib/ai/output.ts";
 import { buildItems, type CatalogRef, type ItemDraft } from "../../src/lib/ai/postprocess.ts";
 import { estimateCostUsd, formatCostUsd, MODEL_PRICES_USD, PRICES_CHECKED_AT, type TokenUsage } from "../../src/lib/ai/cost.ts";
 import type { RoomImage } from "../../src/lib/ai/provider.ts";
@@ -163,7 +163,12 @@ function writeReports(run: RunFile, outDir: string, cases: LoadedCase[], ledger:
   for (const call of run.calls) {
     const lc = byId.get(call.caseId);
     if (!lc) continue; // cas retiré du jeu de données depuis le passage
-    caseScores.push({ model: call.model, pass: call.pass, score: scoreCase(call.caseId, call.ok ? call.items : null, lc.case.reference.items, catalogInfo) });
+    // Inventaire recalculé depuis la réponse BRUTE du modèle avec le post-traitement actuel :
+    // une renotation reflète les corrections du post-traitement sans nouvel appel.
+    const items = call.ok && call.analysis
+      ? buildItems([{ roomId: call.caseId, objects: roomAnalysisSchema.parse(call.analysis).objects, frameIds: lc.frames.map((f) => f.file) }], catalogMap)
+      : null;
+    caseScores.push({ model: call.model, pass: call.pass, score: scoreCase(call.caseId, items, lc.case.reference.items, catalogInfo) });
   }
   const summaries = run.config.models
     .filter((m) => run.calls.some((c) => c.model === m))

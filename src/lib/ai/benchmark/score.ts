@@ -10,7 +10,8 @@ import type { CaseReferenceItem } from "./dataset.ts";
  * - oublié : objet de référence non retrouvé ;
  * - en trop (doublon) : objet bien identifié mais compté plus de fois qu'il n'existe (même meuble vu sous plusieurs angles) ;
  * - inventé ou mal identifié : objet compté qui n'existe pas dans la référence ;
- * - doublon possible : objet que le post-traitement a mis de côté (non compté), comme en production.
+ * - doublon possible : objet signalé par le post-traitement (peut-être vu deux fois). Il reste COMPTÉ,
+ *   comme en production (« à vérifier ») ; le signalement est « justifié » si l'objet était déjà compté en totalité.
  */
 
 export type CatalogInfo = { subcategory: string; movingVolumeAvg: number | null };
@@ -28,7 +29,7 @@ export type CaseScore = {
   category: { referenceTotal: number; detectedTotal: number; correct: number };
   partial: { total: number; found: number };
   difficult: { total: number; found: number };
-  duplicates: { flagged: number; justified: number; hidingRealObject: number };
+  duplicates: { flagged: number; justified: number; falseAlarm: number };
   volume: { countedM3: number; referenceMinM3: number; referenceMaxM3: number; errorM3: number; unknownReferenceVolumes: number };
   outsideCatalog: number;
 };
@@ -78,12 +79,15 @@ export function scoreCase(caseId: string, detected: Detected[] | null, reference
   const flaggedKeys: string[] = [];
   let countedM3 = 0;
   let outsideCatalog = 0;
-  for (const d of detected ?? []) {
+  let justified = 0;
+  const ordered = [...(detected ?? []).filter((d) => !d.possibleDuplicate), ...(detected ?? []).filter((d) => d.possibleDuplicate)];
+  for (const d of ordered) {
     const raw = d.catalogKey ?? `autre:${d.name}`;
     const k = alias.get(raw) ?? raw;
     if (d.possibleDuplicate) {
       flaggedKeys.push(k);
-      continue;
+      // Justifié : l'objet de référence était déjà compté en totalité (ce signalement évite un vrai surcomptage).
+      if (required.has(k) && (got.get(k) ?? 0) >= (required.get(k) ?? 0)) justified++;
     }
     countedM3 += d.quantity * d.unitVolumeM3;
     if (d.catalogKey === null) outsideCatalog += d.quantity;
@@ -119,9 +123,6 @@ export function scoreCase(caseId: string, detected: Detected[] | null, reference
   let catCorrect = 0;
   for (const [c, q] of refCat) catCorrect += Math.min(q, gotCat.get(c) ?? 0);
 
-  // Doublons possibles mis de côté : justifiés si l'objet était déjà compté en totalité.
-  let justified = 0;
-  for (const k of flaggedKeys) if ((got.get(k) ?? 0) >= (required.get(k) ?? 0)) justified++;
 
   // Volume : la référence est une fourchette (objets obligatoires → + facultatifs).
   let refMin = 0;
@@ -149,7 +150,7 @@ export function scoreCase(caseId: string, detected: Detected[] | null, reference
     category: { referenceTotal: sum(refCat), detectedTotal: sum(gotCat), correct: catCorrect },
     partial: flaggedFound(reference, matchedByKey, "partial"),
     difficult: flaggedFound(reference, matchedByKey, "difficult"),
-    duplicates: { flagged: flaggedKeys.length, justified, hidingRealObject: flaggedKeys.length - justified },
+    duplicates: { flagged: flaggedKeys.length, justified, falseAlarm: flaggedKeys.length - justified },
     volume: { countedM3: r3(countedM3), referenceMinM3: r3(refMin), referenceMaxM3: r3(refMax), errorM3: r3(errorM3), unknownReferenceVolumes },
     outsideCatalog,
   };

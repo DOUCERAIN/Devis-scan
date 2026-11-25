@@ -80,6 +80,7 @@ export default async function RequestDetailPage({ params, searchParams }: PagePr
       roomId: r.room_id,
       validatedByHuman: r.validated_by_human,
       possibleDuplicate: r.possible_duplicate,
+      duplicateReason: r.duplicate_reason,
       removed: r.removed,
       volumeSource: r.volume_source,
       isHeavy: r.is_heavy,

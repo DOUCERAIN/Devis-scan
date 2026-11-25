@@ -34,8 +34,16 @@ test("les éléments à vérifier comptent dans l'estimation mais demandent une 
   assert.equal(s.needsHumanReview, true);
 });
 
-test("un doublon possible reste en volume potentiel même avec un bon score", () => {
-  assert.equal(volumeBucket(ai({ confidence: 0.97, possibleDuplicate: true })), "potential");
+test("un doublon possible reste compté « à vérifier », même avec un bon score (jamais retiré automatiquement)", () => {
+  assert.equal(volumeBucket(ai({ confidence: 0.97, possibleDuplicate: true })), "toVerify");
+  assert.equal(volumeBucket(ai({ confidence: 0.7, possibleDuplicate: true })), "toVerify");
+  // Un objet incertain reste potentiel, doublon ou non.
+  assert.equal(volumeBucket(ai({ confidence: 0.3, possibleDuplicate: true })), "potential");
+  const s = summarizeVolume([ai({ unitVolumeM3: 1.5, confidence: 0.95 }), ai({ unitVolumeM3: 1.5, confidence: 0.95, possibleDuplicate: true })]);
+  assert.equal(s.estimatedM3, 3);
+  assert.equal(s.possibleDuplicateM3, 1.5);
+  assert.equal(s.itemsToReview, 1);
+  assert.equal(s.needsHumanReview, true);
 });
 
 test("une validation humaine l'emporte sur le score de l'IA", () => {

@@ -166,6 +166,7 @@ export async function runRequestAnalysis(requestId: string): Promise<AnalysisOut
             source: "ai" as const,
             confidence: item.confidence,
             possible_duplicate: item.possibleDuplicate,
+            duplicate_reason: item.duplicateReason,
             is_heavy: item.isHeavy,
             is_fragile: item.isFragile,
             needs_disassembly: item.needsDisassembly,

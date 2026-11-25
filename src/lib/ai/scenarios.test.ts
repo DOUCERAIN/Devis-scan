@@ -32,7 +32,7 @@ const VOLUMES = new Map([...CATALOG.values()].map((r) => [r.id, r.moving_volume_
 
 const o = (catalog_id: string, extra: Partial<DetectedObject> = {}): DetectedObject => ({
   label: catalog_id, catalog_id, quantity: 1, confidence: 0.9, visibility: "visible", image_indexes: [0],
-  dimensions_cm: null, is_fragile: false, needs_disassembly: false, may_be_same_as: "", notes: "", ...extra,
+  dimensions_cm: null, is_fragile: false, needs_disassembly: false, may_be_same_as: "", location_in_room: "", distinctive_features: "", identity_doubt: null, notes: "", ...extra,
 });
 const frames = (n: number) => Array.from({ length: n }, (_, i) => `f${i}`);
 
@@ -53,21 +53,25 @@ test("Scénario 1 — séjour bien filmé : inventaire complet, volume exact", (
   assert.equal(e.volumeErrorM3, 0);
 });
 
-test("Scénario 2 — même canapé vu sous deux angles et listé deux fois : doublon signalé, non compté", () => {
+test("Scénario 2 — même canapé vu sous deux angles et listé deux fois (images disjointes) : signalé, compté, à trancher", () => {
   const reference: ReferenceItem[] = [{ room: "salon", catalogKey: "canape-3-places", quantity: 1 }];
   const items = buildItems(
-    [{ roomId: "salon", frameIds: frames(3), objects: [o("canape-3-places", { image_indexes: [0, 1] }), o("canape-3-places", { label: "Sofa", catalog_id: "autre", image_indexes: [1, 2] })] }],
+    [{ roomId: "salon", frameIds: frames(3), objects: [o("canape-3-places", { image_indexes: [0, 1] }), o("canape-3-places", { label: "Sofa", catalog_id: "autre", image_indexes: [2] })] }],
     CATALOG,
   );
   assert.equal(items[1].catalogKey, "canape-3-places", "synonyme rattaché au catalogue");
   assert.equal(items[1].possibleDuplicate, true);
+  const asInventory = (removed: boolean) => items.map((i, n) => ({ id: i.key, name: i.name, room: i.roomId, quantity: i.quantity, unitVolumeM3: i.unitVolumeM3, source: "ai" as const, confidence: i.confidence, possibleDuplicate: i.possibleDuplicate, removed: removed && n === 1 }));
+  const before = summarizeVolume(asInventory(false));
+  assert.equal(before.estimatedM3, 3, "tant que personne n'a tranché, les deux observations sont comptées");
+  assert.equal(before.possibleDuplicateM3, 1.5);
+  assert.equal(before.needsHumanReview, true);
+  assert.equal(summarizeVolume(asInventory(true)).estimatedM3, 1.5, "après « Retirer » par le déménageur : un seul canapé");
   const e = evaluate(items, reference, VOLUMES);
-  assert.equal(e.precision, 1);
-  assert.equal(e.volumeErrorM3, 0);
   assert.equal(e.duplicatesFlaggedCorrectly, 1);
 });
 
-test("Scénario 3 — réfrigérateur visible depuis la cuisine ET le séjour (porte ouverte)", () => {
+test("Scénario 3 — réfrigérateur visible depuis la cuisine ET le séjour (porte ouverte), signalé par l'IA", () => {
   const reference: ReferenceItem[] = [
     { room: "cuisine", catalogKey: "refrigerateur", quantity: 1 },
     { room: "sejour", catalogKey: "canape-3-places", quantity: 1 },
@@ -75,19 +79,20 @@ test("Scénario 3 — réfrigérateur visible depuis la cuisine ET le séjour (p
   const items = buildItems(
     [
       { roomId: "cuisine", frameIds: frames(2), objects: [o("refrigerateur")] },
-      { roomId: "sejour", frameIds: frames(2), objects: [o("canape-3-places"), o("refrigerateur", { confidence: 0.7, visibility: "partial" })] },
+      { roomId: "sejour", frameIds: frames(2), objects: [o("canape-3-places"), o("refrigerateur", { confidence: 0.7, visibility: "partial", identity_doubt: { other_entry_index: null, other_room: true, reason: "Aperçu par la porte de la cuisine" } })] },
     ],
     CATALOG,
   );
   const fridgeInSejour = items.find((i) => i.roomId === "sejour" && i.catalogKey === "refrigerateur");
   assert.equal(fridgeInSejour?.possibleDuplicate, true);
   const counted = summarizeVolume(items.map((i) => ({ id: i.key, name: i.name, room: i.roomId, quantity: i.quantity, unitVolumeM3: i.unitVolumeM3, source: "ai" as const, confidence: i.confidence, possibleDuplicate: i.possibleDuplicate })));
-  assert.equal(counted.estimatedM3, 1.9, "un seul réfrigérateur compté");
-  assert.equal(counted.potentialM3, 0.4, "le second apparaît en volume potentiel");
+  assert.equal(counted.estimatedM3, 2.3, "le second réfrigérateur reste compté, à vérifier");
+  assert.equal(counted.possibleDuplicateM3, 0.4);
+  assert.equal(counted.needsHumanReview, true);
   const e = evaluate(items, reference, VOLUMES);
-  assert.equal(e.precision, 1);
   assert.equal(e.duplicatesFlaggedCorrectly, 1);
 });
+
 
 test("Scénario 4 — objet inventé et objet manqué : écarts mesurés et signalés", () => {
   const reference: ReferenceItem[] = [

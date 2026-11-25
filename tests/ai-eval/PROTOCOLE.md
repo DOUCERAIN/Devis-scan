@@ -12,7 +12,7 @@ Choisir le modèle qui offre le meilleur compromis pour l'analyse des pièces fi
 | Catégories de mobilier | Même calcul au niveau de la sous-catégorie du catalogue (Lits, Canapés, Rangements…) |
 | Volumes (m³) | Volume compté par le post-traitement comparé au volume de référence |
 | Meubles partiellement cachés | Rappel sur les meubles marqués `partial` dans la référence |
-| Doublons entre images | Meubles comptés plus de fois qu'ils n'existent ; doublons possibles écartés |
+| Doublons entre images | Meubles comptés plus de fois qu'ils n'existent ; doublons possibles signalés (toujours comptés, à trancher par une personne) |
 | Objets difficiles ou ambigus | Rappel sur les objets marqués `difficult` |
 | Coût par demande client | Coût réel (jetons facturés × tarif officiel), moyenne par pièce × nombre de pièces d'une demande |
 | Temps de réponse | Durée de chaque appel (moyenne et maximum) |
@@ -107,7 +107,7 @@ Les règles sont déterministes (`src/lib/ai/benchmark/score.ts`) et testées (`
 1. **Rattachement** : chaque objet détecté passe par le post-traitement de production. Un identifiant du catalogue, ou une alternative acceptée, est comparé à la référence. Un objet hors catalogue ne correspond à rien.
 2. Pour chaque référence : **corrects** = min(détectés, attendus) ; **oubliés** = attendus − détectés si l'écart est positif ; **en trop** = détectés − attendus si l'écart est positif. Un meuble en trop correspond à un même meuble compté plusieurs fois, souvent parce qu'il est vu sous plusieurs angles.
 3. **Inventés ou mal identifiés** : objets comptés dont la référence n'existe pas dans la pièce.
-4. **Doublons possibles** : objets mis de côté par le post-traitement et non comptés, comme en production. Un doublon est « justifié » si l'objet était déjà compté en totalité.
+4. **Doublons possibles** : objets signalés par le post-traitement. Comme en production depuis le 26/11/2026, ils restent comptés jusqu'à la décision d'une personne. Un signalement est « justifié » si l'objet de référence était déjà compté en totalité, ce qui correspond à un vrai surcomptage ; sinon, c'est une fausse alerte.
 5. **Facultatifs** : ils ne comptent ni comme oubli ni comme erreur.
 6. **Partiellement cachés et difficiles** : les objets retrouvés sont attribués d'abord aux lignes non marquées. Un meuble caché n'est donc compté comme retrouvé que si tous les meubles visibles de même type l'ont été.
 7. **Volume** : la référence est une fourchette, des objets obligatoires jusqu'aux objets facultatifs compris, avec le volume mesuré s'il est connu. L'erreur est la distance à cette fourchette. L'erreur relative est rapportée au volume obligatoire.

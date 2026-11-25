@@ -26,6 +26,7 @@ export type EditableItem = {
   confidence?: number;
   validatedByHuman: boolean;
   possibleDuplicate: boolean;
+  duplicateReason: string | null;
   removed: boolean;
   volumeSource: string | null;
   isHeavy: boolean;
@@ -82,6 +83,11 @@ function ItemRow({ item, requestId, rooms }: { item: EditableItem; requestId: st
           <input type="hidden" name="id" value={item.id} />
           <input type="hidden" name="request_id" value={requestId} />
           {item.aiLabel && item.aiLabel !== item.name ? <p className="text-xs text-ink-muted">Proposition de l&apos;IA : « {item.aiLabel} »</p> : null}
+          {item.possibleDuplicate && !item.removed ? (
+            <p className="rounded-md bg-duplicate-soft px-3 py-2 text-xs text-ink">
+              <strong>Doublon possible, compté en attendant votre décision.</strong> {item.duplicateReason ?? "Peut-être le même meuble qu'un autre élément de l'inventaire."} Comparez les images : s&apos;il s&apos;agit du même meuble, retirez cet élément ; sinon, indiquez « Pas un doublon ».
+            </p>
+          ) : null}
           {item.frames > 0 ? <p className="text-xs text-ink-muted">Repéré sur {item.frames} image{item.frames > 1 ? "s" : ""} (voir les vidéos ci-dessous).</p> : null}
           <div className="grid gap-3 sm:grid-cols-[2fr_1fr_1fr]">
             <TextField id={`name-${item.id}`} label="Nom" {...fieldProps(state, "name", item.name)} />

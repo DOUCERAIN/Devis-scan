@@ -147,7 +147,11 @@ export async function generateQuote(
 
   const assumptions = [...price.assumptions];
   if (volume.potentialM3 > 0) {
-    assumptions.push(`${volume.potentialM3.toLocaleString("fr-FR")} m³ d'objets incertains ou en double possible ne sont pas comptés ; ils pourraient porter le volume à ${volume.maxM3.toLocaleString("fr-FR")} m³.`);
+    assumptions.push(`${volume.potentialM3.toLocaleString("fr-FR")} m³ d'objets incertains ne sont pas comptés ; ils pourraient porter le volume à ${volume.maxM3.toLocaleString("fr-FR")} m³.`);
+  }
+  if (volume.possibleDuplicateM3 > 0) {
+    // Un doublon possible reste compté (on ne retire jamais un meuble peut-être réel) : le volume peut être surestimé.
+    assumptions.push(`${volume.possibleDuplicateM3.toLocaleString("fr-FR")} m³ d'objets peut-être vus deux fois (doublons possibles) sont comptés en attendant la vérification du déménageur.`);
   }
   if (unknownVolumeItems > 0) assumptions.push(`${unknownVolumeItems} objet${unknownVolumeItems > 1 ? "s" : ""} sans volume de référence, à évaluer par le déménageur.`);
 

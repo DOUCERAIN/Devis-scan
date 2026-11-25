@@ -66,12 +66,13 @@ test("meubles partiellement cachés : comptés retrouvés seulement après les v
   assert.deepEqual(scoreCase("c", [det("chaise", 2)], reference, CATALOG).difficult, { total: 1, found: 1 });
 });
 
-test("doublons possibles écartés : non comptés, justifiés ou non", () => {
+test("doublons possibles : toujours comptés, signalement justifié (vrai surcomptage) ou fausse alerte", () => {
   const reference = [ref("canape-3-places", 1), ref("chaise", 2)];
-  const s = scoreCase("salon", [det("canape-3-places", 1), det("canape-3-places", 1, { possibleDuplicate: true }), det("chaise", 1), det("chaise", 1, { possibleDuplicate: true })], reference, CATALOG);
-  assert.equal(s.correct, 2);
-  assert.deepEqual(s.duplicates, { flagged: 2, justified: 1, hidingRealObject: 1 });
-  assert.equal(s.volume.countedM3, 1.65);
+  const s = scoreCase("salon", [det("canape-3-places", 1, { possibleDuplicate: true }), det("canape-3-places", 1), det("chaise", 1), det("chaise", 1, { possibleDuplicate: true })], reference, CATALOG);
+  assert.equal(s.correct, 3, "la 2e chaise, signalée à tort, reste comptée : aucun meuble réel perdu");
+  assert.deepEqual(s.overcounted, [{ key: "canape-3-places", quantity: 1 }], "le canapé vu deux fois est compté deux fois tant qu'une personne n'a pas tranché");
+  assert.deepEqual(s.duplicates, { flagged: 2, justified: 1, falseAlarm: 1 });
+  assert.equal(s.volume.countedM3, 3.3);
 });
 
 test("volume : fourchette obligatoires → facultatifs, volume mesuré prioritaire, inconnus signalés", () => {

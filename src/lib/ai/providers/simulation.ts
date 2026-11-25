@@ -18,6 +18,9 @@ const base = (o: Partial<DetectedObject> & Pick<DetectedObject, "label" | "catal
   is_fragile: false,
   needs_disassembly: false,
   may_be_same_as: "",
+  location_in_room: "",
+  distinctive_features: "",
+  identity_doubt: null,
   notes: "",
   ...o,
 });

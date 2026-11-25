@@ -17,7 +17,7 @@ export type ReferenceItem = {
 export type Evaluation = {
   /** Objets de référence retrouvés (comptés à la quantité près) / objets de référence. */
   recall: number;
-  /** Objets détectés corrects / objets détectés (hors doublons possibles, non comptés). */
+  /** Objets détectés corrects / objets détectés (doublons possibles compris : ils sont comptés « à vérifier »). */
   precision: number;
   /** Objets inventés (détectés, absents de la référence). */
   hallucinated: { room: string; key: string; quantity: number }[];
@@ -25,7 +25,7 @@ export type Evaluation = {
   missed: { room: string; key: string; quantity: number }[];
   /** Écart de volume compté par rapport au volume de référence (en m³, signé). */
   volumeErrorM3: number;
-  /** Doublons possibles signalés à juste titre (l'objet n'existe pas en double dans la référence). */
+  /** Doublons possibles signalés à juste titre (l'objet était déjà compté en totalité : vrai surcomptage). */
   duplicatesFlaggedCorrectly: number;
 };
 
@@ -48,13 +48,11 @@ export function evaluate(
   const got = new Map<string, number>();
   let duplicatesFlaggedCorrectly = 0;
   let countedVolume = 0;
-  for (const d of detected) {
+  // Doublons possibles traités en dernier : ils restent comptés, et sont « justifiés » si l'objet l'était déjà.
+  for (const d of [...detected.filter((x) => !x.possibleDuplicate), ...detected.filter((x) => x.possibleDuplicate)]) {
     const raw = keyOf(d.roomId, d.catalogKey ?? `autre:${d.name}`);
     const k = alias.get(raw) ?? raw;
-    if (d.possibleDuplicate) {
-      if ((ref.get(k) ?? 0) <= (got.get(k) ?? 0)) duplicatesFlaggedCorrectly++;
-      continue;
-    }
+    if (d.possibleDuplicate && (ref.get(k) ?? 0) <= (got.get(k) ?? 0)) duplicatesFlaggedCorrectly++;
     countedVolume += d.quantity * d.unitVolumeM3;
     // Objets facultatifs trouvés : sortis du calcul (dans la limite de la quantité de référence).
     let quantity = d.quantity;

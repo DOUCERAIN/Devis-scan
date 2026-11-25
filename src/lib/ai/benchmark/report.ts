@@ -90,7 +90,7 @@ export function renderMarkdown(r: ReportInput): string {
   );
   for (const c of r.cases) {
     lines.push("", `### ${c.roomLabel} (\`${c.id}\`, ${c.frames} images, référence ${c.referenceStatus})`, "");
-    lines.push("| Modèle | Passage | Corrects | Oubliés | Inventés ou mal identifiés | En trop | Doublons possibles écartés | Volume compté / référence | Coût | Latence | État |", "| --- | ---: | ---: | --- | --- | --- | ---: | --- | ---: | ---: | --- |");
+    lines.push("| Modèle | Passage | Corrects | Oubliés | Inventés ou mal identifiés | En trop | Doublons possibles signalés (comptés) | Volume compté / référence | Coût | Latence | État |", "| --- | ---: | ---: | --- | --- | --- | ---: | --- | ---: | ---: | --- |");
     for (const cs of r.caseScores.filter((x) => x.score.caseId === c.id)) {
       const call = r.calls.find((x) => x.caseId === c.id && x.model === cs.model && x.pass === cs.pass);
       const s = cs.score;
@@ -138,7 +138,7 @@ const csv = (rows: (string | number | null)[][]) => "﻿" + rows.map((row) => ro
 /** Tableau comparatif final (une ligne par modèle). */
 export function renderSummaryCsv(summaries: ModelSummary[], roomsPerRequest: number): string {
   return csv([
-    ["modele", "score_qualite", "corrects", "reference", "oublies", "inventes_ou_mal_identifies", "en_trop_doublons", "rappel", "precision", "f1", "categories_f1", "rappel_partiels", "rappel_difficiles", "doublons_possibles_ecartes", "doublons_justifies", "erreur_volume_m3", "erreur_volume_relative", "cout_total_usd", "cout_moyen_piece_usd", `projection_demande_${roomsPerRequest}_pieces_usd`, "latence_moyenne_s", "latence_max_s", "echecs"],
+    ["modele", "score_qualite", "corrects", "reference", "oublies", "inventes_ou_mal_identifies", "en_trop_doublons", "rappel", "precision", "f1", "categories_f1", "rappel_partiels", "rappel_difficiles", "doublons_possibles_signales", "doublons_justifies", "erreur_volume_m3", "erreur_volume_relative", "cout_total_usd", "cout_moyen_piece_usd", `projection_demande_${roomsPerRequest}_pieces_usd`, "latence_moyenne_s", "latence_max_s", "echecs"],
     ...summaries.map((m) => [
       m.model, m.qualityScore, m.correct, m.referenceTotal, m.missed, m.invented, m.overcounted, m.recall, m.precision, m.f1, m.categoryF1, m.partialRecall, m.difficultRecall,
       m.duplicatesFlagged, m.duplicatesJustified, m.volumeAbsErrorM3, m.volumeRelError, m.costUsd, m.costPerCaseUsd, m.costPerCaseUsd * roomsPerRequest,

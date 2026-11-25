@@ -30,7 +30,7 @@ export async function updateInventoryItem(_prev: ActionState, formData: FormData
   const supabase = await createClient();
   const { data: item } = await supabase
     .from("inventory_items")
-    .select("id, request_id, name, quantity, unit_volume_m3, room_id, removed, possible_duplicate, validated_by_human")
+    .select("id, request_id, name, quantity, unit_volume_m3, room_id, removed, possible_duplicate, duplicate_reason, validated_by_human")
     .eq("id", v.id)
     .eq("request_id", v.request_id)
     .eq("company_id", company.id)
@@ -51,10 +51,10 @@ export async function updateInventoryItem(_prev: ActionState, formData: FormData
     action = "restore";
     patch.removed = false;
   } else {
-    Object.assign(patch, { possible_duplicate: false, duplicate_of_item_id: null });
+    Object.assign(patch, { possible_duplicate: false, duplicate_of_item_id: null, duplicate_reason: null });
   }
 
-  const before = { name: item.name, quantity: item.quantity, unit_volume_m3: Number(item.unit_volume_m3), room_id: item.room_id, removed: item.removed, possible_duplicate: item.possible_duplicate, validated_by_human: item.validated_by_human };
+  const before = { name: item.name, quantity: item.quantity, unit_volume_m3: Number(item.unit_volume_m3), room_id: item.room_id, removed: item.removed, possible_duplicate: item.possible_duplicate, duplicate_reason: item.duplicate_reason, validated_by_human: item.validated_by_human };
   const after = { ...before, ...Object.fromEntries(Object.entries(patch).filter(([k]) => k in before)) } as typeof before;
   const changes = Object.fromEntries(
     Object.keys(before)

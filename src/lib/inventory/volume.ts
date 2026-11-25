@@ -5,7 +5,7 @@ import { confidenceLevel, CONFIDENCE_THRESHOLDS } from "./confidence.ts";
  * - `source: "ai"` : détecté par l'IA, avec un score de confiance.
  * - `source: "manual"` : ajouté par le particulier ou le déménageur.
  * `validatedByHuman` passe à vrai quand une personne confirme l'élément.
- * `possibleDuplicate` : l'IA pense avoir vu ce meuble dans une autre vidéo.
+ * `possibleDuplicate` : peut-être le même objet physique qu'un autre élément (doute à trancher par une personne).
  */
 export type InventoryItem = {
   id: string;
@@ -26,9 +26,9 @@ export type VolumeBucket = "confirmed" | "toVerify" | "potential";
 /**
  * Règles (validées) :
  * - confirmé : validé par une personne, ajouté à la main, ou « Sûr » selon l'IA ;
- * - à vérifier : score entre les deux seuils ;
- * - potentiel : « Incertain » ou doublon possible non résolu. Il n'est PAS compté
- *   dans le volume estimé, seulement dans le haut de la fourchette.
+ * - à vérifier : score entre les deux seuils, ou doublon possible non résolu (compté : on ne retire
+ *   jamais un meuble peut-être réel ; le déménageur tranche, « Retirer » ou « Pas un doublon ») ;
+ * - potentiel : « Incertain ». Il n'est PAS compté dans le volume estimé, seulement dans le haut de la fourchette.
  * Une validation humaine l'emporte toujours sur le score de l'IA.
  */
 export function volumeBucket(
@@ -36,8 +36,8 @@ export function volumeBucket(
   thresholds = CONFIDENCE_THRESHOLDS,
 ): VolumeBucket {
   if (item.source === "manual" || item.validatedByHuman) return "confirmed";
-  if (item.possibleDuplicate) return "potential";
   const level = confidenceLevel(item.confidence ?? 0, thresholds);
+  if (item.possibleDuplicate) return level === "uncertain" ? "potential" : "toVerify";
   if (level === "sure") return "confirmed";
   if (level === "verify") return "toVerify";
   return "potential";
@@ -48,8 +48,10 @@ export type VolumeSummary = {
   confirmedM3: number;
   /** Volume des éléments probables mais à vérifier. */
   toVerifyM3: number;
-  /** Volume des éléments incertains ou doublons possibles (non compté). */
+  /** Volume des éléments incertains (non compté). */
   potentialM3: number;
+  /** Part du volume estimé portée par des doublons possibles non résolus (peut-être comptés deux fois). */
+  possibleDuplicateM3: number;
   /** Volume estimé = confirmé + à vérifier. C'est le bas de la fourchette. */
   estimatedM3: number;
   /** Haut de la fourchette = estimé + potentiel. */
@@ -69,6 +71,7 @@ export function summarizeVolume(
   let confirmed = 0;
   let toVerify = 0;
   let potential = 0;
+  let duplicates = 0;
   let itemsToReview = 0;
 
   for (const item of items) {
@@ -79,6 +82,7 @@ export function summarizeVolume(
     if (quantity === 0) continue;
 
     const bucket = volumeBucket(item, thresholds);
+    if (bucket === "toVerify" && item.possibleDuplicate) duplicates += volume;
     if (bucket === "confirmed") confirmed += volume;
     else {
       itemsToReview += 1;
@@ -95,6 +99,7 @@ export function summarizeVolume(
     confirmedM3,
     toVerifyM3,
     potentialM3,
+    possibleDuplicateM3: round1(duplicates),
     estimatedM3,
     maxM3: round1(confirmed + toVerify + potential),
     itemsToReview,

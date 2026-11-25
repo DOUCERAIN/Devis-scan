@@ -25,20 +25,11 @@ export const HANDLING_COEFFICIENTS: Record<string, number> = {
 /** Seuil au-delà duquel un volume calculé depuis des dimensions estimées n'est jamais présenté comme « sûr ». */
 export const DIMENSION_BASED_MAX_CONFIDENCE = 0.84;
 
-/** Objets qu'un logement possède rarement en double : deux occurrences dans deux pièces → doublon possible. */
-const USUALLY_SINGLE = new Set([
-  "refrigerateur",
-  "refrigerateur-americain",
-  "lave-linge",
-  "seche-linge",
-  "lave-vaisselle",
-  "cuisiniere",
-  "piano-droit",
-  "piano-a-queue",
-  "billard",
-  "baby-foot",
-  "table-de-ping-pong",
-]);
+/**
+ * Références du catalogue trop génériques pour servir d'indice d'identité : deux « Autre objet » ou deux
+ * « Sac ou ballot » sont presque toujours deux objets différents. Jamais comparées entre elles.
+ */
+export const GENERIC_IDENTITY_KEYS = new Set(["autre-objet", "sac-ou-ballot"]);
 
 export type RoomDetections = { roomId: string; objects: DetectedObject[]; frameIds: string[] };
 
@@ -60,8 +51,14 @@ export type ItemDraft = {
   isHeavy: boolean;
   isFragile: boolean;
   needsDisassembly: boolean;
+  /**
+   * Doublon possible : peut-être le même objet physique qu'un autre élément. L'élément reste COMPTÉ
+   * (« à vérifier ») et attend une décision humaine ; rien n'est retiré automatiquement.
+   */
   possibleDuplicate: boolean;
   duplicateOfKey: string | null;
+  /** Indices qui ont conduit au signalement, en français, pour le déménageur. */
+  duplicateReason: string | null;
   frameIds: string[];
   dims: { width: number; depth: number; height: number } | null;
   notes: string | null;
@@ -127,37 +124,35 @@ export function unitVolume(
   return { unitVolumeM3: 0, unitVolumeMinM3: null, unitVolumeMaxM3: null, geometricVolumeM3: geometric, volumeSource: "unknown" };
 }
 
-/** Recouvrement des images où deux objets ont été vus (indice de Jaccard). */
-function overlap(a: number[], b: number[]): number {
-  if (a.length === 0 || b.length === 0) return 0;
-  const setB = new Set(b);
-  const inter = a.filter((x) => setB.has(x)).length;
-  return inter / new Set([...a, ...b]).size;
-}
+const shareImage = (a: number[], b: number[]) => a.some((x) => b.includes(x));
+const describe = (o: DetectedObject) => [o.location_in_room, o.distinctive_features].filter(Boolean).join(", ") || "non précisé";
 
 /**
- * Transforme les détections brutes en éléments d'inventaire.
- * Dédoublonnage :
- * - dans une pièce, le modèle regroupe déjà un même objet vu sur plusieurs images ; si deux entrées
- *   restent avec la même référence et au moins une image commune, la seconde est marquée
- *   « doublon possible » (non comptée, décision humaine) ;
- * - entre pièces, un objet rarement présent deux fois (réfrigérateur, lave-linge, piano…) vu dans
- *   deux pièces, ou signalé par le modèle (« may_be_same_as »), est marqué « doublon possible ».
- * Rien n'est supprimé automatiquement.
+ * Transforme les détections brutes en éléments d'inventaire, SANS JAMAIS rien retirer.
+ *
+ * Distinguer « plusieurs objets identiques » de « un objet vu plusieurs fois » demande de voir les images :
+ * c'est le modèle qui regroupe les vues d'un même objet (consignes : position, orientation, voisinage,
+ * signes distinctifs, continuité). Le post-traitement ne fait que signaler les cas où un doute subsiste :
+ * - doute explicite du modèle (identity_doubt) ;
+ * - dans une pièce, deux entrées de même référence précise jamais visibles sur une même image
+ *   (peut-être le même meuble filmé à deux moments). Deux entrées visibles ensemble sur une image
+ *   sont deux objets distincts : aucun signalement ;
+ * - entre pièces, un objet que le modèle pense avoir vu dans une autre pièce, si un objet de même
+ *   référence y a été repéré.
+ * La référence seule (même catégorie, même nom, ressemblance) ne suffit jamais, et les références
+ * génériques (« Autre objet », « Sac ou ballot ») ne sont jamais comparées.
+ * Un doublon possible reste compté dans le volume (« à vérifier ») jusqu'à la décision du déménageur.
  */
 export function buildItems(rooms: RoomDetections[], catalog: Map<string, CatalogRef>): ItemDraft[] {
-  const items: ItemDraft[] = [];
-  const seenSingle = new Map<string, string>();
-
-  rooms.forEach((room, roomIndex) => {
-    const roomItems: (ItemDraft & { imageIndexes: number[] })[] = [];
-    room.objects.forEach((object, objectIndex) => {
+  type Work = ItemDraft & { imageIndexes: number[]; roomIndex: number; objectIndex: number };
+  const byRoom: Work[][] = rooms.map((room, roomIndex) =>
+    room.objects.map((object, objectIndex) => {
       const ref = matchCatalog(object, catalog);
       const volume = unitVolume(ref, object.dimensions_cm);
       let confidence = object.confidence;
       if (volume.volumeSource !== "catalog") confidence = Math.min(confidence, DIMENSION_BASED_MAX_CONFIDENCE);
       if (object.visibility === "uncertain") confidence = Math.min(confidence, 0.59);
-      const item: ItemDraft & { imageIndexes: number[] } = {
+      return {
         key: `${roomIndex}:${objectIndex}`,
         roomId: room.roomId,
         name: ref?.name ?? object.label,
@@ -173,39 +168,68 @@ export function buildItems(rooms: RoomDetections[], catalog: Map<string, Catalog
         needsDisassembly: object.needs_disassembly,
         possibleDuplicate: false,
         duplicateOfKey: null,
+        duplicateReason: null,
         frameIds: object.image_indexes.map((i) => room.frameIds[i]).filter(Boolean),
         imageIndexes: object.image_indexes,
         dims: object.dimensions_cm,
         notes: object.notes || null,
         aiProposal: object,
+        roomIndex,
+        objectIndex,
       };
+    }),
+  );
+  const flag = (item: Work, other: Work | null, reason: string) => {
+    if (item.possibleDuplicate) return;
+    item.possibleDuplicate = true;
+    item.duplicateOfKey = other?.key ?? null;
+    item.duplicateReason = reason.slice(0, 500);
+  };
+  const specific = (item: Work) => item.catalogKey !== null && !GENERIC_IDENTITY_KEYS.has(item.catalogKey);
 
-      const twin = roomItems.find(
-        (other) => !other.possibleDuplicate && other.catalogKey !== null && other.catalogKey === item.catalogKey && overlap(other.imageIndexes, item.imageIndexes) > 0,
-      );
-      if (twin) {
-        item.possibleDuplicate = true;
-        item.duplicateOfKey = twin.key;
-      } else if (item.catalogKey && USUALLY_SINGLE.has(item.catalogKey)) {
-        const first = seenSingle.get(item.catalogKey);
-        if (first && !first.startsWith(`${roomIndex}:`)) {
-          item.possibleDuplicate = true;
-          item.duplicateOfKey = first;
-        } else if (!first) {
-          seenSingle.set(item.catalogKey, item.key);
-        }
-      }
-      if (!item.possibleDuplicate && object.may_be_same_as.trim() !== "") {
-        item.possibleDuplicate = true;
-      }
-      roomItems.push(item);
-    });
-    for (const roomItem of roomItems) {
-      const item: ItemDraft & { imageIndexes?: number[] } = { ...roomItem };
-      delete item.imageIndexes;
-      items.push(item);
+  // 1. Doute explicite du modèle sur une autre entrée de la même pièce.
+  for (const items of byRoom) {
+    for (const item of items) {
+      const doubt = item.aiProposal.identity_doubt;
+      if (!doubt || doubt.other_room) continue;
+      const other = doubt.other_entry_index === null ? null : items[doubt.other_entry_index] ?? null;
+      flag(item, other, `Doute signalé par l'IA : ${doubt.reason}`);
     }
-  });
+  }
 
-  return items;
+  // 2. Même pièce, même référence précise, jamais visibles ensemble.
+  for (const items of byRoom) {
+    items.forEach((b, j) => {
+      if (b.possibleDuplicate || !specific(b)) return;
+      const a = items.slice(0, j).find((x) => x.catalogKey === b.catalogKey && !(x.imageIndexes.length > 0 && b.imageIndexes.length > 0 && shareImage(x.imageIndexes, b.imageIndexes)));
+      if (!a) return;
+      const why = a.imageIndexes.length === 0 || b.imageIndexes.length === 0
+        ? "images non précisées par l'IA"
+        : "jamais visibles ensemble sur une même image";
+      flag(b, a, `Même type de meuble (${b.name}) que « ${a.aiLabel} », ${why} : il peut s'agir du même meuble filmé à deux moments. Positions : « ${describe(a.aiProposal)} » / « ${describe(b.aiProposal)} ».`);
+    });
+  }
+
+  // 3. Objet que le modèle pense avoir vu dans une autre pièce.
+  for (const items of byRoom) {
+    for (const item of items) {
+      const doubt = item.aiProposal.identity_doubt;
+      const legacy = !doubt && item.aiProposal.may_be_same_as.trim() !== "" ? item.aiProposal.may_be_same_as.trim() : null;
+      if (!(doubt?.other_room || legacy)) continue;
+      const elsewhere = specific(item) ? byRoom.flat().find((x) => x.roomIndex !== item.roomIndex && x.catalogKey === item.catalogKey) : undefined;
+      const reason = doubt?.reason ?? legacy ?? "";
+      if (elsewhere) flag(item, elsewhere, `L'IA pense avoir peut-être vu ce meuble dans une autre pièce : ${reason}`);
+      // Ancien champ libre sans objet correspondant ailleurs : simple remarque, pas un doublon
+      // (il contenait parfois une position, par exemple « probablement dans l'entrée »).
+      else if (doubt) flag(item, null, `L'IA pense avoir peut-être vu ce meuble dans une autre pièce : ${reason} (aucun meuble du même type repéré ailleurs).`);
+    }
+  }
+
+  return byRoom.flat().map((item) => {
+    const out: ItemDraft & { imageIndexes?: number[]; roomIndex?: number; objectIndex?: number } = { ...item };
+    delete out.imageIndexes;
+    delete out.roomIndex;
+    delete out.objectIndex;
+    return out;
+  });
 }

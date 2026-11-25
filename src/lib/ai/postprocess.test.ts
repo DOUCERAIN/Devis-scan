@@ -35,6 +35,9 @@ const obj = (o: Partial<DetectedObject>): DetectedObject => ({
   is_fragile: false,
   needs_disassembly: false,
   may_be_same_as: "",
+  location_in_room: "",
+  distinctive_features: "",
+  identity_doubt: null,
   notes: "",
   ...o,
 });
@@ -64,28 +67,42 @@ test("un volume calculé depuis des dimensions n'est jamais « sûr » ; un obje
   assert.equal(items[1].confidence, 0.59);
 });
 
-test("dédoublonnage dans une pièce : même référence, mêmes images → doublon possible (non supprimé)", () => {
+test("dédoublonnage dans une pièce : visibles ensemble = distincts ; jamais ensemble = doublon possible, compté", () => {
   const items = buildItems(
     [{ roomId: "r1", frameIds: ["a", "b", "c"], objects: [obj({ image_indexes: [0, 1] }), obj({ image_indexes: [1, 0] }), obj({ image_indexes: [2] })] }],
     catalog,
   );
-  assert.equal(items.length, 3);
-  assert.deepEqual(items.map((i) => i.possibleDuplicate), [false, true, false]);
-  assert.equal(items[1].duplicateOfKey, items[0].key);
+  assert.equal(items.length, 3, "aucune observation perdue");
+  // Les deux premiers sont vus ensemble sur les images 0 et 1 : deux canapés distincts.
+  assert.equal(items[1].possibleDuplicate, false);
+  // Le troisième n'apparaît jamais avec le premier : peut-être le même filmé à un autre moment.
+  assert.equal(items[2].possibleDuplicate, true);
+  assert.equal(items[2].duplicateOfKey, items[0].key);
+  assert.match(items[2].duplicateReason ?? "", /jamais visibles ensemble/);
   assert.deepEqual(items[0].frameIds, ["a", "b"]);
 });
 
-test("dédoublonnage entre pièces : objet rarement en double, ou signalé par le modèle", () => {
+test("dédoublonnage entre pièces : jamais sur la seule référence ; seulement sur un doute explicite de l'IA", () => {
   const fridge = obj({ catalog_id: "refrigerateur", label: "Frigo" });
-  const items = buildItems(
+  const two = buildItems(
     [
       { roomId: "cuisine", frameIds: ["a", "b"], objects: [fridge] },
-      { roomId: "salon", frameIds: ["c", "d"], objects: [fridge, obj({ may_be_same_as: "Canapé déjà vu dans le séjour" })] },
+      { roomId: "garage", frameIds: ["c", "d"], objects: [fridge] },
     ],
     catalog,
   );
-  assert.deepEqual(items.map((i) => i.possibleDuplicate), [false, true, true]);
-  assert.equal(items[0].isHeavy, true);
+  assert.deepEqual(two.map((i) => i.possibleDuplicate), [false, false], "deux réfrigérateurs dans deux pièces : deux réfrigérateurs");
+  assert.equal(two[0].isHeavy, true);
+  const doubt = buildItems(
+    [
+      { roomId: "cuisine", frameIds: ["a", "b"], objects: [fridge] },
+      { roomId: "salon", frameIds: ["c", "d"], objects: [obj({ catalog_id: "refrigerateur", label: "Frigo", visibility: "partial", identity_doubt: { other_entry_index: null, other_room: true, reason: "Vu par la porte ouverte de la cuisine" } })] },
+    ],
+    catalog,
+  );
+  assert.equal(doubt[1].possibleDuplicate, true);
+  assert.equal(doubt[1].duplicateOfKey, doubt[0].key);
+  assert.match(doubt[1].duplicateReason ?? "", /porte ouverte/);
 });
 
 test("sortie du modèle validée : forme stricte, indices d'images hors limites ignorés", () => {

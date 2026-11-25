@@ -4,12 +4,21 @@
 
 1. À l'envoi de la demande, le serveur lance l'analyse (`src/lib/analysis/run.ts`, exécutée après la réponse grâce à `after()` de Next.js ; reprise quotidienne par `/api/taches/analyses` si elle n'a pas démarré).
 2. Pour chaque pièce : jusqu'à **8 images** extraites des vidéos (réparties dans le temps) sont envoyées au fournisseur, **depuis le serveur uniquement**. Les vidéos elles-mêmes ne sont jamais envoyées.
-3. Le modèle répond dans un **format JSON imposé** (sortie structurée) : objets, quantité, identifiant du catalogue, score, visibilité, images où l'objet apparaît, doublon possible. La réponse est revalidée (zod) ; une réponse invalide est rejetée, rien n'est complété au hasard.
+3. Le modèle répond dans un **format JSON imposé** (sortie structurée) : objets, quantité, identifiant du catalogue, score, visibilité, images où l'objet apparaît, position dans la pièce, signes distinctifs, doute éventuel sur l'identité physique (`identity_doubt`). La réponse est revalidée (zod) ; une réponse invalide est rejetée, rien n'est complété au hasard.
 4. Post-traitement déterministe (`src/lib/ai/postprocess.ts`) :
    - rattachement au catalogue : identifiant proposé, sinon nom ou synonyme **exact** ; sinon « hors catalogue » ;
    - volume : volume de déménagement du catalogue ; à défaut, dimensions estimées × coefficient de manutention (jamais « sûr ») ; à défaut, **0 et « volume à renseigner »** ;
    - objet peu visible → « incertain » ; volume issu de dimensions → « à vérifier » au mieux ;
-   - **dédoublonnage** : même référence vue sur une image commune dans une pièce, objet rarement en double (réfrigérateur, lave-linge, piano…) vu dans deux pièces, ou doublon signalé par le modèle → « doublon possible » (violet, non compté, décision humaine). Rien n'est supprimé automatiquement.
+   - **dédoublonnage** (revu le 26/11/2026). Le but est de distinguer plusieurs objets physiques, même identiques, d'un seul objet vu plusieurs fois.
+     - Le modèle, qui voit les images, regroupe les vues d'un même objet d'après la position, l'orientation, le voisinage, les signes distinctifs et la continuité entre images. Il déclare ses doutes dans `identity_doubt`.
+     - Le post-traitement signale un « doublon possible » dans trois cas seulement :
+       - le modèle a exprimé un doute ;
+       - dans une même pièce, deux entrées de même référence précise ne sont **jamais visibles sur une même image** ;
+       - le modèle pense avoir vu l'objet dans une autre pièce, et un objet de même référence y a été repéré.
+     - Deux entrées visibles ensemble sur une même image sont deux objets distincts.
+     - La référence seule (catégorie, nom, ressemblance) ne suffit jamais. « Autre objet » et « Sac ou ballot » ne sont jamais comparés.
+     - Un doublon possible reste **compté « à vérifier »**, s'affiche en violet avec les indices du signalement (`duplicate_reason`), et attend la décision du déménageur : « Retirer » ou « Pas un doublon ». Rien n'est supprimé automatiquement.
+     - Tests : `src/lib/ai/dedupe.test.ts`, avec 10 scénarios et le rejeu des réponses réelles du benchmark du 25/11/2026.
 5. Inventaire enregistré (`inventory_items`, avec la proposition d'origine de l'IA dans `ai_proposal`, jamais modifiée) et liens vers les images (`inventory_item_frames`).
 6. Estimation calculée avec la grille de l'entreprise (voir `docs/devis.md`).
 7. Progression réelle enregistrée (`analysis_runs.stage`, pièces traitées) et affichée au client.

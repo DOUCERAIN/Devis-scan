@@ -19,7 +19,24 @@ export const detectedObjectSchema = z.object({
     .nullable(),
   is_fragile: z.boolean(),
   needs_disassembly: z.boolean(),
-  may_be_same_as: z.string().trim().max(200),
+  /** Ancien champ libre (réponses antérieures au 26/11/2026) : conservé pour relire les analyses existantes. */
+  may_be_same_as: z.string().trim().max(200).default(""),
+  /** Position du meuble dans la pièce (mur, coin, voisinage). Indice d'identité physique. */
+  location_in_room: z.string().trim().max(200).default(""),
+  /** Signes distinctifs de CET exemplaire (couleur, matière, usure, objets posés dessus…). */
+  distinctive_features: z.string().trim().max(200).default(""),
+  /**
+   * Doute explicite du modèle : cette entrée est peut-être le même objet physique qu'une autre entrée
+   * de la même pièce (other_entry_index) ou qu'un objet d'une autre pièce (other_room). null si aucun doute.
+   */
+  identity_doubt: z
+    .object({
+      other_entry_index: z.number().int().min(0).max(149).nullable(),
+      other_room: z.boolean(),
+      reason: z.string().trim().min(1).max(300),
+    })
+    .nullable()
+    .default(null),
   notes: z.string().trim().max(500),
 });
 
@@ -52,7 +69,9 @@ export const ROOM_ANALYSIS_JSON_SCHEMA = {
           "dimensions_cm",
           "is_fragile",
           "needs_disassembly",
-          "may_be_same_as",
+          "location_in_room",
+          "distinctive_features",
+          "identity_doubt",
           "notes",
         ],
         properties: {
@@ -75,7 +94,23 @@ export const ROOM_ANALYSIS_JSON_SCHEMA = {
           },
           is_fragile: { type: "boolean" },
           needs_disassembly: { type: "boolean" },
-          may_be_same_as: { type: "string", description: "Vide, ou explication d'un doublon possible" },
+          location_in_room: { type: "string", description: "Position dans la pièce : mur, coin, à côté de quoi" },
+          distinctive_features: { type: "string", description: "Signes distinctifs de cet exemplaire précis" },
+          identity_doubt: {
+            anyOf: [
+              {
+                type: "object",
+                additionalProperties: false,
+                required: ["other_entry_index", "other_room", "reason"],
+                properties: {
+                  other_entry_index: { anyOf: [{ type: "integer" }, { type: "null" }], description: "Indice (à partir de 0) de l'autre entrée de cette réponse, ou null" },
+                  other_room: { type: "boolean", description: "Vrai si l'autre objet est probablement dans une autre pièce" },
+                  reason: { type: "string" },
+                },
+              },
+              { type: "null" },
+            ],
+          },
           notes: { type: "string" },
         },
       },
@@ -89,10 +124,15 @@ export function parseRoomAnalysis(text: string, imageCount: number): RoomAnalysi
   const data = roomAnalysisSchema.parse(JSON.parse(text));
   return {
     ...data,
-    objects: data.objects.map((o) => ({
+    objects: data.objects.map((o, index) => ({
       ...o,
       // Indices d'images hors limites ignorés (jamais d'association inventée).
       image_indexes: [...new Set(o.image_indexes)].filter((i) => i < imageCount),
+      // Renvoi vers une entrée inexistante ou vers elle-même : ignoré (jamais d'association inventée).
+      identity_doubt:
+        o.identity_doubt && o.identity_doubt.other_entry_index !== null && (o.identity_doubt.other_entry_index >= data.objects.length || o.identity_doubt.other_entry_index === index)
+          ? { ...o.identity_doubt, other_entry_index: null }
+          : o.identity_doubt,
     })),
   };
 }

@@ -36,7 +36,7 @@ Schéma PostgreSQL (Supabase), défini **uniquement** par les migrations de `sup
 | `room_videos` | Vidéos (fichier dans `request-media`), statut, taille, durée, dimensions, version stockée (`compressed`/`original`), encodeur, source (caméra, appareil photo, galerie), caractéristiques de l'original, date de suppression prévue | serveur uniquement |
 | `video_frames` | Images extraites des vidéos | serveur uniquement |
 | `analysis_runs` | Analyses IA : statut, modèle, erreurs, réponse brute | serveur uniquement |
-| `inventory_items` | Inventaire : nom, quantité, volume, dimensions, source (ia / client / déménageur), confiance, doublon possible, validation humaine, retrait | membres |
+| `inventory_items` | Inventaire : nom, quantité, volume, dimensions, source (ia / client / déménageur), confiance, doublon possible (compté « à vérifier ») et ses indices (`duplicate_reason`), validation humaine, retrait | membres |
 | `inventory_item_frames` | Images où un élément a été repéré | serveur uniquement |
 | `quotes` | Devis (lignes, totaux HT/TVA/TTC, validité, PDF) — calcul en phase 4 | membres |
 | `request_events` | Historique automatique (création, changements de statut) + notes | automatique ; notes par les membres |

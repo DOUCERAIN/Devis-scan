@@ -3,7 +3,7 @@
 ## Volume
 
 - Volume de chaque objet = **volume de déménagement** (catalogue, ou valeur saisie par le déménageur), distinct du volume géométrique du meuble monté (voir `docs/catalogue-sources.md`).
-- Règles validées : confirmé (sûr ou vérifié) + à vérifier = **volume estimé** ; incertain ou doublon possible = **volume potentiel, non compté** ; fourchette = estimé → estimé + potentiel.
+- Règles validées : confirmé (sûr ou vérifié) + à vérifier = **volume estimé** ; doublon possible = **compté à vérifier** (depuis le 26/11/2026 : on ne retire jamais un meuble peut-être réel ; le devis le signale dans ses hypothèses) ; incertain = **volume potentiel, non compté** ; fourchette = estimé → estimé + potentiel.
 - Volume facturé = volume estimé **arrondi au dixième de m³ supérieur**.
 - Recalcul automatique à chaque affichage (par objet, pièce, logement, demande) ; le devis fige le résultat dans `volume_snapshot`.
 
