@@ -188,14 +188,25 @@ export async function runRequestAnalysis(requestId: string): Promise<AnalysisOut
 
     // Devis initial
     await admin.from("analysis_runs").update({ stage: "pricing" }).eq("id", run.id);
-    const quote = await generateQuote(admin, requestId, { origin: "automatic" });
+    const { count: declaredRooms } = await admin.from("rooms").select("id", { count: "exact", head: true }).eq("request_id", requestId);
+    const quote = await generateQuote(admin, requestId, {
+      origin: "automatic",
+      analysis: {
+        simulated: provider.simulated,
+        failedRooms: failures.length,
+        roomsWithoutImages: Math.max(0, (declaredRooms ?? 0) - roomsWithFrames.length),
+      },
+    });
     await admin.from("analysis_runs").update({ stage: "quote" }).eq("id", run.id);
 
     await admin
       .from("analysis_runs")
       .update({ status: "succeeded", stage: "done", finished_at: new Date().toISOString(), error_message: failures.length ? failures.join(" ; ").slice(0, 2000) : null })
       .eq("id", run.id);
-    await admin.from("quote_requests").update({ status: "to_review" }).eq("id", requestId);
+    // Devis formel envoyé automatiquement : la demande est déjà « devis envoyé » ; sinon validation humaine.
+    if (!(quote.status === "created" && quote.formal)) {
+      await admin.from("quote_requests").update({ status: "to_review" }).eq("id", requestId);
+    }
     return { status: "done", runId: run.id, quote: quote.status };
   } catch (error) {
     console.error("[analyse] échec", error);

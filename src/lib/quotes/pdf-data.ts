@@ -59,7 +59,12 @@ export function toPdfQuote(q: PublicQuote): PdfQuote {
       [`TVA (${q.vat_rate.toLocaleString("fr-FR")} %)`, formatEuros(q.vat_cents)],
       ["Total TTC", formatEuros(q.total_ttc_cents)],
     ],
-    notes: q.assumptions,
+    notes: [
+      ...q.assumptions,
+      ...(quoteKindLabel(q) !== "Devis"
+        ? (q.review_reasons ?? []).filter((r) => !/Envoi automatique|Identité légale|Grille tarifaire|simulateur/.test(r)).map((r) => `À vérifier par l'entreprise : ${r}`)
+        : []),
+    ],
     terms: (
       [
         ["Assurance", s(c.insurance_info)],

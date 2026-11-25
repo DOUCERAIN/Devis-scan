@@ -84,6 +84,9 @@ test("Scénario 3 — réfrigérateur visible depuis la cuisine ET le séjour (p
   const counted = summarizeVolume(items.map((i) => ({ id: i.key, name: i.name, room: i.roomId, quantity: i.quantity, unitVolumeM3: i.unitVolumeM3, source: "ai" as const, confidence: i.confidence, possibleDuplicate: i.possibleDuplicate })));
   assert.equal(counted.estimatedM3, 1.9, "un seul réfrigérateur compté");
   assert.equal(counted.potentialM3, 0.4, "le second apparaît en volume potentiel");
+  const e = evaluate(items, reference, VOLUMES);
+  assert.equal(e.precision, 1);
+  assert.equal(e.duplicatesFlaggedCorrectly, 1);
 });
 
 test("Scénario 4 — objet inventé et objet manqué : écarts mesurés et signalés", () => {
@@ -113,4 +116,20 @@ test("Scénario 5 — meuble hors catalogue : volume inconnu, jamais inventé", 
   assert.equal(items[0].volumeSource, "unknown");
   assert.equal(items[0].unitVolumeM3, 0);
   assert.ok(items[0].confidence <= 0.84, "à vérifier par le déménageur");
+});
+
+test("Évaluation : identifiants équivalents et objets facultatifs", () => {
+  const reference: ReferenceItem[] = [
+    { room: "salon", catalogKey: "canape-3-places", quantity: 1, alternatives: ["canape-2-places"] },
+    { room: "salon", catalogKey: "table-basse", quantity: 1, optional: true },
+  ];
+  const catalog = new Map([...CATALOG, ["canape-2-places", ref("canape-2-places", "Canapé 2 places", 1)]]);
+  const items = buildItems([{ roomId: "salon", frameIds: frames(2), objects: [o("canape-2-places"), o("table-basse")] }], catalog);
+  const e = evaluate(items, reference, VOLUMES);
+  assert.equal(e.recall, 1);
+  assert.equal(e.precision, 1);
+  assert.equal(e.hallucinated.length, 0);
+  // Sans la table basse : aucun oubli compté (facultative).
+  const e2 = evaluate(buildItems([{ roomId: "salon", frameIds: frames(1), objects: [o("canape-3-places")] }], catalog), reference, VOLUMES);
+  assert.equal(e2.missed.length, 0);
 });

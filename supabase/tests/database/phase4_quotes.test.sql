@@ -4,7 +4,7 @@
 -- =============================================================================
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(24);
+select plan(25);
 
 insert into auth.users (id, instance_id, aud, role, email, raw_user_meta_data, created_at, updated_at)
 values
@@ -106,6 +106,9 @@ select is(public.respond_public_quote((select view_token from v), (select id fro
 select pg_temp.reset();
 select is((select status::text from public.quote_requests where id = (select request_id from t)), 'accepted', 'Demande acceptée');
 select throws_ok($$ update public.quotes set status = 'refused' where id = (select id from q) $$, '55000', null, 'Devis accepté verrouillé');
+select throws_ok($$ insert into public.quotes (request_id, company_id, status, version, kind, total_ttc_cents, lines)
+                    select request_id, (select company_a from ctx), 'corrected', 3, 'estimate', 1, '[]' from t $$, '55000', null,
+  'Aucune nouvelle version après acceptation (pas de remplacement silencieux)');
 
 -- Isolation --------------------------------------------------------------------------
 select pg_temp.login('b4b4b4b4-0000-4000-8000-000000000002');

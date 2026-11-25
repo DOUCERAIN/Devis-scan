@@ -96,7 +96,7 @@ async function requestRow(email) {
     assert.equal(e1, null);
     const { error: e2 } = await pro.client.from("pricing_options").insert({ company_id: pro.company.id, name: "Protection renforcée des meubles", pricing_mode: "per_m3", price: 10 });
     assert.equal(e2, null);
-    await admin.from("companies").update({ legal_name: "Déménagements A SARL", siret: "12345678900012", address_line1: "1 rue du Test", postal_code: "69001", city: "Lyon", insurance_info: "Assureur Exemple, contrat n° 42" }).eq("id", pro.company.id);
+    await admin.from("companies").update({ legal_name: "Déménagements A SARL", siret: "12345678900012", address_line1: "1 rue du Test", postal_code: "69001", city: "Lyon", insurance_info: "Assureur Exemple, contrat n° 42", auto_formal_quotes: true }).eq("id", pro.company.id);
   }
   const errors = [];
 
@@ -307,15 +307,19 @@ async function requestRow(email) {
   await page.goto(quoteUrl);
   await text(page, "Détail du prix", 90000);
   await text(page, "Environnement de test");
-  await text(page, "Estimation indicative");
+  await text(page, "Estimation indicative · non contractuelle");
+  await text(page, "Points à vérifier par");
+  assert.equal(await page.getByText("jamais de devis formel").count(), 0, "motifs internes non montrés au client");
   await text(page, "Protection renforcée des meubles");
   const { data: run } = await admin.from("analysis_runs").select("status, simulated, provider, rooms_total, rooms_done").eq("request_id", row.id).single();
   assert.deepEqual(run, { status: "succeeded", simulated: true, provider: "simulation", rooms_total: 2, rooms_done: 2 });
-  const { data: q1 } = await admin.from("quotes").select("version, status, kind, total_ttc_cents, pricing_snapshot").eq("request_id", row.id).order("version");
+  const { data: q1 } = await admin.from("quotes").select("version, status, kind, total_ttc_cents, pricing_snapshot, review_reasons").eq("request_id", row.id).order("version");
   assert.equal(q1.length, 1);
   assert.equal(q1[0].status, "generated");
-  assert.equal(q1[0].kind, "estimate");
+  assert.equal(q1[0].kind, "estimate", "simulateur : jamais de devis formel, même avec l'envoi automatique activé");
   assert.equal(q1[0].pricing_snapshot.settings.price_per_m3, 80);
+  assert.ok(q1[0].review_reasons.some((r) => /simulateur/.test(r)), JSON.stringify(q1[0].review_reasons));
+  assert.ok(q1[0].review_reasons.some((r) => /à vérifier/.test(r)));
   const pdf = await page.request.get(`${quoteUrl}/pdf`);
   assert.equal(pdf.status(), 200);
   assert.equal((await pdf.body()).subarray(0, 5).toString(), "%PDF-");
@@ -357,6 +361,8 @@ async function requestRow(email) {
 
   // Phase 4 : inventaire corrigé par le déménageur, nouvelle version, envoi, acceptation
   await text(p, "Analyse simulée (environnement de test)");
+  await text(p, "Validation humaine nécessaire avant un devis formel");
+  await text(p, "Estimation indicative");
   await text(p, "Canapé 3 places");
   const fridge = p.locator("li", { hasText: "Réfrigérateur" }).first();
   await fridge.locator("summary").click();
@@ -389,6 +395,8 @@ async function requestRow(email) {
 
   await page.goto(quoteUrl);
   await text(page, "Devis envoyé par votre déménageur");
+  await text(page, "Devis vérifié et envoyé par");
+  assert.equal(await page.getByTestId("quote-kind").innerText(), "Devis");
   await page.getByRole("button", { name: "Accepter le devis" }).click();
   await text(page, "Vous avez accepté ce devis");
   const { data: accepted } = await admin.from("quotes").select("status, accepted_at").eq("request_id", row.id).eq("version", 3).single();

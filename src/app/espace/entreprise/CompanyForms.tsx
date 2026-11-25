@@ -126,6 +126,18 @@ export function QuoteSettingsForm({ company, disabled }: Props) {
           help="Limites de responsabilité, déclaration de valeur…" {...f("liability_terms")} />
         <TextArea id="quote_terms" label="Conditions commerciales" optional rows={6} className="sm:col-span-2"
           help="Reproduites sur chaque devis." {...f("quote_terms")} />
+        <label className="flex items-start gap-3 rounded-md border border-border p-3 sm:col-span-2">
+          <input type="checkbox" name="auto_formal_quotes" className="mt-0.5 size-[18px] accent-brand"
+            defaultChecked={state.status === "error" ? state.values?.auto_formal_quotes === "on" : company.auto_formal_quotes} />
+          <span className="text-sm">
+            <span className="block font-medium">Envoyer automatiquement un devis formel quand l&apos;analyse est fiable</span>
+            <span className="block text-ink-secondary">
+              Seulement si tous les objets sont reconnus avec certitude, sans doublon ni objet sans volume, toutes les pièces filmées,
+              les accès et la distance connus, et votre identité légale complète. Dans tous les autres cas, le client reçoit une estimation
+              indicative et la demande vous est signalée pour validation.
+            </span>
+          </span>
+        </label>
       </fieldset>
       <Footer state={state} disabled={disabled} label="Enregistrer les paramètres" />
     </form>

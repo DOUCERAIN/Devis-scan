@@ -6,11 +6,12 @@ import { confidenceLevel } from "@/lib/inventory/confidence";
 import { computePrice, type PricingResult, type SelectedOption } from "@/lib/pricing/engine";
 import { distanceBetween } from "@/lib/address/distance";
 import { requestReference } from "@/lib/requests/status";
+import { formalQuoteEligibility } from "@/lib/quotes/eligibility";
 
 type Client = SupabaseClient<Database>;
 
 export type GenerateOutcome =
-  | { status: "created"; quoteId: string; version: number }
+  | { status: "created"; quoteId: string; version: number; formal: boolean; reasons: string[] }
   | { status: "pricing_not_configured" }
   | { status: "blocked"; blockers: string[] }
   | { status: "error"; message: string };
@@ -25,7 +26,8 @@ export function hasLegalIdentity(c: { legal_name: string | null; siret: string |
 
 /**
  * Calcule et enregistre une nouvelle version de devis pour une demande.
- * - « automatic » : après l'analyse ; toujours une ESTIMATION indicative (statut generated).
+ * - « automatic » : après l'analyse ; devis FORMEL envoyé automatiquement seulement si l'entreprise l'a activé
+ *   et que toutes les conditions de fiabilité sont réunies (eligibility.ts), sinon ESTIMATION + motifs de validation.
  * - « correction » : après modification de l'inventaire ou des paramètres par le déménageur (statut corrected).
  * La version précédente (non acceptée) passe en « superseded » ; un devis accepté n'est jamais modifié.
  * Toutes les données utilisées sont figées dans des instantanés (grille, entreprise, demande, inventaire).
@@ -33,7 +35,13 @@ export function hasLegalIdentity(c: { legal_name: string | null; siret: string |
 export async function generateQuote(
   supabase: Client,
   requestId: string,
-  options: { origin: "automatic" | "correction"; userId?: string | null; changesSummary?: Json | null; send?: boolean },
+  options: {
+    origin: "automatic" | "correction";
+    userId?: string | null;
+    changesSummary?: Json | null;
+    send?: boolean;
+    analysis?: { simulated: boolean; failedRooms: number; roomsWithoutImages: number };
+  },
 ): Promise<GenerateOutcome> {
   const { data: request, error } = await supabase
     .from("quote_requests")
@@ -48,7 +56,7 @@ export async function generateQuote(
   const [companyRes, settingsRes, optionsRes, surchargesRes, roomsRes, itemsRes, quotesRes] = await Promise.all([
     supabase
       .from("companies")
-      .select("name, legal_name, siret, vat_number, email, phone, website, address_line1, address_line2, postal_code, city, logo_path, brand_color, quote_validity_days, payment_terms, quote_terms, insurance_info, reserves_terms, liability_terms, request_reference_prefix")
+      .select("name, legal_name, siret, vat_number, email, phone, website, address_line1, address_line2, postal_code, city, logo_path, brand_color, quote_validity_days, payment_terms, quote_terms, insurance_info, reserves_terms, liability_terms, request_reference_prefix, auto_formal_quotes")
       .eq("id", companyId)
       .single(),
     supabase.from("pricing_settings").select("*").eq("company_id", companyId).single(),
@@ -132,6 +140,9 @@ export async function generateQuote(
   const heavyOf = (items: typeof asVolumeItems) => items.filter((i) => i.heavy).map((i) => ({ name: i.name, catalogName: i.catalogName, quantity: i.quantity }));
   const price: PricingResult = computePrice({ ...pricingInputBase, volumeM3: volume.estimatedM3, heavyItems: heavyOf(asVolumeItems.filter(counted)) });
   if (!price.ok) return { status: "blocked", blockers: price.blockers };
+  if ((quotesRes.data ?? []).some((q) => q.status === "accepted")) {
+    return { status: "blocked", blockers: ["Le client a accepté un devis : aucune nouvelle version ne peut le remplacer."] };
+  }
   const upper = computePrice({ ...pricingInputBase, volumeM3: volume.maxM3, heavyItems: heavyOf(asVolumeItems) });
 
   const assumptions = [...price.assumptions];
@@ -141,6 +152,21 @@ export async function generateQuote(
   if (unknownVolumeItems > 0) assumptions.push(`${unknownVolumeItems} objet${unknownVolumeItems > 1 ? "s" : ""} sans volume de référence, à évaluer par le déménageur.`);
 
   const previous = quotesRes.data ?? [];
+  const eligibility = formalQuoteEligibility({
+    autoFormalEnabled: options.origin === "automatic" ? company.auto_formal_quotes : true,
+    legalIdentity: hasLegalIdentity(company),
+    pricingConfigured: true,
+    simulated: options.analysis?.simulated ?? false,
+    failedRooms: options.analysis?.failedRooms ?? 0,
+    roomsWithoutImages: options.analysis?.roomsWithoutImages ?? 0,
+    itemsToReview: volume.itemsToReview,
+    potentialM3: volume.potentialM3,
+    unknownVolumeItems,
+    pricingAssumptions: price.assumptions,
+  });
+  // Envoi : demandé par le déménageur (validation humaine), ou automatique si toutes les conditions sont réunies.
+  const send = options.send === true || (options.origin === "automatic" && eligibility.formal);
+  const reviewReasons = options.send ? [] : eligibility.reasons;
   const version = (previous[0]?.version ?? 0) + 1;
   const today = new Date();
   const validUntil = new Date(today.getTime() + company.quote_validity_days * 86_400_000).toISOString().slice(0, 10);
@@ -150,11 +176,12 @@ export async function generateQuote(
     .insert({
       request_id: requestId,
       company_id: companyId,
-      status: options.send ? "sent" : options.origin === "automatic" ? "generated" : "corrected",
-      sent_at: options.send ? new Date().toISOString() : null,
+      status: send ? "sent" : options.origin === "automatic" ? "generated" : "corrected",
+      sent_at: send ? new Date().toISOString() : null,
       version,
       // Un devis n'est « formel » que lorsqu'il est vérifié et envoyé par l'entreprise (identité légale complète).
-      kind: options.send && hasLegalIdentity(company) ? "formal" : "estimate",
+      kind: send && hasLegalIdentity(company) ? "formal" : "estimate",
+      review_reasons: reviewReasons as unknown as Json[],
       origin: options.origin,
       supersedes_id: previous.find((q) => q.status !== "superseded")?.id ?? null,
       lines: price.lines as unknown as Json[],
@@ -211,5 +238,6 @@ export async function generateQuote(
   if (toSupersede.length > 0) await supabase.from("quotes").update({ status: "superseded" }).in("id", toSupersede);
   await supabase.from("quote_requests").update({ estimated_volume_m3: volume.estimatedM3 }).eq("id", requestId);
 
-  return { status: "created", quoteId: inserted.id, version };
+  if (send) await supabase.from("quote_requests").update({ status: "quote_sent" }).eq("id", requestId);
+  return { status: "created", quoteId: inserted.id, version, formal: send, reasons: reviewReasons };
 }

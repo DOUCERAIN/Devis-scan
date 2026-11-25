@@ -1,0 +1,38 @@
+{
+  "annotated_by": "Annotation provisoire établie par Claude (assistant de développement) en regardant les photos, le 25/11/2026. À faire valider par un déménageur : tant que ce n'est pas fait, les écarts mesurés sont indicatifs.",
+  "rules": "Seuls les objets à déménager sont comptés. 'alternatives' : identifiants du catalogue également acceptés. 'optional' : objet ambigu ou minime, ni compté comme oubli s'il manque, ni comme erreur s'il est trouvé. Éléments fixes (rideaux, plafonnier, radiateur, cloison, fenêtres) et effets personnels (sacs, tasses) ignorés.",
+  "rooms": {
+    "chambre-lits-simples": {
+      "label": "Chambre",
+      "items": [
+        { "key": "lit-simple", "quantity": 2 },
+        { "key": "bureau", "quantity": 1 },
+        { "key": "chaise", "quantity": 2, "alternatives": ["chaise-de-bureau"] },
+        { "key": "lampe-a-poser", "quantity": 1, "optional": true },
+        { "key": "tableau-cadre", "quantity": 1, "optional": true },
+        { "key": "miroir-mural", "quantity": 1, "optional": true }
+      ]
+    },
+    "salon-canape-jaune": {
+      "label": "Salon",
+      "items": [
+        { "key": "canape-3-places", "quantity": 1, "alternatives": ["canape-convertible", "canape-2-places"] },
+        { "key": "table-basse", "quantity": 1 },
+        { "key": "plante-grande", "quantity": 1, "optional": true }
+      ]
+    },
+    "chambre-encombree": {
+      "label": "Bureau-bibliothèque",
+      "items": [
+        { "key": "bibliotheque", "quantity": 3, "alternatives": ["etagere"] },
+        { "key": "caisse-plastique", "quantity": 2 },
+        { "key": "carton-standard", "quantity": 1, "alternatives": ["carton-livres"] },
+        { "key": "tableau-cadre", "quantity": 2, "optional": true },
+        { "key": "miroir-mural", "quantity": 1, "optional": true },
+        { "key": "petit-electromenager", "quantity": 1, "optional": true },
+        { "key": "valise", "quantity": 1, "optional": true },
+        { "key": "lampe-a-poser", "quantity": 1, "optional": true }
+      ]
+    }
+  }
+}

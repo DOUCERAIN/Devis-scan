@@ -206,7 +206,7 @@ export type PublicQuote = {
   company: Record<string, string | number | boolean | null>;
   request: { reference: string; moving_date: string | null; alternative_moving_date: string | null; moving_date_flexible: boolean; customer: { full_name: string; email: string | null; phone: string | null } | null; origin: Record<string, unknown> | null; destination: Record<string, unknown> | null };
   inventory: { name: string; room: string; quantity: number; unit_volume_m3: number; bucket: string; level: string }[];
-  assumptions: string[]; changes: unknown; sent_at: string | null; accepted_at: string | null;
+  assumptions: string[]; review_reasons?: string[]; changes: unknown; sent_at: string | null; accepted_at: string | null;
 };
 export type PublicQuoteView = {
   status: string; submitted_at: string | null;

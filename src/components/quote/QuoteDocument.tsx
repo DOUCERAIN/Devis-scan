@@ -41,13 +41,29 @@ export function QuoteDocument({ quote, audience }: { quote: PublicQuote; audienc
   const rooms = new Map<string, PublicQuote["inventory"]>();
   for (const item of quote.inventory) rooms.set(item.room, [...(rooms.get(item.room) ?? []), item]);
   const isEstimate = quoteKindLabel(quote) !== "Devis";
+  // Motifs de validation : côté client, seuls ceux qui concernent sa demande (pas les réglages internes).
+  const reasons = (quote.review_reasons ?? []).filter(
+    (r) => (audience === "pro" || !/Envoi automatique|Identité légale|Grille tarifaire|simulateur/.test(r)) && !quote.assumptions.includes(r),
+  );
   const address = [c.address_line1, c.address_line2, [c.postal_code, c.city].filter(Boolean).join(" ")].filter(Boolean).join(", ");
 
   return (
     <article className="flex flex-col gap-5 rounded-lg border border-border bg-surface p-4 sm:p-6">
       <header className="flex flex-col gap-1">
-        <p className="text-xs font-semibold tracking-wide text-ink-muted uppercase">
-          {quoteKindLabel(quote)} n° {quote.request.reference}-V{quote.version}
+        <p className="flex flex-wrap items-center gap-2">
+          <span
+            data-testid="quote-kind"
+            className={
+              isEstimate
+                ? "rounded-full bg-warning-soft px-2.5 py-0.5 text-xs font-semibold text-warning-text"
+                : "rounded-full bg-brand px-2.5 py-0.5 text-xs font-semibold text-on-brand"
+            }
+          >
+            {isEstimate ? "Estimation indicative · non contractuelle" : "Devis"}
+          </span>
+          <span className="text-xs font-semibold tracking-wide text-ink-muted uppercase">
+            n° {quote.request.reference}-V{quote.version}
+          </span>
         </p>
         <h2 className="font-display text-xl font-bold">{String(c.legal_name ?? c.name)}</h2>
         <p className="text-sm text-ink-secondary">
@@ -62,12 +78,29 @@ export function QuoteDocument({ quote, audience }: { quote: PublicQuote; audienc
       {isEstimate ? (
         <div className="flex gap-2 rounded-md border border-warning/40 bg-warning-soft p-3 text-sm">
           <AlertTriangle aria-hidden className="mt-0.5 size-4 shrink-0 text-warning" />
-          <p>
-            Estimation calculée automatiquement à partir de vos vidéos et des tarifs de {String(c.name)}. Elle n&apos;engage pas encore
-            l&apos;entreprise : {String(c.name)} vérifie l&apos;inventaire avant de vous adresser son devis.
-          </p>
+          <div className="flex flex-col gap-1">
+            <p>
+              Estimation calculée {quote.origin === "automatic" ? "automatiquement à partir de vos vidéos" : "par votre déménageur"} et des tarifs de{" "}
+              {String(c.name)}. Elle n&apos;engage pas encore l&apos;entreprise : {String(c.name)} doit la valider avant de vous adresser son devis.
+            </p>
+            {reasons.length > 0 ? (
+              <>
+                <p className="font-medium">Points à vérifier par {String(c.name)} :</p>
+                <ul className="list-disc pl-5">
+                  {reasons.map((r, i) => <li key={i}>{r}</li>)}
+                </ul>
+              </>
+            ) : null}
+          </div>
         </div>
-      ) : null}
+      ) : (
+        <p className="rounded-md border border-brand/30 bg-brand-soft p-3 text-sm">
+          {quote.origin === "automatic"
+            ? `Devis établi automatiquement selon les conditions de ${String(c.name)} : l'inventaire a été reconnu sans incertitude.`
+            : `Devis vérifié et envoyé par ${String(c.name)}.`}
+          {quote.valid_until ? ` Valable jusqu'au ${formatDate(quote.valid_until)}.` : ""}
+        </p>
+      )}
 
       <section className="grid gap-4 sm:grid-cols-2">
         <Address title="Départ" d={quote.request.origin} />

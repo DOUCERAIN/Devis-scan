@@ -7,6 +7,11 @@ import type { RoomInput, RoomResult, VisionProvider } from "../provider.ts";
 
 type Effort = "low" | "medium" | "high";
 
+/** Modèles acceptant le paramètre `fallbacks` (repli serveur après un refus de sécurité). */
+export function supportsFallback(model: string): boolean {
+  return /^claude-(opus-5-5|sonnet-5-5|opus-5|fable-5)/.test(model);
+}
+
 /**
  * Analyse par Claude (API Anthropic), appelée uniquement côté serveur.
  * - sortie structurée (output_config.format) puis revalidation zod ;
@@ -16,13 +21,13 @@ type Effort = "low" | "medium" | "high";
 export class AnthropicVisionProvider implements VisionProvider {
   readonly id = "anthropic" as const;
   readonly simulated = false;
+  readonly model: string;
+  private readonly effort: Effort;
   private readonly client: Anthropic;
 
-  constructor(
-    apiKey: string,
-    readonly model: string,
-    private readonly effort: Effort,
-  ) {
+  constructor(apiKey: string, model: string, effort: Effort) {
+    this.model = model;
+    this.effort = effort;
     this.client = new Anthropic({ apiKey, maxRetries: 3, timeout: 180_000 });
   }
 
@@ -38,8 +43,8 @@ export class AnthropicVisionProvider implements VisionProvider {
       const response = await this.client.beta.messages.create({
         model: this.model,
         max_tokens: 16000,
-        betas: ["server-side-fallback-2026-07-01"],
-        fallbacks: "default",
+        // Repli serveur en cas de refus : disponible pour Opus 5.5 et Sonnet 5.5, pas pour Haiku 5.5.
+        ...(supportsFallback(this.model) ? { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" as const } : {}),
         system: [
           { type: "text", text: ANALYSIS_INSTRUCTIONS },
           { type: "text", text: input.catalogText, cache_control: { type: "ephemeral" } },

@@ -86,7 +86,7 @@ export default async function RequestDetailPage({ params, searchParams }: PagePr
     }))
     .sort((a, b) => a.room.localeCompare(b.room) || a.name.localeCompare(b.name));
   const [{ data: quotes }, { data: runs }, { data: changes }, { data: pricing }, { data: catalogRows }] = await Promise.all([
-    supabase.from("quotes").select("id, version, status, kind, origin, total_ttc_cents, created_at, sent_at, accepted_at, changes_summary").eq("request_id", request.id).order("version", { ascending: false }),
+    supabase.from("quotes").select("id, version, status, kind, origin, total_ttc_cents, created_at, sent_at, accepted_at, changes_summary, review_reasons").eq("request_id", request.id).order("version", { ascending: false }),
     supabase.from("analysis_runs").select("id, status, stage, provider, model, simulated, rooms_total, rooms_done, images_count, input_tokens, output_tokens, cost_usd, error_code, error_message, created_at, finished_at").eq("request_id", request.id).order("created_at", { ascending: false }).limit(3),
     supabase.from("inventory_item_changes").select("id, action, changes, volume_before_m3, volume_after_m3, changed_at, item_id").eq("request_id", request.id).order("changed_at", { ascending: false }).limit(30),
     supabase.from("pricing_settings").select("configured_at").eq("company_id", company.id).maybeSingle(),
@@ -239,10 +239,13 @@ export default async function RequestDetailPage({ params, searchParams }: PagePr
               <ul className="flex flex-col gap-2 text-sm">
                 {quotes.map((q) => (
                   <li key={q.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-canvas px-3 py-2">
-                    <span>
-                      <span className="font-medium">V{q.version}</span> · {QUOTE_STATUS_META[q.status]?.label ?? q.status}
-                      {q.kind === "formal" ? " · devis" : " · estimation"}
-                      <span className="block text-xs text-ink-muted">{formatDateTime(q.created_at)}{q.origin === "automatic" ? " · automatique" : ""}</span>
+                    <span className="min-w-0">
+                      <span className="flex flex-wrap items-center gap-1.5">
+                        <span className="font-medium">V{q.version}</span>
+                        <Badge tone={q.kind === "formal" ? "brand" : "warning"}>{q.kind === "formal" ? "Devis formel" : "Estimation indicative"}</Badge>
+                        <Badge tone={QUOTE_STATUS_META[q.status]?.tone ?? "neutral"}>{QUOTE_STATUS_META[q.status]?.label ?? q.status}</Badge>
+                      </span>
+                      <span className="block text-xs text-ink-muted">{formatDateTime(q.created_at)}{q.origin === "automatic" ? " · calcul automatique" : q.origin === "correction" ? " · après vos corrections" : ""}</span>
                     </span>
                     <span className="font-semibold tabular-nums">{q.total_ttc_cents !== null ? formatEuros(q.total_ttc_cents) : "—"}</span>
                   </li>
@@ -251,6 +254,15 @@ export default async function RequestDetailPage({ params, searchParams }: PagePr
             ) : (
               <p className="text-sm text-ink-muted">Aucun devis calculé pour l&apos;instant.</p>
             )}
+            {(() => {
+              const latest = quotes?.find((q) => q.status !== "superseded");
+              const reasons = Array.isArray(latest?.review_reasons) ? (latest.review_reasons as string[]) : [];
+              return latest && latest.kind !== "formal" && reasons.length > 0 ? (
+                <Alert tone="warning" title="Validation humaine nécessaire avant un devis formel">
+                  <ul className="list-disc pl-5">{reasons.map((r, i) => <li key={i}>{r}</li>)}</ul>
+                </Alert>
+              ) : null;
+            })()}
             {request.status !== "accepted" && pricing?.configured_at ? <QuoteActions requestId={request.id} canSend={items.length > 0} /> : null}
             {request.status === "accepted" ? <p className="text-sm text-success-text">Devis accepté par le client : il ne peut plus être remplacé.</p> : null}
           </Card>
@@ -261,7 +273,7 @@ export default async function RequestDetailPage({ params, searchParams }: PagePr
               {run.simulated ? <Alert tone="warning" title="Analyse simulée (environnement de test)">Ces résultats ne proviennent pas d&apos;une IA.</Alert> : null}
               <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
                 <dt className="text-ink-muted">État</dt>
-                <dd>{{ queued: "En attente", running: "En cours", succeeded: "Terminée", failed: "Échec" }[run.status]}{run.error_code ? ` (${{ not_configured: "analyse IA non configurée", missing_key: "clé API absente", simulation_forbidden: "simulation interdite ici", no_images: "aucune image", analysis_failed: "analyse impossible", internal_error: "erreur interne", save_failed: "enregistrement impossible" }[run.error_code] ?? run.error_code})` : ""}</dd>
+                <dd>{{ queued: "En attente", running: "En cours", succeeded: "Terminée", failed: "Échec" }[run.status]}{run.error_code ? ` (${{ not_configured: "analyse IA non configurée", missing_key: "clé API absente", missing_model: "modèle IA non choisi", simulation_forbidden: "simulation interdite ici", no_images: "aucune image", analysis_failed: "analyse impossible", internal_error: "erreur interne", save_failed: "enregistrement impossible" }[run.error_code] ?? run.error_code})` : ""}</dd>
                 {run.model ? (<><dt className="text-ink-muted">Modèle</dt><dd>{run.model}</dd></>) : null}
                 {run.rooms_total ? (<><dt className="text-ink-muted">Pièces</dt><dd>{run.rooms_done ?? 0} / {run.rooms_total} · {run.images_count} images</dd></>) : null}
                 {run.input_tokens ? (<><dt className="text-ink-muted">Jetons</dt><dd className="tabular-nums">{run.input_tokens.toLocaleString("fr-FR")} en entrée · {(run.output_tokens ?? 0).toLocaleString("fr-FR")} en sortie</dd></>) : null}

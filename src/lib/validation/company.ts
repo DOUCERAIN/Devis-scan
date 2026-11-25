@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { emailField, integerField, optionalText, phoneField, postalCodeField, requiredText } from "./common.ts";
+import { checkbox, emailField, integerField, optionalText, phoneField, postalCodeField, requiredText } from "./common.ts";
 
 export const createCompanySchema = z.object({
   name: requiredText(2, 120, "Le nom de l'entreprise"),
@@ -41,6 +41,7 @@ export const companyQuoteSettingsSchema = z.object({
   insurance_info: optionalText(2000, "Les informations d'assurance"),
   reserves_terms: optionalText(4000, "La procédure de réserves"),
   liability_terms: optionalText(4000, "Les conditions de responsabilité"),
+  auto_formal_quotes: checkbox,
   video_retention_days: integerField("La durée de conservation", 7, 365),
 });
 

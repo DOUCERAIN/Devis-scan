@@ -180,7 +180,6 @@ export async function recalculateQuote(_prev: ActionState, formData: FormData): 
   if (outcome.status === "pricing_not_configured") return failure("Enregistrez d'abord votre grille tarifaire (page Tarifs).");
   if (outcome.status === "blocked") return failure(outcome.blockers.join(" "));
   if (outcome.status === "error") return failure(outcome.message);
-  if (send) await supabase.from("quote_requests").update({ status: "quote_sent" }).eq("id", requestId).eq("company_id", company.id);
   revalidatePath("/espace", "layout");
   return success(send ? `Devis V${outcome.version} envoyé : le client le voit sur son lien de suivi.` : `Version ${outcome.version} calculée.`);
 }
