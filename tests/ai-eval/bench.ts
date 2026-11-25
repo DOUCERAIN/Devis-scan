@@ -4,7 +4,7 @@
  * Images : tests/ai-eval/frames/ (extraites par le pipeline de la phase 3, voir prepare-frames.e2e.cjs).
  * Référence : tests/ai-eval/reference.json. Catalogue : data/catalog/catalog.json.
  *
- * Lancer (clé dans la variable d'environnement ANTHROPIC_API_KEY, jamais dans un fichier) :
+ * Lancer (clé dans la variable d'environnement DEVIS_SCAN_ANTHROPIC_API_KEY, jamais dans un fichier) :
  *   node --conditions=react-server tests/ai-eval/bench.ts --confirm
  * Options : --models haiku,sonnet,opus  --effort medium  --repeat 1  --max-usd 5
  *
@@ -14,6 +14,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { AnthropicVisionProvider } from "../../src/lib/ai/providers/anthropic.ts";
+import { ANTHROPIC_KEY_ENV, describeAnthropicKey, readAnthropicKey } from "../../src/lib/ai/anthropic-client.ts";
 import { catalogPrompt } from "../../src/lib/ai/prompt.ts";
 import { buildItems, type CatalogRef, type ItemDraft, type RoomDetections } from "../../src/lib/ai/postprocess.ts";
 import { evaluate, type ReferenceItem, type Evaluation } from "../../src/lib/ai/evaluate.ts";
@@ -72,9 +73,10 @@ if (!confirm) {
   console.log("Ajoutez --confirm pour lancer les appels réels (facturés au titulaire de la clé).");
   process.exit(0);
 }
-const apiKey = process.env.ANTHROPIC_API_KEY;
+console.log(`${ANTHROPIC_KEY_ENV} : ${describeAnthropicKey()}`);
+const apiKey = readAnthropicKey();
 if (!apiKey) {
-  console.error("ANTHROPIC_API_KEY absente : aucun appel possible (voir docs/connexion-cle-anthropic.md).");
+  console.error(`${ANTHROPIC_KEY_ENV} absente ou invalide : aucun appel possible (voir docs/connexion-cle-anthropic.md).`);
   process.exit(3);
 }
 

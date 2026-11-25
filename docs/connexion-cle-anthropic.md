@@ -18,10 +18,10 @@ Le coffre à secrets de l'environnement cloud ne fonctionne pas pour les serveur
 1. Sur claude.ai/code, ouvrez une session de ce dépôt, cliquez sur le nom de l'environnement dans la barre de titre de la session, choisissez **devis-scan**, puis **Modifier** (Edit).
 2. Dans **Variables d'environnement**, ajoutez :
    ```
-   ANTHROPIC_API_KEY=votre_clé
+   DEVIS_SCAN_ANTHROPIC_API_KEY=votre_clé
    ```
-   Saisissez la clé **dans ce champ**, jamais dans la conversation.
-3. Enregistrez, puis démarrez une **nouvelle session** sur l'environnement devis-scan (la variable n'est lue qu'au démarrage d'une session).
+   Saisissez la clé **dans ce champ**, jamais dans la conversation. N'utilisez pas le nom `ANTHROPIC_API_KEY` : l'environnement cloud de Claude Code le réserve et le retire des sessions, et le projet ne le lit jamais.
+3. Enregistrez, puis démarrez une **nouvelle session** sur l'environnement devis-scan (la variable n'est lue qu'au démarrage d'une session). Vérification sans appel : `node --conditions=react-server tests/ai-eval/ping.ts --check`.
 4. Demandez à Claude : « Lance la comparaison réelle des modèles ». Il exécutera :
    ```
    node --conditions=react-server tests/ai-eval/bench.ts --confirm
@@ -37,7 +37,7 @@ Le coffre à secrets de l'environnement cloud ne fonctionne pas pour les serveur
 
    | Nom | Valeur |
    | --- | --- |
-   | `ANTHROPIC_API_KEY` | la clé `devis-scan-production` (cochez **Sensitive**) |
+   | `DEVIS_SCAN_ANTHROPIC_API_KEY` | la clé `devis-scan-production` (cochez **Sensitive**) |
    | `AI_PROVIDER` | `anthropic` |
    | `AI_MODEL` | le modèle choisi après la comparaison (`claude-haiku-5-5`, `claude-sonnet-5-5` ou `claude-opus-5-5`) |
    | `AI_EFFORT` | `medium` |

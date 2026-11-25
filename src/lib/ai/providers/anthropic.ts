@@ -1,5 +1,6 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
+import { createAnthropicClient } from "../anthropic-client.ts";
 import { ANALYSIS_INSTRUCTIONS, roomPrompt } from "../prompt.ts";
 import { parseRoomAnalysis, ROOM_ANALYSIS_JSON_SCHEMA } from "../output.ts";
 import { emptyUsage, type TokenUsage } from "../cost.ts";
@@ -28,7 +29,7 @@ export class AnthropicVisionProvider implements VisionProvider {
   constructor(apiKey: string, model: string, effort: Effort) {
     this.model = model;
     this.effort = effort;
-    this.client = new Anthropic({ apiKey, maxRetries: 3, timeout: 180_000 });
+    this.client = createAnthropicClient(apiKey, { maxRetries: 3, timeout: 180_000 });
   }
 
   async analyzeRoom(input: RoomInput): Promise<RoomResult> {

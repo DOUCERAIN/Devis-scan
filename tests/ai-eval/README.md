@@ -13,11 +13,12 @@ Objectif : comparer Haiku 5.5, Sonnet 5.5 et Opus 5.5 **sur les mêmes images**,
 ## Commandes
 
 ```bash
+node --conditions=react-server tests/ai-eval/ping.ts --check           # détecte la clé, sans aucun appel
 node --conditions=react-server tests/ai-eval/ping.ts                   # appel de test unique et minimal (≈ 0,0001 $)
 bash tests/ai-eval/make-videos.sh
 NODE_PATH=$(npm root -g) node tests/ai-eval/prepare-frames.e2e.cjs     # Supabase local + application lancée
 node --conditions=react-server tests/ai-eval/bench.ts                  # estimation du coût seulement
-node --conditions=react-server tests/ai-eval/bench.ts --confirm        # appels réels (ANTHROPIC_API_KEY requise)
+node --conditions=react-server tests/ai-eval/bench.ts --confirm        # appels réels (DEVIS_SCAN_ANTHROPIC_API_KEY requise)
 ```
 
 Options : `--models haiku,sonnet,opus`, `--effort low|medium|high`, `--repeat 2` (stabilité), `--max-usd 5` (plafond, arrêt avant tout appel si l'estimation le dépasse).

@@ -5,15 +5,21 @@
  *   node --conditions=react-server tests/ai-eval/ping.ts
  */
 import Anthropic from "@anthropic-ai/sdk";
+import { ANTHROPIC_KEY_ENV, ANTHROPIC_OFFICIAL_BASE_URL, createAnthropicClient, describeAnthropicKey, readAnthropicKey } from "../../src/lib/ai/anthropic-client.ts";
 import { estimateCostUsd } from "../../src/lib/ai/cost.ts";
 
-const key = process.env.ANTHROPIC_API_KEY;
-console.log(`ANTHROPIC_API_KEY : ${key ? `présente (${key.length} caractères)` : "absente"}`);
+const key = readAnthropicKey();
+console.log(`${ANTHROPIC_KEY_ENV} : ${describeAnthropicKey()}`);
 console.log(`AI_PROVIDER : ${process.env.AI_PROVIDER ?? "absente"}`);
+console.log(`Adresse de l'API (imposée) : ${ANTHROPIC_OFFICIAL_BASE_URL}`);
 if (!key) process.exit(3);
+if (process.argv.includes("--check")) {
+  console.log("Vérification seule (--check) : aucun appel envoyé.");
+  process.exit(0);
+}
 
 const model = "claude-haiku-5-5"; // modèle le moins cher, pour un simple test de connexion
-const client = new Anthropic({ apiKey: key, maxRetries: 0, timeout: 60_000 });
+const client = createAnthropicClient(key, { maxRetries: 0, timeout: 60_000 });
 try {
   const started = Date.now();
   const r = await client.messages.create({

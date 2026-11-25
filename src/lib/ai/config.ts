@@ -2,10 +2,11 @@ import "server-only";
 import { AnthropicVisionProvider } from "./providers/anthropic";
 import { SimulationProvider } from "./providers/simulation";
 import type { VisionProvider } from "./provider";
+import { readAnthropicKey } from "./anthropic-client";
 
 /**
  * Choix du fournisseur d'analyse (variables d'environnement serveur, jamais NEXT_PUBLIC_) :
- * - AI_PROVIDER=anthropic + ANTHROPIC_API_KEY : vraie analyse, facturée par Anthropic au titulaire de la clé ;
+ * - AI_PROVIDER=anthropic + DEVIS_SCAN_ANTHROPIC_API_KEY (jamais ANTHROPIC_API_KEY, voir anthropic-client.ts) : vraie analyse, facturée par Anthropic au titulaire de la clé ;
  * - AI_PROVIDER=simulation + AI_ALLOW_SIMULATION=1 : simulateur de test, refusé hors base locale ;
  * - sinon : aucune analyse automatique (le déménageur établit l'inventaire à la main).
  * AI_MODEL est OBLIGATOIRE (aucun modèle imposé par défaut : le choix se fait d'après la comparaison réelle,
@@ -26,8 +27,8 @@ function isLocalSupabase(): boolean {
 export function aiProvider(): AiConfigStatus {
   const choice = (process.env.AI_PROVIDER ?? "").trim().toLowerCase();
   if (choice === "anthropic") {
-    const key = process.env.ANTHROPIC_API_KEY;
-    if (!key || key.length < 20) return { ok: false, reason: "missing_key" };
+    const key = readAnthropicKey();
+    if (!key) return { ok: false, reason: "missing_key" };
     const model = process.env.AI_MODEL?.trim() ?? "";
     if (!(SUPPORTED_MODELS as readonly string[]).includes(model)) return { ok: false, reason: "missing_model" };
     const effort = process.env.AI_EFFORT === "low" || process.env.AI_EFFORT === "high" ? process.env.AI_EFFORT : "medium";

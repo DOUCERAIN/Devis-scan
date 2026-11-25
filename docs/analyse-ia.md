@@ -21,7 +21,7 @@ Les scores de confiance sont ceux du modèle, plafonnés par les règles ci-dess
 | Variable (serveur, jamais `NEXT_PUBLIC_`) | Rôle |
 | --- | --- |
 | `AI_PROVIDER` | `anthropic` (vraie analyse) ; `simulation` (tests uniquement) ; vide = pas d'analyse automatique |
-| `ANTHROPIC_API_KEY` | Clé API Anthropic (Vercel : variable d'environnement chiffrée) |
+| `DEVIS_SCAN_ANTHROPIC_API_KEY` | Clé API Anthropic (Vercel : variable d'environnement chiffrée). `ANTHROPIC_API_KEY` n'est jamais lue. Client unique : `src/lib/ai/anthropic-client.ts` (adresse `https://api.anthropic.com` imposée, `ANTHROPIC_BASE_URL` ignorée, tout autre hôte refusé) |
 | `AI_MODEL` | **Obligatoire** : `claude-haiku-5-5`, `claude-sonnet-5-5` ou `claude-opus-5-5`. Aucun modèle n'est imposé par défaut : le choix se fait d'après la comparaison réelle (`tests/ai-eval/`) |
 | `AI_EFFORT` | `low`, `medium` (défaut), `high` |
 | `AI_ALLOW_SIMULATION` | `1` pour autoriser le simulateur (refusé si la base n'est pas locale ou sur Vercel) |
