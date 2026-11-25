@@ -50,3 +50,4 @@ __pycache__/
 # Sources brutes du catalogue v2 (téléchargées, volumineuses)
 data/catalogue-v2/cache/
 data/catalogue-v3/cache/
+data/catalogue-v4/cache/

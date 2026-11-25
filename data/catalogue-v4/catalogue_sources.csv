@@ -1,0 +1,47 @@
+famille_id;famille;fichier;nb_observations;nb_utilisables
+ARM;Armoires et penderies;observations/catalogue_sources_ARM.csv;167;111
+CAN;Canapés;observations/catalogue_sources_CAN.csv;1176;749
+FAU;Fauteuils et assises individuelles;observations/catalogue_sources_FAU.csv;842;581
+POU;Poufs et repose-pieds;observations/catalogue_sources_POU.csv;491;343
+LIT;Lits et têtes de lit;observations/catalogue_sources_LIT.csv;622;469
+MAT;Matelas et sommiers;observations/catalogue_sources_MAT.csv;126;63
+CHV;Tables de chevet;observations/catalogue_sources_CHV.csv;140;117
+COM;Commodes et chiffonniers;observations/catalogue_sources_COM.csv;163;120
+TAB;Tables;observations/catalogue_sources_TAB.csv;965;648
+CHA;Chaises, tabourets et bancs;observations/catalogue_sources_CHA.csv;1519;703
+RAN;Rangements du séjour (buffets, bibliothèques, vitrines, meubles TV);observations/catalogue_sources_RAN.csv;342;264
+ETA;Étagères et rayonnages;observations/catalogue_sources_ETA.csv;267;108
+ENT;Meubles d'entrée;observations/catalogue_sources_ENT.csv;114;78
+CUI;Mobilier de cuisine;observations/catalogue_sources_CUI.csv;60;51
+ELM;Gros électroménager;observations/catalogue_sources_ELM.csv;7162;902
+PEM;Petit électroménager et appareils mobiles;observations/catalogue_sources_PEM.csv;133;51
+BUR;Mobilier de bureau;observations/catalogue_sources_BUR.csv;527;365
+INF;Informatique (ordinateurs, imprimantes);observations/catalogue_sources_INF.csv;23;4
+SDB;Meubles de salle de bain;observations/catalogue_sources_SDB.csv;117;51
+ENF;Mobilier et équipements pour enfants;observations/catalogue_sources_ENF.csv;98;20
+JAR;Mobilier et équipements de jardin;observations/catalogue_sources_JAR.csv;529;181
+SPO;Équipements sportifs et de loisirs;observations/catalogue_sources_SPO.csv;75;32
+VEL;Vélos et engins à roues;observations/catalogue_sources_VEL.csv;40;20
+MUS;Instruments de musique;observations/catalogue_sources_MUS.csv;1148;262
+DEC;Décoration volumineuse (horloges, paravents);observations/catalogue_sources_DEC.csv;852;624
+BRI;Bricolage, atelier et garage;observations/catalogue_sources_BRI.csv;52;25
+BAG;Bagages, malles et coffres;observations/catalogue_sources_BAG.csv;321;211
+DIV;Objets particuliers (coffres-forts, aquariums, horloges…);observations/catalogue_sources_DIV.csv;101;47
+ANC;Mobilier ancien et patrimonial;observations/catalogue_sources_ANC.csv;4870;3423
+CAR;Cartons et contenants;observations/catalogue_sources_CAR.csv;206;29
+TEL;Téléviseurs et écrans;observations/catalogue_sources_TEL.csv;74;55
+AUD;Audio, radios et phonographes;observations/catalogue_sources_AUD.csv;602;442
+LUM;Luminaires;observations/catalogue_sources_LUM.csv;1761;379
+TAP;Tapis;observations/catalogue_sources_TAP.csv;1727;783
+MIR;Miroirs, tableaux et cadres;observations/catalogue_sources_MIR.csv;1382;713
+PLA;Plantes et végétaux;observations/catalogue_sources_PLA.csv;1;0
+ANI;Animaux (niches, cages, aquariums);observations/catalogue_sources_ANI.csv;290;205
+PRO;Mobilier professionnel et stockage;observations/catalogue_sources_PRO.csv;61;32
+RES;Restauration, commerce et distribution;observations/catalogue_sources_RES.csv;47;24
+MED;Médical et aide à la personne;observations/catalogue_sources_MED.csv;8;4
+COU;Couture, artisanat et métiers;observations/catalogue_sources_COU.csv;193;64
+MAC;Machines de bureau et appareils anciens;observations/catalogue_sources_MAC.csv;377;317
+ART;Objets d'art et décoration monumentale;observations/catalogue_sources_ART.csv;154;36
+JEU;Jeux d'intérieur (billard, flipper, baby-foot);observations/catalogue_sources_JEU.csv;26;2
+CHF;Chauffage, climatisation et ventilation;observations/catalogue_sources_CHF.csv;259;139
+MOT;Deux-roues motorisés et engins;observations/catalogue_sources_MOT.csv;5;4

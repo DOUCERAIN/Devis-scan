@@ -1,0 +1,617 @@
+"""
+Classification hiérarchique du catalogue Devis Scan (version 2).
+
+Une sous-catégorie correspond à une différence PHYSIQUE qui change les dimensions, le volume ou
+l'aspect visuel (nombre de portes, nombre de places, taille de couchage…). Les identifiants sont
+stables : ne jamais renommer un identifiant publié, en ajouter un nouveau si besoin.
+
+Règles de classement (appliquées dans l'ordre de la liste, première règle satisfaite) :
+- `motifs` : expressions régulières cherchées dans le texte normalisé (minuscules, sans accents) des noms
+  du produit, toutes langues confondues, et de son type ;
+- `exclus` : expressions qui interdisent la sous-catégorie (housses, pièces détachées, accessoires…) ;
+- `types` : types de produit ABO autorisés (None = tous).
+Les bornes servent à repérer les valeurs aberrantes (jamais à classer) : h = hauteur, grand = plus grande
+dimension horizontale, petit = plus petite dimension horizontale, en centimètres.
+
+Aucune dimension ni aucun volume ne figure ici : uniquement des critères de reconnaissance.
+"""
+from __future__ import annotations
+import re
+from dataclasses import dataclass, field
+
+FAMILLES = [
+    ("ARM", "Armoires et penderies"),
+    ("CAN", "Canapés"),
+    ("FAU", "Fauteuils et assises individuelles"),
+    ("POU", "Poufs et repose-pieds"),
+    ("LIT", "Lits et têtes de lit"),
+    ("MAT", "Matelas et sommiers"),
+    ("CHV", "Tables de chevet"),
+    ("COM", "Commodes et chiffonniers"),
+    ("TAB", "Tables"),
+    ("CHA", "Chaises, tabourets et bancs"),
+    ("RAN", "Rangements du séjour (buffets, bibliothèques, vitrines, meubles TV)"),
+    ("ETA", "Étagères et rayonnages"),
+    ("ENT", "Meubles d'entrée"),
+    ("CUI", "Mobilier de cuisine"),
+    ("ELM", "Gros électroménager"),
+    ("PEM", "Petit électroménager et appareils mobiles"),
+    ("BUR", "Mobilier de bureau"),
+    ("INF", "Informatique (ordinateurs, imprimantes)"),
+    ("SDB", "Meubles de salle de bain"),
+    ("ENF", "Mobilier et équipements pour enfants"),
+    ("JAR", "Mobilier et équipements de jardin"),
+    ("SPO", "Équipements sportifs et de loisirs"),
+    ("VEL", "Vélos et engins à roues"),
+    ("MUS", "Instruments de musique"),
+    ("DEC", "Décoration volumineuse (horloges, paravents)"),
+    ("BRI", "Bricolage, atelier et garage"),
+    ("BAG", "Bagages, malles et coffres"),
+    ("DIV", "Objets particuliers (coffres-forts, aquariums, horloges…)"),
+    ("ANC", "Mobilier ancien et patrimonial"),
+    ("CAR", "Cartons et contenants"),
+    # Familles ajoutées en v3 (25/11/2026)
+    ("TEL", "Téléviseurs et écrans"),
+    ("AUD", "Audio, radios et phonographes"),
+    ("LUM", "Luminaires"),
+    ("TAP", "Tapis"),
+    ("MIR", "Miroirs, tableaux et cadres"),
+    ("PLA", "Plantes et végétaux"),
+    ("ANI", "Animaux (niches, cages, aquariums)"),
+    ("PRO", "Mobilier professionnel et stockage"),
+    ("RES", "Restauration, commerce et distribution"),
+    ("MED", "Médical et aide à la personne"),
+    ("COU", "Couture, artisanat et métiers"),
+    ("MAC", "Machines de bureau et appareils anciens"),
+    ("ART", "Objets d'art et décoration monumentale"),
+    ("JEU", "Jeux d'intérieur (billard, flipper, baby-foot)"),
+    ("CHF", "Chauffage, climatisation et ventilation"),
+    ("MOT", "Deux-roues motorisés et engins"),
+]
+NOMS_FAMILLES = dict(FAMILLES)
+
+_MOBILIER = {"SOFA", "CHAIR", "TABLE", "BED", "BED_FRAME", "HEADBOARD", "CABINET", "DRESSER", "SHELF", "DESK", "FURNITURE",
+             "HOME_FURNITURE_AND_DECOR", "OTTOMAN", "STOOL_SEATING", "BENCH", "BEAN_BAG_CHAIR", "HOME", "OUTDOOR_LIVING",
+             "STORAGE_DRAWER", "STORAGE_RACK", "CLOTHES_RACK", "AV_FURNITURE", "MEDIA_STORAGE", "HOME_ORGANIZERS_AND_STORAGE",
+             "ROOM_DIVIDER", "OFFICE_PRODUCTS", "LAUNDRY_HAMPER", "MATTRESS", "AIR_MATTRESS", "BABY_PRODUCT", "STORAGE_BOX",
+             "HOME_BED_AND_BATH", "SWING", "TOWEL_HOLDER", "KITCHEN", "FURNITURE_COVER"}
+_JARDIN = {"OUTDOOR_LIVING", "ABIS_LAWN_AND_GARDEN", "PLANTER", "FREESTANDING_SHELTER", "OUTBUILDING", "SWING", "BARBECUE_GRILL",
+           "HOME", "FURNITURE", "HOME_FURNITURE_AND_DECOR", "CHAIR", "TABLE", "SOFA", "BENCH", "FOUNTAIN", "UMBRELLA",
+           "OUTDOOR_RECREATION_PRODUCT", "SPORTING_GOODS", "TOOLS", "HARDWARE"}
+_APPAREILS = {"MAJOR_HOME_APPLIANCES", "REFRIGERATOR", "REFRIGERATION_APPLIANCE", "DISHWASHER", "WASHER_DRYER_COMBINATION",
+              "LAUNDRY_APPLIANCE", "COOKING_OVEN", "MICROWAVE_OVEN", "COUNTERTOP_OVEN", "AIR_CONDITIONER", "DEHUMIDIFIER",
+              "AIR_PURIFIER", "HUMIDIFIER", "ELECTRIC_FAN", "VACUUM_CLEANER", "ROBOTIC_VACUUM_CLEANER", "SMALL_HOME_APPLIANCES",
+              "ICE_CHEST", "HOME", "KITCHEN"}
+_ELECTRONIQUE = {"TELEVISION", "SPEAKERS", "PRINTER", "MONITOR", "PERSONAL_COMPUTER", "COMPUTER", "AV_RECEIVER",
+                 "CONSUMER_ELECTRONICS", "OFFICE_ELECTRONICS", "FLAT_SCREEN_DISPLAY", "SCANNER", "VIDEO_PROJECTOR", "COMPUTER_SPEAKER"}
+_SPORT = {"SPORTING_GOODS", "STATIONARY_BICYCLE", "TREADMILL", "ROWING_MACHINE", "FITNESS_BENCH", "OUTDOOR_RECREATION_PRODUCT",
+          "TENT", "SLEEPING_BAG", "SPORT_TABLE_GAME", "TOYS_AND_GAMES", "GOLF_CLUB_BAG", "EXERCISE_MAT", "BARBELL", "PUNCHING_BAG"}
+_DECO = {"RUG", "LAMP", "LIGHT_FIXTURE", "HOME_LIGHTING_AND_LAMPS", "HOME_MIRROR", "WALL_ART", "PICTURE_FRAME",
+         "ARTIFICIAL_PLANT", "ARTIFICIAL_TREE", "CLOCK", "HOME", "HOME_FURNITURE_AND_DECOR", "ROOM_DIVIDER", "FURNITURE"}
+TYPES_PAR_FAMILLE = {
+    "ARM": _MOBILIER, "CAN": _MOBILIER, "FAU": _MOBILIER, "POU": _MOBILIER, "LIT": _MOBILIER, "MAT": {"MATTRESS", "BED", "BED_FRAME", "FURNITURE", "HOME_FURNITURE_AND_DECOR", "HOME_BED_AND_BATH"},
+    "CHV": _MOBILIER, "COM": _MOBILIER, "TAB": _MOBILIER, "CHA": _MOBILIER, "RAN": _MOBILIER, "ETA": _MOBILIER, "ENT": _MOBILIER,
+    "CUI": _MOBILIER, "ELM": _APPAREILS, "PEM": _APPAREILS, "BUR": _MOBILIER, "INF": _ELECTRONIQUE, "SDB": _MOBILIER | {"PLUMBING_FIXTURE"},
+    "ENF": _MOBILIER | {"STROLLER", "INFANT_TODDLER_CAR_SEAT"}, "JAR": _JARDIN, "SPO": _SPORT, "VEL": {"BICYCLE", "KICK_SCOOTER", "CYCLING_EQUIPMENT", "SPORTING_GOODS", "OUTDOOR_RECREATION_PRODUCT", "SKATEBOARD", "NON_RIDING_TOY_VEHICLE"},
+    "MUS": {"GUITARS", "STRINGED_INSTRUMENTS", "PERCUSSION_INSTRUMENTS", "INSTRUMENT_PARTS_AND_ACCESSORIES", "MUSICAL_INSTRUMENTS", "SOUND_AND_RECORDING_EQUIPMENT"},
+    "DEC": _DECO, "BRI": {"TOOLS", "HARDWARE", "AIR_COMPRESSOR", "LADDER", "PORTABLE_TOOL_BOX", "WATER_PUMP", "ABIS_HOME_IMPROVEMENT", "HOME", "STORAGE_RACK", "CABINET", "FURNITURE", "OFFICE_PRODUCTS"},
+    "BAG": {"SUITCASE", "LUGGAGE", "HOME", "HOME_FURNITURE_AND_DECOR", "FURNITURE", "STORAGE_BOX", "OFFICE_PRODUCTS"},
+    "DIV": {"SAFE", "TRASH_CAN", "FIREPLACE", "OUTDOOR_LIVING", "HOME", "KITCHEN", "JANITORIAL_SUPPLY", "VIVARIUM", "PET_SUPPLIES", "CLOCK", "HOME_FURNITURE_AND_DECOR", "OFFICE_PRODUCTS"},
+    "TEL": _ELECTRONIQUE | {"TELEVISION", "HOME"}, "AUD": _ELECTRONIQUE | {"SPEAKERS", "RADIO", "PORTABLE_AUDIO", "AV_RECEIVER", "AUDIO_OR_VIDEO"},
+    "LUM": _DECO, "TAP": _DECO, "MIR": _DECO, "PLA": _DECO | {"PLANTER", "ABIS_LAWN_AND_GARDEN", "OUTDOOR_LIVING"},
+    "ANI": {"PET_SUPPLIES", "ABIS_PET_PRODUCTS", "VIVARIUM", "HOME", "FURNITURE", "OUTDOOR_LIVING", "LITTER_BOX"},
+    "PRO": _MOBILIER | {"STORAGE_RACK", "HARDWARE", "UTILITY_CART_WAGON", "TOOLS", "SAFETY_SUPPLY", "JANITORIAL_SUPPLY", "FOOD_SERVICE_SUPPLY"},
+    "RES": {"FOOD_SERVICE_SUPPLY", "KITCHEN", "MAJOR_HOME_APPLIANCES", "REFRIGERATOR", "OFFICE_ELECTRONICS", "HOME"},
+    "MED": {"HEALTH_PERSONAL_CARE", "PROFESSIONAL_HEALTHCARE", "BODY_POSITIONER", "HOME", "FURNITURE", "BED", "CHAIR"},
+    "COU": {"HOME", "ART_AND_CRAFT_SUPPLY", "SEWING", "FURNITURE", "OFFICE_PRODUCTS"},
+    "MAC": {"OFFICE_PRODUCTS", "OFFICE_ELECTRONICS", "HOME"},
+    "ART": _DECO | {"SCULPTURE", "FIGURINE", "VASE"},
+    "JEU": _SPORT | {"SPORTING_GOODS", "SPORT_TABLE_GAME", "TOYS_AND_GAMES"},
+    "CHF": _APPAREILS | {"FIREPLACE", "OUTDOOR_LIVING", "HUMIDIFIER", "AIR_PURIFIER"},
+    "MOT": {"POWERSPORTS_VEHICLE_PART", "SPORTING_GOODS", "OUTDOOR_RECREATION_PRODUCT", "KICK_SCOOTER"},
+    "ANC": set(), "CAR": {"SHIPPING_BOX", "STORAGE_BOX", "HOME", "HOME_ORGANIZERS_AND_STORAGE", "STORAGE_DRAWER", "OFFICE_PRODUCTS", "OUTDOOR_LIVING", "KITCHEN"},
+}
+
+
+@dataclass
+class SousCategorie:
+    id: str
+    nom: str
+    famille: str
+    motifs: list[str]
+    synonymes: list[str] = field(default_factory=list)
+    description: str = ""
+    discriminants: str = ""
+    exclus: list[str] = field(default_factory=list)
+    types: list[str] | None = None
+    bornes: dict = field(default_factory=dict)
+    # Références de l'ancien catalogue (134) qui correspondent à cette sous-catégorie.
+    anciens: list[str] = field(default_factory=list)
+    # Classement possible uniquement d'après une autre source (Wikidata, ItemFits), jamais par motif ABO.
+    hors_abo: bool = False
+
+    def __post_init__(self):
+        self._motifs = [re.compile(m) for m in self.motifs]
+        self._exclus = [re.compile(m) for m in self.exclus]
+
+    def accepte(self, texte: str, type_produit: str | None) -> bool:
+        if self.hors_abo:
+            return False
+        autorises = self.types if self.types is not None else TYPES_PAR_FAMILLE.get(self.famille)
+        if type_produit is not None and autorises is not None and type_produit not in autorises:
+            return False
+        if not any(m.search(texte) for m in self._motifs):
+            return False
+        return not any(m.search(texte) for m in self._exclus)
+
+
+def nombre(n: int) -> str:
+    """Motif d'un nombre écrit en chiffres ou en lettres (anglais, français, allemand, italien, espagnol, néerlandais, suédois)."""
+    mots = {
+        1: "one|une|un|ein|eine|uno|una|een|en|ett|single|1",
+        2: "two|deux|zwei|due|dos|twee|tva|double|2",
+        3: "three|trois|drei|tre|tres|drie|3",
+        4: "four|quatre|vier|quattro|cuatro|fyra|4",
+        5: "five|cinq|funf|cinque|cinco|vijf|fem|5",
+        6: "six|sechs|sei|seis|zes|sex|6",
+    }
+    return rf"(?<![0-9a-z.,])(?:{mots[n]})"
+
+
+def portes(n: int) -> str:
+    return rf"{nombre(n)}[\s-]*(?:door|doors|porte|portes|tur|turen|tuer|tueren|ante|anta|puertas|puerta|deurs|deur|dorrar|dorr|dr)\b"
+
+
+def places(n: int) -> str:
+    return rf"{nombre(n)}[\s-]*(?:seater|seaters|seat|seats|places|place|sitzer|sitze|posti|plazas|plaza|zits|zitsbank|sits|sitsig)\b"
+
+
+def tiroirs(n: int) -> str:
+    return rf"{nombre(n)}[\s-]*(?:drawer|drawers|tiroir|tiroirs|schubladen|schublade|cassetti|cajones|lades|lade|lador)\b"
+
+
+ACCESSOIRES = [
+    r"\bcover\b", r"\bslipcovers?\b(?!\s+(?:[\w-]+\s+){0,4}(?:sofa|sectional|couch|loveseat)\b)", r"\bslipcovers? for\b", r"(?:sofa|couch|chair|sectional|loveseat)\s+slipcover", r"\bhousse", r"\bbezug\b", r"\bfodera\b", r"\bfunda\b", r"\bprotector\b", r"\bprotege",
+    r"\breplacement\b", r"\bspare part", r"\bhardware\b", r"\bhinge\b", r"\bknob", r"\bhandle", r"\bsticker", r"\bdecal",
+    r"\bfilter\b", r"\bcushion\b", r"\bkissen\b", r"\bcoussin", r"\bpillow", r"\bsheet\b", r"\bduvet\b", r"\bblanket",
+    r"\bmattress topper", r"\btopper\b", r"\bpad\b", r"\bcasters?\b only", r"\blegs? only", r"\bglides?\b", r"\bfelt\b",
+    r"\bmodel\b kit", r"\bminiature", r"\bdollhouse", r"\btoy\b", r"\bjouet",
+    r"\bfunda\b", r"\bcubierta\b", r"\bcopri", r"\bcobertor\b", r"\bsacoche\b", r"\bsleeve\b", r"\bcarry ?case\b",
+    r"\bwall art\b", r"\bcanvas print", r"\bposter\b", r"\bphoto\b", r"\bpet\b", r"\bdog\b", r"\bcat\b", r"\bkitten", r"\bpuppy",
+]
+
+S = SousCategorie
+SOUS_CATEGORIES: list[SousCategorie] = [
+    # ------------------------------------------------------------------ ARMOIRES
+    S("ARM-ANG", "Armoire d'angle", "ARM", [r"(?:corner|angle|eck)[\s-]*(?:wardrobe|armoire|kleiderschrank|schrank|closet)", r"(?:wardrobe|armoire|kleiderschrank).{0,20}\b(?:corner|d angle)\b"],
+      ["armoire en angle"], "Armoire conçue pour un angle de pièce (plan en L ou pan coupé).", "forme d'angle", ACCESSOIRES, bornes={"h": (100, 260), "grand": (50, 250)}),
+    S("ARM-COUL", "Armoire à portes coulissantes", "ARM", [r"(?:sliding|coulissant|schiebeture|schwebeture|scorrevol|corredera).{0,40}(?:wardrobe|armoire|kleiderschrank|schrank|armadio|armario|closet)", r"(?:wardrobe|armoire|kleiderschrank|armadio|armario).{0,40}(?:sliding|coulissant|schiebetur|schwebetur|scorrevol|corredera)"],
+      ["armoire coulissante", "penderie coulissante"], "Armoire dont les portes coulissent sur rail.", "portes coulissantes", ACCESSOIRES, bornes={"h": (120, 260), "grand": (80, 320)}),
+    S("ARM-5P+", "Armoire 5 portes et plus", "ARM", [rf"(?:{portes(5)}|{portes(6)}|\b[5-9][\s-]*(?:door|porte|tur|ante|puerta|deur))"], ["grande armoire", "armoire 6 portes"],
+      "Armoire à cinq portes battantes ou plus.", "≥ 5 portes", ACCESSOIRES + [r"\bshoe"], bornes={"h": (120, 260), "grand": (150, 400)}),
+    S("ARM-4P", "Armoire 4 portes", "ARM", [rf"{portes(4)}.{{0,40}}(?:wardrobe|armoire|kleiderschrank|schrank|armadio|armario|closet)", rf"(?:wardrobe|armoire|kleiderschrank|armadio|armario).{{0,40}}{portes(4)}"],
+      ["armoire quatre portes"], "Armoire à quatre portes battantes.", "4 portes", ACCESSOIRES + [r"\bshoe", r"\bbathroom", r"\bkitchen", r"\bpantry"], bornes={"h": (120, 260), "grand": (120, 300)}, anciens=["armoire-4-portes"]),
+    S("ARM-3P", "Armoire 3 portes", "ARM", [rf"{portes(3)}.{{0,40}}(?:wardrobe|armoire|kleiderschrank|schrank|armadio|armario|closet)", rf"(?:wardrobe|armoire|kleiderschrank|armadio|armario).{{0,40}}{portes(3)}"],
+      ["armoire trois portes"], "Armoire à trois portes battantes.", "3 portes", ACCESSOIRES + [r"\bshoe", r"\bbathroom", r"\bkitchen", r"\bpantry"], bornes={"h": (120, 260), "grand": (90, 220)}, anciens=["armoire-3-portes"]),
+    S("ARM-2P", "Armoire 2 portes", "ARM", [rf"{portes(2)}.{{0,40}}(?:wardrobe|armoire|kleiderschrank|schrank|armadio|armario|closet)", rf"(?:wardrobe|armoire|kleiderschrank|armadio|armario).{{0,40}}{portes(2)}"],
+      ["armoire deux portes"], "Armoire à deux portes battantes.", "2 portes", ACCESSOIRES + [r"\bshoe", r"\bbathroom", r"\bkitchen", r"\bpantry", r"\bmedicine"], bornes={"h": (100, 260), "grand": (50, 160)}, anciens=["armoire-2-portes"]),
+    S("ARM-1P", "Armoire 1 porte", "ARM", [rf"{portes(1)}.{{0,40}}(?:wardrobe|armoire|kleiderschrank|armadio|armario)", rf"(?:wardrobe|armoire|kleiderschrank|armadio|armario).{{0,40}}{portes(1)}"],
+      ["armoire une porte", "penderie étroite"], "Armoire étroite à une porte battante.", "1 porte", ACCESSOIRES + [r"\bshoe", r"\bbathroom", r"\bkitchen"], bornes={"h": (100, 240), "grand": (30, 90)}, anciens=["armoire-1-porte"]),
+    S("ARM-TISSU", "Armoire en tissu ou penderie démontable", "ARM", [r"(?:fabric|canvas|non[\s-]*woven|portable|folding|stoffschrank|textile|en tissu).{0,30}(?:wardrobe|closet|armoire|kleiderschrank|penderie)", r"(?:wardrobe|closet|armoire|kleiderschrank).{0,30}(?:fabric|canvas|non[\s-]*woven|portable)"],
+      ["penderie en toile", "armoire pliante"], "Penderie légère sur armature (tube et toile), démontable.", "structure légère en tissu", ACCESSOIRES, bornes={"h": (80, 200), "grand": (40, 200)}),
+    S("ARM-NC", "Armoire (nombre de portes non précisé)", "ARM", [r"\bwardrobe\b", r"\barmoire\b", r"\bkleiderschrank", r"\barmadio\b", r"\barmario\b", r"\bkledingkast", r"\bgarderob"],
+      ["armoire", "penderie"], "Armoire dont la fiche ne précise pas le nombre de portes.", "à préciser", ACCESSOIRES + [r"\bshoe", r"\bbathroom", r"\bkitchen", r"\bmedicine", r"\bjewel", r"\bdoll", r"\bstorage box", r"\bhanger", r"\borganizer\b", r"\bbag\b"], bornes={"h": (80, 260), "grand": (30, 400)}),
+    S("ARM-BAS", "Armoire basse", "ARM", [r"(?:low|short|lowboy)[\s-]*(?:wardrobe|cabinet|armoire)", r"armoire basse", r"\bniedrig.{0,20}schrank"],
+      ["armoire basse", "petite armoire"], "Armoire de hauteur réduite (sous 120 cm).", "hauteur < 120 cm", ACCESSOIRES, bornes={"h": (50, 130), "grand": (40, 200)}, anciens=["armoire-basse"]),
+    S("ARM-PORT", "Portant à vêtements", "ARM", [r"(?:clothes|garment|clothing)[\s-]*(?:rack|rail|stand)", r"\bportant\b", r"kleiderstander", r"stender", r"burro"],
+      ["portant", "penderie ouverte"], "Barre de penderie sur pieds, sans caisson.", "structure ouverte", ACCESSOIRES + [r"\bhanger"], types=["CLOTHES_RACK", "HOME", "STORAGE_RACK", "FURNITURE", "HOME_FURNITURE_AND_DECOR"], bornes={"h": (90, 220), "grand": (40, 200)}, anciens=["portant-vetements"]),
+    S("ARM-DRESS", "Dressing (module ou ensemble)", "ARM", [r"\bdressing\b", r"walk[\s-]*in[\s-]*closet", r"closet system", r"\bbegehbar"],
+      ["dressing", "système de penderie"], "Ensemble modulaire de penderie et rangements.", "modulaire", ACCESSOIRES + [r"dressing table", r"\bsalad"], bornes={"h": (100, 260), "grand": (60, 500)}, anciens=["dressing"]),
+
+    # ------------------------------------------------------------------ CANAPÉS
+    S("CAN-PANO", "Canapé panoramique", "CAN", [r"\bpanoramic", r"panoramique", r"u[\s-]*shaped.{0,20}(?:sofa|sectional|couch)", r"wohnlandschaft"],
+      ["canapé en U"], "Grand canapé en U ou panoramique (souvent 6 places et plus).", "forme en U", ACCESSOIRES, types=["SOFA", "HOME_FURNITURE_AND_DECOR", "FURNITURE", "HOME"], bornes={"h": (60, 120), "grand": (250, 500)}, anciens=["canape-panoramique"]),
+    S("CAN-ANG", "Canapé d'angle", "CAN", [r"\bsectional\b", r"corner[\s-]*(?:sofa|couch|settee)", r"canape d angle", r"l[\s-]*shaped.{0,20}(?:sofa|couch)", r"\becksofa", r"divano angolare", r"sofa esquinero", r"hoekbank", r"\bchaise\b.{0,20}(?:sofa|sectional)", r"reversible.{0,20}sofa"],
+      ["canapé en L", "angle", "méridienne d'angle"], "Canapé en L (angle fixe ou réversible).", "forme en L", ACCESSOIRES, types=["SOFA", "HOME_FURNITURE_AND_DECOR", "FURNITURE", "HOME"], bornes={"h": (55, 120), "grand": (180, 360)}, anciens=["canape-angle"]),
+    S("CAN-CONV", "Canapé convertible ou canapé-lit", "CAN", [r"sofa[\s-]*bed", r"\bsleeper\b", r"\bfuton\b", r"convertible", r"schlafsofa", r"schlafcouch", r"divano letto", r"sofa cama", r"slaapbank", r"bed[\s-]*settee", r"click[\s-]*clack", r"\bclic clac"],
+      ["clic-clac", "BZ", "canapé-lit"], "Canapé transformable en couchage.", "mécanisme de couchage", ACCESSOIRES + [r"mattress\b(?!.*sofa)"], types=["SOFA", "HOME_FURNITURE_AND_DECOR", "FURNITURE", "HOME", "BED", "BED_FRAME"], bornes={"h": (35, 110), "grand": (100, 260)}, anciens=["canape-convertible"]),
+    S("CAN-MOD", "Canapé modulable", "CAN", [r"\bmodular\b.{0,20}(?:sofa|couch|sectional)", r"modulable", r"modulsofa"],
+      ["canapé modulaire"], "Canapé formé de modules indépendants.", "modules", ACCESSOIRES, types=["SOFA", "HOME_FURNITURE_AND_DECOR", "FURNITURE", "HOME"], bornes={"h": (40, 120), "grand": (60, 500)}),
+    S("CAN-RELAX", "Canapé relax", "CAN", [r"(?:reclining|recliner|power recline|relax).{0,20}(?:sofa|loveseat|couch)", r"(?:sofa|loveseat|couch).{0,20}(?:reclining|recliner)", r"relaxsofa", r"canape relax"],
+      ["canapé releveur"], "Canapé à places inclinables (relax manuel ou électrique).", "assises inclinables", ACCESSOIRES, types=["SOFA", "HOME_FURNITURE_AND_DECOR", "FURNITURE", "HOME"], bornes={"h": (80, 120), "grand": (120, 260)}),
+    S("CAN-5P", "Canapé 5 places et plus", "CAN", [places(5), places(6)], ["grand canapé"], "Canapé droit de cinq places et plus.", "≥ 5 places", ACCESSOIRES, types=["SOFA", "HOME_FURNITURE_AND_DECOR", "FURNITURE", "HOME", "OUTDOOR_LIVING"], bornes={"h": (55, 120), "grand": (220, 400)}),
+    S("CAN-4P", "Canapé 4 places", "CAN", [places(4)], ["canapé quatre places"], "Canapé droit de quatre places.", "4 places", ACCESSOIRES, types=["SOFA", "HOME_FURNITURE_AND_DECOR", "FURNITURE", "HOME"], bornes={"h": (55, 120), "grand": (200, 320)}, anciens=["canape-4-places"]),
+    S("CAN-3P", "Canapé 3 places", "CAN", [places(3)], ["canapé trois places"], "Canapé droit de trois places.", "3 places", ACCESSOIRES, types=["SOFA", "HOME_FURNITURE_AND_DECOR", "FURNITURE", "HOME"], bornes={"h": (55, 120), "grand": (160, 260)}, anciens=["canape-3-places"]),
+    S("CAN-2P", "Canapé 2 places", "CAN", [places(2), r"\bloveseat\b", r"\bsettee\b", r"love seat", r"zweisitzer", r"\bsofa 2\b"], ["canapé deux places", "causeuse"], "Canapé droit de deux places.", "2 places", ACCESSOIRES, types=["SOFA", "HOME_FURNITURE_AND_DECOR", "FURNITURE", "HOME"], bornes={"h": (55, 115), "grand": (110, 200)}, anciens=["canape-2-places"]),
+    S("CAN-MERID", "Méridienne ou banquette-lit", "CAN", [r"\bdaybed\b", r"chaise longue", r"meridienne", r"\bchaise lounge\b", r"recamiere", r"divan\b"], ["méridienne", "chaise longue d'intérieur", "banquette"], "Assise allongée à un accoudoir ou lit de repos.", "forme allongée", ACCESSOIRES + [r"\boutdoor", r"\bpatio", r"\bpool"], types=["SOFA", "HOME_FURNITURE_AND_DECOR", "FURNITURE", "HOME", "BED", "BED_FRAME", "CHAIR"], bornes={"h": (30, 110), "grand": (120, 220)}, anciens=["meridienne"]),
+    S("CAN-NC", "Canapé (nombre de places non précisé)", "CAN", [r"\bsofa\b", r"\bcouch\b", r"\bcanape\b", r"\bdivano\b", r"\bbank\b"], ["canapé"], "Canapé dont la fiche ne précise ni les places ni la forme.", "à préciser", ACCESSOIRES + [r"\bpower bank", r"\btable\b", r"\bsofa table", r"\bside", r"\bbean", r"\bbed\b", r"\bpiggy"], types=["SOFA"], bornes={"h": (40, 120), "grand": (90, 400)}),
+
+    # ------------------------------------------------------------------ FAUTEUILS
+    S("FAU-POIRE", "Pouf poire", "POU", [r"bean[\s-]*bag", r"pouf poire", r"sitzsack", r"poltrona sacco", r"zitzak"], ["pouf poire", "beanbag"], "Assise souple remplie de billes.", "sans structure", [r"\bcover\b(?!.*with beans)", r"without beans", r"\bhousse", r"\brefill"], bornes={"h": (30, 130), "grand": (50, 200)}, anciens=["pouf-poire"]),
+    S("FAU-BUR", "Fauteuil ou chaise de bureau", "BUR", [r"office chair", r"desk chair", r"task chair", r"executive.{0,25}chair", r"chefsessel", r"gaming chair", r"racing chair", r"chaise de bureau", r"fauteuil de bureau", r"burostuhl", r"drehstuhl", r"chefsessel", r"sedia (?:da )?ufficio", r"silla de oficina", r"bureaustoel", r"computer chair", r"ergonomic chair", r"mesh chair"],
+      ["siège de bureau", "fauteuil gamer"], "Siège de travail à roulettes, souvent réglable.", "roulettes, piètement étoile", ACCESSOIRES + [r"\bmat\b", r"\bcaster"], bornes={"h": (70, 150), "grand": (40, 90)}, anciens=["chaise-de-bureau"]),
+    S("FAU-RELAX", "Fauteuil relax", "FAU", [r"\brecliner\b", r"reclining chair", r"lift chair", r"massage chair", r"fauteuil relax", r"fernsehsessel", r"relaxsessel", r"poltrona relax", r"sillon reclinable"], ["fauteuil releveur", "fauteuil de relaxation"], "Fauteuil inclinable (manuel, électrique ou releveur).", "dossier inclinable, repose-pieds", ACCESSOIRES + [r"\bsofa\b", r"\bloveseat"], bornes={"h": (70, 125), "grand": (60, 110)}, anciens=["fauteuil-relax"]),
+    S("FAU-BASCULE", "Rocking-chair", "FAU", [r"rocking[\s-]*chair", r"\brocker\b", r"schaukelstuhl", r"sedia a dondolo", r"mecedora", r"schommelstoel"], ["fauteuil à bascule"], "Fauteuil sur patins à bascule.", "patins", ACCESSOIRES + [r"\bglider ottoman"], bornes={"h": (70, 125), "grand": (50, 120)}, anciens=["rocking-chair"]),
+    S("FAU-PIVOT", "Fauteuil pivotant", "FAU", [r"swivel[\s-]*(?:chair|armchair|accent|barrel)", r"fauteuil pivotant", r"drehsessel"], ["fauteuil tournant"], "Fauteuil sur pied central pivotant.", "pied pivotant", ACCESSOIRES + [r"\boffice", r"\bdesk", r"\bbar\b", r"\bstool"], bornes={"h": (60, 115), "grand": (50, 110)}, anciens=["fauteuil-pivotant"]),
+    S("FAU-STD", "Fauteuil", "FAU", [r"\barmchair\b", r"accent chair", r"club chair", r"lounge chair", r"wingback", r"barrel chair", r"\bfauteuil\b", r"\bsessel\b", r"\bpoltrona\b", r"\bsillon\b", r"\bfauteuil\b", r"\bfåtölj", r"\bfatolj", r"\bslipper chair", r"tub chair", r"side chair.{0,20}upholster", r"1[\s-]*seater"],
+      ["fauteuil club", "bergère", "fauteuil d'appoint"], "Fauteuil rembourré d'une place.", "1 place avec accoudoirs", ACCESSOIRES + [r"\boffice", r"\bdesk", r"\bgaming", r"\bwheelchair", r"\bcar\b", r"\bkids?\b", r"\bbaby", r"\boutdoor", r"\bpatio", r"\bgarden", r"\bdining"], bornes={"h": (55, 120), "grand": (45, 110)}, anciens=["fauteuil"]),
+    S("POU-STD", "Pouf ou repose-pieds", "POU", [r"\bottoman\b", r"\bpouf\b", r"\bpouffe\b", r"footstool", r"foot stool", r"foot rest", r"footrest", r"hocker\b", r"poggiapiedi", r"reposapies", r"\bpoef\b"], ["repose-pieds", "pouf coffre"], "Pouf rembourré ou repose-pieds.", "sans dossier, bas", ACCESSOIRES + [r"\bbean", r"\bglider\b", r"\bstep stool", r"\bkitchen"], bornes={"h": (20, 60), "grand": (25, 150)}, anciens=["pouf"]),
+
+    # ------------------------------------------------------------------ LITS
+    S("LIT-SUPERP", "Lit superposé ou mezzanine", "LIT", [r"bunk[\s-]*bed", r"\bloft bed", r"lit superpose", r"\bmezzanine\b", r"hochbett", r"etagenbett", r"letto a castello", r"litera", r"stapelbed"], ["lit mezzanine"], "Deux couchages superposés, ou couchage surélevé.", "deux niveaux", ACCESSOIRES + [r"\bladder only"], bornes={"h": (120, 220), "grand": (180, 220)}, anciens=["lit-superpose"]),
+    S("LIT-ESCAM", "Lit escamotable", "LIT", [r"murphy[\s-]*bed", r"wall[\s-]*bed", r"lit escamotable", r"schrankbett", r"klappbett", r"letto a scomparsa", r"cama abatible"], ["lit armoire"], "Lit qui se replie dans un meuble mural.", "meuble mural", ACCESSOIRES, bornes={"h": (90, 240), "grand": (100, 230)}),
+    S("LIT-BEBE", "Lit bébé", "ENF", [r"\bcrib\b", r"\bcot\b", r"baby bed", r"lit bebe", r"babybett", r"kinderbett", r"lettino", r"\bcuna (?:de|para|bebe)", r"\bbassinet", r"\bberceau", r"\bledikant", r"\bbedside crib", r"\bnursery\b.{0,10}bed"], ["berceau", "lit à barreaux"], "Lit à barreaux ou berceau pour bébé.", "barreaux", ACCESSOIRES + [r"\bmobile\b", r"\bbumper", r"\bfitted", r"\bmattress\b"], bornes={"h": (40, 120), "grand": (60, 150)}, anciens=["lit-bebe"]),
+    S("LIT-TETE", "Tête de lit", "LIT", [r"\bheadboard\b", r"tete de lit", r"kopfteil", r"testiera", r"cabecero", r"hoofdbord"], ["tête de lit"], "Tête de lit seule, sans cadre.", "panneau vertical seul", ACCESSOIRES + [r"\bbed frame with", r"\bplatform bed"], types=["HEADBOARD", "FURNITURE", "HOME_FURNITURE_AND_DECOR", "HOME_BED_AND_BATH", "HOME"], bornes={"h": (30, 180), "grand": (80, 220)}, anciens=["tete-de-lit"]),
+    S("LIT-COFFRE", "Lit coffre ou lit à rangements", "LIT", [r"storage bed", r"bed with (?:storage|drawers)", r"ottoman bed", r"lit coffre", r"bettkasten", r"letto contenitore", r"canape abatible", r"opbergbed", r"captain.?s bed", r"bed with \d drawers"], ["lit à tiroirs"], "Lit avec coffre de rangement ou tiroirs.", "rangement intégré", ACCESSOIRES, bornes={"h": (25, 160), "grand": (180, 230)}, anciens=["lit-coffre"]),
+    S("LIT-KING", "Lit king size (180 cm et plus)", "LIT", [r"\bking\b", r"\b180\s*x\s*200", r"\b200\s*x\s*200", r"\bsuper king", r"\b6\s*ft\b", r"california king", r"\bcal king"], ["lit 180", "lit 200"], "Lit pour couchage de 180 cm de large et plus.", "couchage ≥ 180 cm", ACCESSOIRES + [r"\bmattress\b(?!.*(?:bed|frame))", r"\bsheet", r"\bduvet", r"\bcomforter", r"\bpillow", r"\bquilt", r"\bheadboard\b(?!.*frame)"], types=["BED", "BED_FRAME", "FURNITURE", "HOME_FURNITURE_AND_DECOR"], bornes={"h": (15, 200), "grand": (190, 240), "petit": (170, 230)}, anciens=["lit-king-size"]),
+    S("LIT-QUEEN", "Lit queen size (150 à 160 cm)", "LIT", [r"\bqueen\b", r"\b160\s*x\s*200", r"\b150\s*x\s*200", r"\b5\s*ft\b"], ["lit 160", "lit 150"], "Lit pour couchage de 150 à 160 cm de large.", "couchage 150–160 cm", ACCESSOIRES + [r"\bmattress\b(?!.*(?:bed|frame))", r"\bsheet", r"\bduvet", r"\bcomforter", r"\bpillow", r"\bquilt", r"\bheadboard\b(?!.*frame)"], types=["BED", "BED_FRAME", "FURNITURE", "HOME_FURNITURE_AND_DECOR"], bornes={"h": (15, 200), "grand": (190, 235), "petit": (150, 190)}, anciens=["lit-queen-size"]),
+    S("LIT-DOUBLE", "Lit double (135 à 140 cm)", "LIT", [r"\bfull\b", r"\bdouble\b", r"\b140\s*x\s*(?:190|200)", r"\b135\s*x\s*190", r"\b4\s*ft\s*6"], ["lit 140", "lit deux places"], "Lit pour couchage de 135 à 140 cm de large.", "couchage 135–140 cm", ACCESSOIRES + [r"\bmattress\b(?!.*(?:bed|frame))", r"\bsheet", r"\bduvet", r"\bcomforter", r"\bpillow", r"\bquilt", r"\bdouble[\s-]*door", r"\bheadboard\b(?!.*frame)"], types=["BED", "BED_FRAME", "FURNITURE", "HOME_FURNITURE_AND_DECOR"], bornes={"h": (15, 200), "grand": (185, 225), "petit": (130, 175)}, anciens=["lit-double"]),
+    S("LIT-SIMPLE", "Lit simple (90 cm)", "LIT", [r"\btwin\b", r"\bsingle\b", r"\b90\s*x\s*(?:190|200)", r"\b3\s*ft\b"], ["lit une place", "lit 90"], "Lit pour couchage de 80 à 100 cm de large.", "couchage 80–100 cm", ACCESSOIRES + [r"\bmattress\b(?!.*(?:bed|frame))", r"\bsheet", r"\bduvet", r"\bcomforter", r"\bpillow", r"\bquilt", r"\bbunk", r"\bloft", r"\bheadboard\b(?!.*frame)"], types=["BED", "BED_FRAME", "FURNITURE", "HOME_FURNITURE_AND_DECOR"], bornes={"h": (15, 200), "grand": (180, 220), "petit": (80, 130)}, anciens=["lit-simple"]),
+    S("LIT-NC", "Lit (taille non précisée)", "LIT", [r"\bbed\b", r"\bbed frame", r"\bbedframe", r"\bplatform bed", r"\bbettgestell", r"\bbett\b", r"\blit\b", r"\bletto\b", r"\bcama\b"], ["lit", "cadre de lit"], "Lit dont la fiche ne précise pas la taille de couchage.", "à préciser", ACCESSOIRES + [r"\bpet\b", r"\bdog\b", r"\bcat\b", r"\bbed ?side", r"\bbedroom", r"\bbed linen", r"\bbedding", r"\bmattress\b", r"\bbed ?spread", r"\bbed ?sheet", r"\bbed rail", r"\braised bed", r"\bgarden bed", r"\bflower bed", r"\bbed bug"], types=["BED", "BED_FRAME"], bornes={"h": (10, 200), "grand": (150, 240)}),
+
+    # ------------------------------------------------------------------ MATELAS ET SOMMIERS
+    S("MAT-180", "Matelas 180 cm et plus", "MAT", [r"\bking\b", r"\b180\s*x\s*200", r"\bsuper king"], ["matelas king size"], "Matelas de 180 cm de large et plus.", "largeur ≥ 180 cm", [r"\bprotector", r"\bcover\b", r"\btopper", r"\bsheet", r"\bpad\b", r"\bencasement", r"\bfoundation\b"], types=["MATTRESS", "AIR_MATTRESS"], bornes={"grand": (190, 220), "petit": (170, 210), "h": (5, 45)}, anciens=["matelas-double"]),
+    S("MAT-160", "Matelas 150 à 160 cm", "MAT", [r"\bqueen\b", r"\b160\s*x\s*200", r"\b150\s*x\s*200"], ["matelas queen size"], "Matelas de 150 à 160 cm de large.", "largeur 150–160 cm", [r"\bprotector", r"\bcover\b", r"\btopper", r"\bsheet", r"\bpad\b", r"\bencasement"], types=["MATTRESS", "AIR_MATTRESS"], bornes={"grand": (185, 215), "petit": (145, 165), "h": (5, 45)}, anciens=["matelas-double"]),
+    S("MAT-140", "Matelas 135 à 140 cm", "MAT", [r"\bfull\b", r"\bdouble\b", r"\b140\s*x\s*(?:190|200)", r"\b135\s*x\s*190"], ["matelas deux places"], "Matelas de 135 à 140 cm de large.", "largeur 135–140 cm", [r"\bprotector", r"\bcover\b", r"\btopper", r"\bsheet", r"\bpad\b", r"\bencasement"], types=["MATTRESS", "AIR_MATTRESS"], bornes={"grand": (185, 205), "petit": (130, 145), "h": (5, 45)}, anciens=["matelas-double"]),
+    S("MAT-90", "Matelas 80 à 100 cm", "MAT", [r"\btwin\b", r"\bsingle\b", r"\b90\s*x\s*(?:190|200)", r"\b80\s*x\s*(?:190|200)"], ["matelas une place"], "Matelas de 80 à 100 cm de large.", "largeur 80–100 cm", [r"\bprotector", r"\bcover\b", r"\btopper", r"\bsheet", r"\bpad\b", r"\bencasement", r"\bcrib\b"], types=["MATTRESS", "AIR_MATTRESS"], bornes={"grand": (180, 205), "petit": (75, 105), "h": (5, 45)}, anciens=["matelas-simple"]),
+    S("MAT-NC", "Matelas (taille non précisée)", "MAT", [r"\bmattress\b", r"\bmatelas\b", r"\bmatratze", r"\bmaterasso", r"\bcolchon"], ["matelas"], "Matelas dont la taille n'est pas précisée.", "à préciser", [r"\bprotector", r"\bcover\b", r"\btopper", r"\bsheet", r"\bpad\b", r"\bencasement", r"\bfoundation\b"], types=["MATTRESS", "AIR_MATTRESS"], bornes={"grand": (60, 220), "h": (3, 50)}),
+    S("SOM-STD", "Sommier", "MAT", [r"\bbox spring\b", r"\bboxspring\b", r"\bsommier\b", r"\blattenrost", r"\brete a doghe", r"\bsomier\b", r"\bbed base\b", r"\bfoundation\b"], ["sommier à lattes", "sommier tapissier"], "Sommier seul (à lattes ou tapissier).", "support de matelas", [r"\bcover\b", r"\bskirt", r"\bwrap\b"], bornes={"h": (3, 45), "grand": (180, 215)}, anciens=["sommier"]),
+
+    # ------------------------------------------------------------------ CHEVETS ET COMMODES
+    S("CHV-STD", "Table de chevet", "CHV", [r"\bnightstand", r"night stand", r"bedside table", r"bedside cabinet", r"bedside drawer", r"table de chevet", r"\bchevet\b", r"nachttisch", r"nachtschrank", r"comodino", r"mesita de noche", r"mesilla", r"nachtkastje", r"sangbord", r"night table"], ["chevet"], "Petit meuble à côté du lit.", "petit, ≤ 80 cm de haut", ACCESSOIRES + [r"\blamp\b", r"\borganizer\b", r"\bcaddy"], bornes={"h": (25, 90), "grand": (25, 90)}, anciens=["table-de-chevet"]),
+    S("COM-COIFF", "Coiffeuse", "COM", [r"dressing table", r"vanity (?:table|desk|set)", r"makeup (?:table|vanity)", r"\bcoiffeuse\b", r"schminktisch", r"frisiertisch", r"toeletta", r"tocador"], ["table de maquillage"], "Table de toilette avec miroir.", "miroir intégré", ACCESSOIRES + [r"\bbathroom", r"\bsink", r"\bbasin", r"\bmirror only"], bornes={"h": (60, 170), "grand": (50, 150)}, anciens=["coiffeuse"]),
+    S("COM-SEMAINIER", "Chiffonnier ou semainier (meuble haut à tiroirs)", "COM", [r"\bchiffonier\b", r"\bchiffonnier\b", r"\bsemainier\b", r"tall (?:chest|dresser)", r"lingerie chest", r"\bhighboy\b", r"\b[67][\s-]*drawer.{0,15}(?:tall|chest)", r"narrow.{0,15}(?:chest|dresser)"], ["chiffonnier", "semainier"], "Meuble haut et étroit à tiroirs superposés.", "haut et étroit", ACCESSOIRES + [r"\bplastic", r"\bfabric", r"\bbin\b"], bornes={"h": (90, 170), "grand": (35, 90)}),
+    S("COM-LARGE", "Commode large (6 tiroirs et plus)", "COM", [rf"{tiroirs(6)}", r"\b(?:6|7|8|9|10)[\s-]*(?:drawer|tiroir|schubladen)", r"double dresser", r"\bdresser\b.{0,30}\b(?:6|7|8|9)[\s-]*drawer"], ["grande commode"], "Commode large à six tiroirs ou plus, souvent en deux colonnes.", "≥ 6 tiroirs", ACCESSOIRES + [r"\bplastic", r"\bfabric", r"\bbin\b", r"\bjewel", r"\bdesk", r"\bmakeup", r"\bfile"], bornes={"h": (60, 140), "grand": (100, 220)}, anciens=["commode"]),
+    S("COM-5T", "Commode 5 tiroirs", "COM", [tiroirs(5)], ["commode cinq tiroirs"], "Commode à cinq tiroirs.", "5 tiroirs", ACCESSOIRES + [r"\bplastic", r"\bfabric", r"\bbin\b", r"\bjewel", r"\bdesk", r"\bmakeup", r"\bfile", r"\btool"], bornes={"h": (60, 160), "grand": (40, 160)}, anciens=["commode"]),
+    S("COM-4T", "Commode 4 tiroirs", "COM", [tiroirs(4)], ["commode quatre tiroirs"], "Commode à quatre tiroirs.", "4 tiroirs", ACCESSOIRES + [r"\bplastic", r"\bfabric", r"\bbin\b", r"\bjewel", r"\bdesk", r"\bmakeup", r"\bfile", r"\btool", r"\bcutlery"], bornes={"h": (50, 140), "grand": (40, 160)}, anciens=["commode"]),
+    S("COM-3T", "Commode 3 tiroirs", "COM", [tiroirs(3)], ["commode trois tiroirs"], "Commode à trois tiroirs.", "3 tiroirs", ACCESSOIRES + [r"\bplastic", r"\bfabric", r"\bbin\b", r"\bjewel", r"\bdesk", r"\bmakeup", r"\bfile", r"\btool", r"\bcutlery", r"\bbedside", r"\bnightstand"], bornes={"h": (40, 120), "grand": (40, 160)}, anciens=["commode"]),
+    S("COM-NC", "Commode (nombre de tiroirs non précisé)", "COM", [r"\bdresser\b", r"chest of drawers", r"\bcommode\b", r"kommode", r"cassettiera", r"cajonera", r"\bladekast", r"\bbyra\b", r"drawer chest", r"\bdrawers? cabinet"], ["commode"], "Commode dont le nombre de tiroirs n'est pas précisé.", "à préciser", ACCESSOIRES + [r"\bplastic", r"\bfabric", r"\bbin\b", r"\bjewel", r"\bdesk", r"\bmakeup", r"\bfile", r"\btool", r"\bdressing table", r"\bmirror\b(?!.*dresser)", r"\borganizer\b"], bornes={"h": (40, 160), "grand": (40, 220)}, anciens=["commode"]),
+
+    # ------------------------------------------------------------------ TABLES
+    S("TAB-BASSE", "Table basse", "TAB", [r"coffee table", r"cocktail table", r"table basse", r"couchtisch", r"tavolino da salotto", r"mesa de centro", r"salontafel", r"soffbord", r"center table", r"centre table"], ["table de salon"], "Table basse de salon.", "hauteur ≤ 55 cm", ACCESSOIRES + [r"\bbook\b", r"\bcoffee maker", r"\bcoffee pod"], bornes={"h": (20, 60), "grand": (40, 160)}, anciens=["table-basse"]),
+    S("TAB-APPOINT", "Bout de canapé ou table d'appoint", "TAB", [r"side table", r"end table", r"accent table", r"bout de canape", r"table d appoint", r"beistelltisch", r"tavolino", r"mesa auxiliar", r"bijzettafel", r"c[\s-]*table", r"sofa side", r"\bnesting tables?", r"drum table"], ["guéridon", "table gigogne"], "Petite table d'appoint.", "petite, ≤ 70 cm", ACCESSOIRES + [r"\bnightstand", r"\bbedside", r"\bpatio", r"\boutdoor"], bornes={"h": (30, 80), "grand": (25, 80)}, anciens=["bout-de-canape"]),
+    S("TAB-CONSOLE", "Console", "TAB", [r"\bconsole table", r"sofa table", r"entryway table", r"hall table", r"entry table", r"\bconsole\b", r"konsolentisch", r"consolle", r"wandtafel", r"sidetable"], ["table console", "console d'entrée"], "Table étroite et haute, adossée à un mur.", "profondeur ≤ 45 cm", ACCESSOIRES + [r"\bgame console", r"\bvideo game", r"\bplaystation", r"\bxbox", r"\btv\b", r"\bmedia", r"\bcar\b"], bornes={"h": (60, 100), "grand": (60, 200), "petit": (15, 55)}, anciens=["console"]),
+    S("TAB-HAUTE", "Table haute ou mange-debout", "TAB", [r"bar table", r"pub table", r"counter[\s-]*height table", r"bistro table", r"table haute", r"mange debout", r"stehtisch", r"bartisch", r"tavolo alto", r"mesa alta", r"bartafel"], ["table de bar"], "Table haute (environ 90 à 110 cm).", "hauteur ≥ 85 cm", ACCESSOIRES + [r"\bstool"], bornes={"h": (85, 115), "grand": (50, 200)}),
+    S("TAB-PLIANTE", "Table pliante", "TAB", [r"folding table", r"table pliante", r"klapptisch", r"tavolo pieghevole", r"mesa plegable", r"klaptafel", r"fold[\s-]*(?:out|away) table", r"card table"], ["table de camping"], "Table repliable.", "pliante", ACCESSOIRES + [r"\bchair\b(?!s? and table)"], bornes={"h": (50, 110), "grand": (50, 250)}),
+    S("TAB-8+", "Table à manger 8 personnes et plus", "TAB", [r"(?:dining|kitchen) table.{0,40}\b(?:8|10|12)[\s-]*(?:person|people|seater|seat|chair)", r"\b(?:8|10|12)[\s-]*(?:person|people|seater|seat|places|personnes|personen).{0,40}(?:dining|table|tisch|tavolo|mesa)", r"(?:extendable|extending|extension).{0,20}dining table"],
+      ["grande table de salle à manger"], "Table de repas pour 8 personnes et plus.", "longueur ≥ 200 cm", ACCESSOIRES + [r"\bset\b.{0,20}\bchairs?\b", r"\bcloth\b", r"\brunner"], bornes={"h": (65, 85), "grand": (180, 400)}, anciens=["table-a-manger-8"]),
+    S("TAB-6", "Table à manger 6 personnes", "TAB", [r"(?:dining|kitchen) table.{0,40}\b6[\s-]*(?:person|people|seater|seat|chair)", r"\b6[\s-]*(?:person|people|seater|seat|places|personnes|personen).{0,40}(?:dining|table|tisch|tavolo|mesa)", r"\bsix[\s-]*seater"],
+      ["table six personnes"], "Table de repas pour 6 personnes.", "longueur 150–200 cm", ACCESSOIRES + [r"\bset\b.{0,20}\bchairs?\b", r"\bcloth\b", r"\brunner"], bornes={"h": (65, 85), "grand": (130, 230)}, anciens=["table-a-manger-6"]),
+    S("TAB-4", "Table à manger 2 à 4 personnes", "TAB", [r"(?:dining|kitchen) table.{0,40}\b[24][\s-]*(?:person|people|seater|seat|chair)", r"\b[24][\s-]*(?:person|people|seater|seat|places|personnes|personen).{0,40}(?:dining|table|tisch|tavolo|mesa)", r"\bfour[\s-]*seater", r"\btwo[\s-]*seater dining", r"bistro set", r"breakfast table"],
+      ["table quatre personnes", "table de cuisine"], "Table de repas pour 2 à 4 personnes.", "longueur ≤ 150 cm", ACCESSOIRES + [r"\bset\b.{0,20}\bchairs?\b", r"\bcloth\b", r"\brunner"], bornes={"h": (65, 85), "grand": (60, 160)}, anciens=["table-a-manger-4"]),
+    S("TAB-REPAS-NC", "Table à manger (capacité non précisée)", "TAB", [r"dining table", r"kitchen table", r"table a manger", r"esstisch", r"tavolo da pranzo", r"mesa de comedor", r"eettafel", r"matbord", r"farmhouse table", r"trestle table", r"pedestal table", r"\btable\b"],
+      ["table de salle à manger"], "Table de repas dont la capacité n'est pas précisée.", "à préciser", ACCESSOIRES + [r"\bset\b.{0,20}\bchairs?\b", r"\bcloth\b", r"\brunner", r"\blamp", r"\bclock", r"\btennis", r"\bpool\b", r"\bsaw\b", r"\btv\b", r"\blap\b", r"\bbed table", r"\bnightstand", r"\bplacemat", r"\bmat\b", r"\bcover", r"\bdecor", r"\bcenterpiece", r"\bbaby", r"\bchanging", r"\bdesk"], types=["TABLE", "HOME_FURNITURE_AND_DECOR", "FURNITURE"], bornes={"h": (55, 90), "grand": (60, 400)}),
+
+    # ------------------------------------------------------------------ CHAISES, TABOURETS, BANCS
+    S("CHA-BAR", "Tabouret de bar", "CHA", [r"bar stool", r"barstool", r"counter stool", r"counter[\s-]*height (?:stool|chair)", r"tabouret de bar", r"barhocker", r"sgabello (?:da )?bar", r"taburete (?:de )?bar", r"barkruk"], ["chaise haute de bar"], "Siège haut pour comptoir ou îlot.", "assise ≥ 60 cm", ACCESSOIRES, bornes={"h": (60, 120), "grand": (30, 65)}, anciens=["tabouret-de-bar"]),
+    S("CHA-TABOURET", "Tabouret bas", "CHA", [r"\bstool\b", r"\btabouret\b", r"\bhocker\b", r"\bsgabello\b", r"\btaburete\b", r"\bkruk\b", r"\bpall\b"], ["petit tabouret"], "Tabouret bas sans dossier.", "sans dossier, bas", ACCESSOIRES + [r"\bbar\b", r"\bcounter", r"\bfoot", r"\bstep\b", r"\bpiano\b", r"\bpotty", r"\bshower", r"\bbath\b", r"\bkids?\b", r"\bfolding step"], bornes={"h": (25, 75), "grand": (20, 60)}, anciens=["tabouret"]),
+    S("CHA-PLIANTE", "Chaise pliante", "CHA", [r"folding chair", r"chaise pliante", r"klappstuhl", r"sedia pieghevole", r"silla plegable", r"klapstoel"], ["chaise de camping"], "Chaise repliable.", "pliante", ACCESSOIRES + [r"\boutdoor", r"\bcamping", r"\bbeach", r"\blawn", r"\bpatio"], bornes={"h": (60, 110), "grand": (35, 65)}),
+    S("CHA-ENF", "Chaise ou fauteuil enfant", "ENF", [r"(?:kids?|child|children|toddler|youth).{0,20}(?:chair|armchair|seat|sofa)", r"chaise enfant", r"kinderstuhl", r"sedia per bambini", r"silla infantil"], ["chaise de bébé"], "Siège à taille d'enfant.", "taille enfant", ACCESSOIRES + [r"\bhigh ?chair", r"\bcar seat", r"\bbooster"], bornes={"h": (30, 90), "grand": (25, 70)}, anciens=["chaise-enfant"]),
+    S("ENF-CHAISE-HAUTE", "Chaise haute pour bébé", "ENF", [r"high[\s-]*chair", r"chaise haute", r"hochstuhl", r"seggiolone", r"trona"], ["réhausseur de table"], "Chaise haute de repas pour bébé.", "plateau", ACCESSOIRES + [r"\bcover", r"\bpad\b", r"\bmat\b"], bornes={"h": (60, 115), "grand": (40, 90)}),
+    S("CHA-REPAS", "Chaise de salle à manger", "CHA", [r"dining chair", r"kitchen chair", r"side chair", r"\bchair\b", r"\bchaise\b", r"\bstuhl\b", r"\bsedia\b", r"\bsilla\b", r"\bstoel\b", r"\bstol\b", r"\bstuhle\b", r"\bchairs\b"], ["chaise"], "Chaise de repas ou chaise d'appoint.", "dossier, sans accoudoirs rembourrés", ACCESSOIRES + [r"\boffice", r"\bdesk", r"\bgaming", r"\bwheel", r"\bhigh ?chair", r"\bcar\b", r"\bkids?\b", r"\bbaby", r"\btoddler", r"\bbeach", r"\blawn", r"\bcamping", r"\bpatio", r"\boutdoor", r"\bgarden", r"\brocking", r"\brecliner", r"\bmassage", r"\barm ?chair", r"\bbean", r"\bshower", r"\bbath", r"\bpotty", r"\blounge", r"\bfolding", r"\bswivel", r"\bmat\b", r"\bpad\b", r"\bglide", r"\bpiano", r"\bfloor chair", r"\bmeditation"], types=["CHAIR", "HOME_FURNITURE_AND_DECOR", "FURNITURE"], bornes={"h": (65, 115), "grand": (35, 70)}, anciens=["chaise"]),
+    S("CHA-BANC", "Banc", "CHA", [r"\bbench\b", r"\bbanc\b", r"sitzbank", r"\bpanca\b", r"\bbanco\b", r"\bbankje\b", r"\bbank\b(?!.*power)"], ["banquette"], "Banc d'intérieur (repas, entrée, bout de lit).", "assise longue sans dossier", ACCESSOIRES + [r"\bweight", r"\bexercise", r"\bworkout", r"\bfitness", r"\bwork ?bench", r"\bpiano", r"\bpower bank", r"\boutdoor", r"\bpatio", r"\bgarden", r"\bpark\b", r"\bpotting", r"\bvise\b"], bornes={"h": (35, 100), "grand": (60, 220)}, anciens=["banc-de-table", "banc-entree"]),
+
+    # ------------------------------------------------------------------ RANGEMENTS DU SÉJOUR
+    S("RAN-VITRINE", "Vitrine", "RAN", [r"\bdisplay cabinet", r"curio cabinet", r"china cabinet", r"glass cabinet", r"\bvitrine\b", r"vitrinenschrank", r"\bvetrina\b", r"\bvitrina\b", r"\bglazen kast", r"\bvitrinskap"], ["vaisselier"], "Meuble à portes vitrées pour exposer.", "portes vitrées", ACCESSOIRES, bornes={"h": (60, 220), "grand": (30, 200)}, anciens=["vitrine"]),
+    S("RAN-BUFFET-HAUT", "Buffet haut ou vaisselier", "RAN", [r"\bhutch\b", r"buffet (?:and|with) hutch", r"vaisselier", r"buffet haut", r"highboard", r"credenza alta", r"aparador alto", r"\bbuffetkast"], ["buffet deux corps"], "Buffet haut, souvent en deux corps.", "hauteur ≥ 120 cm", ACCESSOIRES, bornes={"h": (110, 230), "grand": (60, 220)}),
+    S("RAN-BUFFET", "Buffet bas ou enfilade", "RAN", [r"\bsideboard\b", r"\bbuffet\b", r"\bcredenza\b", r"\benfilade\b", r"\bdressoir\b", r"\baparador\b", r"\banrichte\b", r"\bskänk\b", r"\bskank\b", r"\blowboard\b"], ["enfilade", "bahut"], "Buffet bas de séjour.", "hauteur < 120 cm", ACCESSOIRES + [r"\bfood\b", r"\bserver\b warmer", r"\bwarmer", r"\bdish\b", r"\bchafing"], bornes={"h": (50, 120), "grand": (70, 260)}, anciens=["buffet-bas"]),
+    S("RAN-MEUBLE-TV", "Meuble TV", "RAN", [r"tv stand", r"tv cabinet", r"tv unit", r"tv console", r"media console", r"entertainment (?:center|centre|unit)", r"television stand", r"meuble tv", r"tv[\s-]*(?:schrank|board|lowboard|mobel)", r"porta tv", r"mueble tv", r"tv[\s-]*meubel", r"tv[\s-]*bank", r"lcd cabinet", r"tv bench"], ["banc TV"], "Meuble bas pour téléviseur.", "bas et long", ACCESSOIRES + [r"\bmount\b", r"\bbracket"], bornes={"h": (30, 120), "grand": (60, 260)}, anciens=["meuble-tv"]),
+    S("RAN-BIB-HAUTE", "Bibliothèque haute", "RAN", [r"(?:tall|large|5[\s-]*(?:tier|shelf)|6[\s-]*(?:tier|shelf)|72|71|70|75)[\s\"-]*.{0,15}(?:bookcase|bookshelf|book shelf)", r"(?:bookcase|bookshelf).{0,30}\b(?:5|6)[\s-]*(?:tier|shelf|shelves)", r"bibliotheque haute", r"bucherregal.{0,20}hoch"], ["grande bibliothèque"], "Bibliothèque de plus de 150 cm de haut.", "hauteur ≥ 150 cm", ACCESSOIRES + [r"\bheadboard"], bornes={"h": (140, 250), "grand": (40, 220)}, anciens=["bibliotheque"]),
+    S("RAN-BIB-BASSE", "Bibliothèque basse", "RAN", [r"(?:low|short|small|2[\s-]*(?:tier|shelf)|3[\s-]*(?:tier|shelf))[\s-]*.{0,15}(?:bookcase|bookshelf|book shelf)", r"(?:bookcase|bookshelf).{0,30}\b(?:2|3)[\s-]*(?:tier|shelf|shelves)", r"bibliotheque basse"], ["petite bibliothèque"], "Bibliothèque de moins de 120 cm de haut.", "hauteur < 120 cm", ACCESSOIRES + [r"\bheadboard"], bornes={"h": (40, 130), "grand": (40, 200)}, anciens=["bibliotheque"]),
+    S("RAN-BIB-CUBE", "Étagère cube", "ETA", [r"\bcube (?:storage|organizer|shelf|bookcase)", r"\b(?:4|6|8|9|12|16)[\s-]*cube\b", r"\bcubby\b", r"etagere cube", r"wurfelregal", r"kallax"], ["casier cube"], "Étagère à cases carrées.", "cases cubiques", ACCESSOIRES + [r"\bbin\b", r"\bbasket", r"\binsert", r"\bfabric drawer"], bornes={"h": (30, 200), "grand": (30, 200)}),
+    S("RAN-BIB-NC", "Bibliothèque (hauteur non précisée)", "RAN", [r"\bbookcase\b", r"\bbookshelf\b", r"book shelf", r"\bbibliotheque\b", r"bucherregal", r"\blibreria\b", r"\blibrero\b", r"\bboekenkast", r"\bbokhylla", r"\bestanteria"], ["bibliothèque"], "Bibliothèque dont la hauteur n'est pas précisée.", "à préciser", ACCESSOIRES + [r"\bheadboard", r"\bwall shelf", r"\bfloating", r"\bdesk", r"\bbookend"], bornes={"h": (40, 250), "grand": (30, 220)}, anciens=["bibliotheque"]),
+    S("RAN-SECRETAIRE", "Secrétaire", "RAN", [r"\bsecretary desk", r"\bsecretaire (?:a abattant|ancien|bureau)", r"\bsekretar", r"\bescritorio secreter"], ["bureau secrétaire"], "Meuble haut à abattant formant écritoire.", "abattant", ACCESSOIRES, bornes={"h": (80, 220), "grand": (50, 140)}),
+
+    # ------------------------------------------------------------------ ÉTAGÈRES
+    S("ETA-METAL", "Étagère métallique ou rayonnage", "ETA", [r"(?:wire|metal|steel|chrome|garage|utility|industrial)[\s-]*(?:shelving|shelf|shelves|rack|storage rack)", r"shelving unit", r"etagere metallique", r"schwerlastregal", r"metallregal", r"scaffale (?:in )?metallo", r"estanteria metalica", r"boltless"], ["rayonnage", "étagère de garage"], "Étagère à montants métalliques.", "métal", ACCESSOIRES + [r"\bliner", r"\bshoe", r"\bspice", r"\bdish\b", r"\bbathroom", r"\bover the", r"\bwine"], bornes={"h": (60, 220), "grand": (40, 200)}, anciens=["etagere-metallique"]),
+    S("ETA-ECHELLE", "Étagère échelle", "ETA", [r"ladder (?:shelf|bookcase|bookshelf)", r"leaning (?:shelf|bookcase)", r"etagere echelle", r"leiterregal", r"scaffale a scala", r"ladderkast"], ["étagère inclinée"], "Étagère en forme d'échelle appuyée au mur.", "inclinée", ACCESSOIRES, bornes={"h": (100, 220), "grand": (30, 120)}),
+    S("ETA-MURALE", "Étagère murale", "ETA", [r"wall (?:shelf|shelves|mounted shelf)", r"floating shelf", r"floating shelves", r"etagere murale", r"wandregal", r"mensola", r"estante de pared", r"wandplank"], ["tablette murale"], "Étagère fixée au mur.", "fixée au mur", ACCESSOIRES + [r"\bbracket only"], bornes={"h": (2, 120), "grand": (20, 200)}),
+    S("ETA-NC", "Étagère sur pieds", "ETA", [r"\bshelf\b", r"\bshelves\b", r"\bshelving\b", r"\betagere\b", r"\bregal\b", r"\bscaffale\b", r"\bestanteria\b", r"\bestante\b", r"\bkast\b", r"\bhylla\b", r"\brack\b"], ["étagère"], "Étagère autoportante.", "autoportante", ACCESSOIRES + [r"\bshoe", r"\bspice", r"\bwine", r"\bdish", r"\btowel", r"\bbike", r"\bbicycle", r"\bcar\b", r"\broof", r"\bliner", r"\bwall", r"\bfloating", r"\bcorner shelf\b.{0,10}shower", r"\bshower", r"\bdesk", r"\bover the door", r"\bbracket", r"\bcoat", r"\bdrying", r"\bcookie", r"\bspoon", r"\bmagazine", r"\bpot rack", r"\bluggage rack", r"\bheadphone", r"\bmonitor"], types=["SHELF", "HOME", "HOME_FURNITURE_AND_DECOR", "FURNITURE", "STORAGE_RACK", "HOME_ORGANIZERS_AND_STORAGE"], bornes={"h": (30, 230), "grand": (25, 200)}, anciens=["etagere"]),
+
+    # ------------------------------------------------------------------ ENTRÉE
+    S("ENT-CHAUSS", "Meuble à chaussures", "ENT", [r"shoe (?:cabinet|rack|storage|organizer|bench|shelf|stand)", r"meuble a chaussures", r"schuhschrank", r"schuhregal", r"scarpiera", r"zapatero", r"schoenenkast", r"skohylla"], ["range-chaussures"], "Meuble ou étagère à chaussures.", "rangement à chaussures", ACCESSOIRES + [r"\bshoe ?horn", r"\bshoe ?tree", r"\binsert", r"\bpolish", r"\bover the door"], bornes={"h": (20, 200), "grand": (30, 150)}, anciens=["meuble-a-chaussures"]),
+    S("ENT-PORTEMANTEAU", "Portemanteau sur pied ou vestiaire", "ENT", [r"coat (?:rack|stand|tree)", r"hall tree", r"portemanteau", r"garderobenstander", r"kleiderstander", r"appendiabiti", r"perchero", r"kapstok", r"hat stand"], ["vestiaire d'entrée"], "Portemanteau sur pied ou meuble vestiaire.", "sur pied", ACCESSOIRES + [r"\bwall[\s-]*mount", r"\bhook\b", r"\bover the door"], bornes={"h": (100, 210), "grand": (25, 120)}, anciens=["portemanteau"]),
+    S("ENT-MEUBLE", "Meuble d'entrée", "ENT", [r"entryway (?:cabinet|storage|organizer)", r"hallway (?:cabinet|storage|furniture)", r"meuble d entree", r"flurmobel", r"mobile ingresso", r"mueble recibidor", r"halkast"], ["meuble de hall"], "Meuble de rangement pour l'entrée.", "entrée", ACCESSOIRES, bornes={"h": (60, 210), "grand": (40, 200)}, anciens=["meuble-d-entree"]),
+
+    # ------------------------------------------------------------------ CUISINE
+    S("CUI-ILOT", "Îlot de cuisine", "CUI", [r"kitchen island", r"ilot de cuisine", r"kucheninsel", r"isola (?:per )?cucina", r"isla de cocina", r"keukeneiland", r"butcher block island"], ["îlot central"], "Meuble central de cuisine avec plan de travail.", "plan de travail central", ACCESSOIRES, bornes={"h": (80, 110), "grand": (60, 250)}),
+    S("CUI-DESSERTE", "Desserte de cuisine", "CUI", [r"kitchen cart", r"bar cart", r"serving cart", r"rolling cart", r"utility cart", r"kitchen trolley", r"desserte", r"servierwagen", r"kuchenwagen", r"carrello (?:da )?cucina", r"carrito de cocina"], ["chariot de cuisine"], "Meuble roulant de service ou de rangement.", "à roulettes", ACCESSOIRES + [r"\bshopping", r"\bluggage", r"\bhand ?truck", r"\bdolly\b", r"\bgolf", r"\bgarden cart", r"\bwagon"], bornes={"h": (60, 110), "grand": (30, 130)}, anciens=["desserte-cuisine"]),
+    S("CUI-BUFFET", "Buffet ou colonne de cuisine", "CUI", [r"pantry (?:cabinet|cupboard)", r"kitchen (?:cabinet|cupboard|pantry|storage cabinet|hutch)", r"buffet de cuisine", r"colonne de cuisine", r"kuchenschrank", r"hochschrank kuche", r"credenza cucina", r"mueble de cocina", r"keukenkast", r"larder"], ["placard de cuisine"], "Meuble de rangement de cuisine (hors éléments encastrés).", "meuble de cuisine", ACCESSOIRES + [r"\borganizer\b", r"\bdrawer organizer", r"\bshelf liner", r"\blazy susan", r"\bspice"], bornes={"h": (60, 220), "grand": (30, 200)}, anciens=["buffet-cuisine"]),
+    S("CUI-ETAGERE", "Étagère de cuisine ou micro-ondes", "CUI", [r"baker.?s rack", r"microwave (?:stand|cart|shelf|rack)", r"kitchen (?:shelf|shelves|rack)", r"etagere de cuisine", r"kuchenregal", r"scaffale cucina"], ["étagère de cuisine"], "Étagère autoportante de cuisine.", "cuisine", ACCESSOIRES + [r"\bspice", r"\bdish ?rack", r"\bdrying"], bornes={"h": (60, 200), "grand": (30, 150)}, anciens=["etagere-cuisine"]),
+
+    # ------------------------------------------------------------------ GROS ÉLECTROMÉNAGER
+    S("ELM-REF-US", "Réfrigérateur américain", "ELM", [r"side[\s-]*by[\s-]*side", r"french door (?:refrigerator|fridge)", r"american (?:fridge|style)", r"refrigerateur americain", r"amerikanischer kuhlschrank", r"frigorifero americano", r"frigorifico americano"], ["frigo américain"], "Réfrigérateur large à deux portes verticales.", "largeur ≥ 80 cm", [r"\bfilter", r"\bhandle", r"\bgasket", r"\bshelf\b", r"\bbin\b"], bornes={"h": (160, 200), "grand": (80, 100)}, anciens=["refrigerateur-americain"]),
+    S("ELM-REF-COMBI", "Réfrigérateur combiné (congélateur en bas)", "ELM", [r"fridge[\s-]*freezer", r"bottom[\s-]*freezer", r"combine refrigerateur", r"refrigerateur combine", r"kuhl[\s-]*gefrier[\s-]*kombination", r"frigocongelatore", r"frigorifico combi", r"koel[\s-]*vriescombinatie"], ["frigo combiné"], "Réfrigérateur et congélateur superposés.", "deux compartiments", [r"\bfilter", r"\bhandle", r"\bgasket", r"\bshelf\b", r"\bbin\b", r"\bthermometer"], bornes={"h": (140, 210), "grand": (50, 80)}, anciens=["refrigerateur"]),
+    S("ELM-REF-TOP", "Réfrigérateur table top ou mini-réfrigérateur", "ELM", [r"mini[\s-]*fridge", r"compact refrigerator", r"table[\s-]*top (?:fridge|refrigerator)", r"under[\s-]*counter (?:fridge|refrigerator)", r"refrigerateur top", r"mini[\s-]*kuhlschrank", r"tischkuhlschrank", r"\bmini[\s-]*frigo"], ["frigo top", "mini-frigo"], "Petit réfrigérateur (hauteur ≤ 90 cm).", "hauteur ≤ 90 cm", [r"\bfilter", r"\bcar\b", r"\bcooler bag", r"\bskincare", r"\bmakeup"], bornes={"h": (40, 95), "grand": (35, 65)}, anciens=["refrigerateur-top"]),
+    S("ELM-REF", "Réfrigérateur", "ELM", [r"\brefrigerator\b", r"\bfridge\b", r"\brefrigerateur\b", r"\bkuhlschrank\b", r"\bfrigorifero\b", r"\bfrigorifico\b", r"\bkoelkast\b", r"\bkylskap"], ["frigo"], "Réfrigérateur dont le type n'est pas précisé.", "à préciser", [r"\bfilter", r"\bhandle", r"\bgasket", r"\bshelf\b", r"\bbin\b", r"\bthermometer", r"\bmagnet", r"\borganizer", r"\bcar\b", r"\bdeodorizer", r"\block\b", r"\bmat\b", r"\bcover\b"], types=["MAJOR_HOME_APPLIANCES", "REFRIGERATOR", "REFRIGERATION_APPLIANCE", "KITCHEN", "HOME"], bornes={"h": (45, 210), "grand": (40, 100)}, anciens=["refrigerateur"]),
+    S("ELM-CONG", "Congélateur", "ELM", [r"\bfreezer\b", r"\bcongelateur\b", r"\bgefrierschrank", r"\bgefriertruhe", r"\bcongelatore\b", r"\bcongelador\b", r"\bvriezer"], ["congélateur coffre", "congélateur armoire"], "Congélateur (coffre ou armoire).", "congélation seule", [r"\bfridge[\s-]*freezer", r"\bbag", r"\bcontainer", r"\btray", r"\bpaper", r"\bpack\b", r"\bfilter", r"\bthermometer", r"\bsafe\b"], types=["MAJOR_HOME_APPLIANCES", "REFRIGERATOR", "REFRIGERATION_APPLIANCE", "KITCHEN", "HOME"], bornes={"h": (50, 200), "grand": (45, 160)}, anciens=["congelateur"]),
+    S("ELM-CAVE", "Cave à vin", "ELM", [r"wine (?:cooler|fridge|refrigerator|cellar|chiller)", r"cave a vin", r"weinkuhlschrank", r"cantinetta", r"vinoteca", r"wijnklimaatkast"], ["armoire à vin"], "Armoire réfrigérée pour bouteilles.", "porte vitrée, clayettes", [r"\bbottle (?:opener|stopper)", r"\bbag", r"\bglass(?:es)?\b", r"\brack\b(?!.*cooler)"], bornes={"h": (40, 190), "grand": (25, 70)}, anciens=["cave-a-vin"]),
+    S("ELM-LL", "Lave-linge", "ELM", [r"washing machine", r"\bwasher\b", r"lave[\s-]*linge", r"waschmaschine", r"lavatrice", r"lavadora", r"wasmachine", r"tvattmaskin"], ["machine à laver"], "Lave-linge (frontal ou top).", "tambour", [r"\bdetergent", r"\bpressure washer", r"\bdish", r"\bwasher fluid", r"\bfilter", r"\bhose", r"\bpedestal", r"\bcover", r"\bcleaner", r"\btablet", r"\bball\b", r"\bbag\b", r"\bwindow", r"\bcar\b", r"\bwasher[\s-]*dryer"], bornes={"h": (60, 100), "grand": (40, 70)}, anciens=["lave-linge"]),
+    S("ELM-SL", "Sèche-linge", "ELM", [r"tumble dryer", r"clothes dryer", r"seche[\s-]*linge", r"waschetrockner", r"asciugatrice", r"secadora", r"wasdroger", r"\bdryer\b(?!.*hair)"], ["sécheuse"], "Sèche-linge à tambour.", "tambour", [r"\bhair", r"\bdryer (?:sheet|ball)", r"\bvent", r"\bfilter", r"\bsalad", r"\bshoe", r"\bdish", r"\bhand", r"\brack\b", r"\bwasher"], bornes={"h": (60, 100), "grand": (40, 70)}, anciens=["seche-linge"]),
+    S("ELM-LV", "Lave-vaisselle", "ELM", [r"dishwasher(?! (?:detergent|tablet|pod|salt|rinse|cleaner))", r"lave[\s-]*vaisselle", r"geschirrspuler", r"lavastoviglie", r"lavavajillas", r"vaatwasser", r"diskmaskin"], ["lave-vaisselle"], "Lave-vaisselle (pose libre, compact ou intégrable).", "porte abattante", [r"\bdetergent", r"\btablet", r"\bpod", r"\bsalt", r"\brinse", r"\bcleaner", r"\bbasket", r"\bsafe\b", r"\bmagnet", r"\bclean.?dirty"], bornes={"h": (40, 90), "grand": (40, 65)}, anciens=["lave-vaisselle"]),
+    S("ELM-CUISINIERE", "Cuisinière (four et plaques)", "ELM", [r"\bcooker\b(?!.*(?:rice|slow|pressure))", r"\bstove\b(?!.*(?:camp|portable))", r"\brange\b.{0,15}(?:oven|cooker)", r"\bcuisiniere\b", r"standherd", r"cucina a gas", r"cocina de gas"], ["piano de cuisson"], "Cuisinière autoportante avec four.", "four + plaques", [r"\brice", r"\bslow", r"\bpressure", r"\bcamp", r"\bportable", r"\bguard", r"\bcover", r"\bknob", r"\bgrate"], bornes={"h": (80, 100), "grand": (50, 120)}, anciens=["cuisiniere"]),
+    S("ELM-FOUR", "Four", "ELM", [r"\bwall oven\b", r"built[\s-]*in oven", r"\bfour encastrable", r"\beinbaubackofen", r"\bforno da incasso", r"\bhorno\b"], ["four encastrable"], "Four (hors mini-four).", "four seul", [r"\bmicrowave", r"\btoaster", r"\bmitt", r"\bglove", r"\bthermometer", r"\bliner", r"\bcleaner", r"\bdutch"], bornes={"h": (35, 100), "grand": (45, 75)}, anciens=["four"]),
+    S("ELM-MO", "Micro-ondes ou mini-four", "PEM", [r"\bmicrowave\b", r"micro[\s-]*ondes", r"mikrowelle", r"microonde", r"microondas", r"magnetron", r"toaster oven", r"oven toaster", r"countertop oven", r"mini[\s-]*four"], ["four micro-ondes"], "Micro-ondes ou four de comptoir.", "appareil de comptoir", [r"\bcover", r"\bsafe\b", r"\bbowl", r"\bcontainer", r"\bplate\b", r"\bsteamer", r"\bstand\b", r"\bcart\b", r"\bshelf", r"\brack\b", r"\bpopcorn", r"\begg"], bornes={"h": (20, 50), "grand": (35, 70)}, anciens=["micro-ondes"]),
+    S("ELM-CLIM", "Climatiseur mobile ou déshumidificateur", "PEM", [r"air conditioner", r"climatiseur", r"klimagerat", r"condizionatore", r"aire acondicionado", r"dehumidifier", r"deshumidificateur"], ["clim mobile"], "Appareil mobile de climatisation ou de déshumidification.", "sur roulettes", [r"\bcover", r"\bfilter", r"\bwindow kit", r"\bbracket", r"\bfoam"], bornes={"h": (25, 100), "grand": (25, 60)}),
+    S("PEM-ASPI", "Aspirateur", "PEM", [r"vacuum cleaner", r"\bvacuum\b", r"aspirateur", r"staubsauger", r"aspirapolvere", r"aspiradora", r"stofzuiger"], ["aspirateur balai"], "Aspirateur (traîneau, balai, robot).", "électroménager d'entretien", [r"\bbag", r"\bfilter", r"\bbrush", r"\battachment", r"\bsealer", r"\bstorage bag", r"\bhose", r"\bbattery", r"\bcar\b", r"\bpump", r"\bvacuum (?:seal|flask|insulated|bottle|tumbler|mug)", r"\bthermos"], bornes={"h": (8, 130), "grand": (15, 60)}),
+    S("PEM-VENTIL", "Ventilateur ou radiateur d'appoint", "PEM", [r"\bfan\b", r"ventilateur", r"ventilator", r"\bheater\b", r"radiateur", r"heizlufter", r"stufa", r"calefactor"], ["ventilateur colonne"], "Ventilateur ou chauffage d'appoint mobile.", "appareil mobile", [r"\bceiling", r"\bcar\b", r"\bcpu", r"\bcase fan", r"\blaptop", r"\bphone", r"\bfan club", r"\bwater heater", r"\bpatio heater", r"\bbottle", r"\bhand fan", r"\bfolding fan", r"\bfan blade", r"\bcomputer"], bornes={"h": (15, 140), "grand": (15, 60)}),
+
+    # ------------------------------------------------------------------ BUREAU
+    S("BUR-ANGLE", "Bureau d'angle", "BUR", [r"(?:l[\s-]*shaped|corner)[\s-]*(?:desk|computer desk|office desk|workstation)", r"bureau d angle", r"eckschreibtisch", r"scrivania angolare", r"escritorio esquinero", r"hoekbureau"], ["bureau en L"], "Bureau en L ou d'angle.", "forme en L", ACCESSOIRES + [r"\bmat\b", r"\bpad\b", r"\borganizer"], bornes={"h": (65, 110), "grand": (100, 220)}, anciens=["bureau-angle"]),
+    S("BUR-ASSIS", "Bureau assis-debout", "BUR", [r"standing desk", r"sit[\s-]*stand", r"height adjustable desk", r"adjustable height desk", r"bureau assis debout", r"hohenverstellbar.{0,20}schreibtisch", r"scrivania regolabile", r"escritorio elevable", r"zit[\s-]*sta"], ["bureau réglable"], "Bureau à hauteur réglable.", "piètement télescopique", ACCESSOIRES + [r"\bconverter", r"\briser", r"\bmat\b", r"\bdesktop\b stand", r"\bmonitor"], bornes={"h": (60, 130), "grand": (80, 200)}, anciens=["bureau-assis-debout"]),
+    S("BUR-ENFANT", "Bureau enfant", "ENF", [r"(?:kids?|child|children|student|youth)[\s-]*(?:desk|study table)", r"bureau enfant", r"kinderschreibtisch", r"scrivania (?:per )?bambini", r"escritorio infantil"], ["bureau d'écolier"], "Bureau de taille enfant.", "taille enfant", ACCESSOIRES + [r"\blamp", r"\bchair\b(?!.*desk)"], bornes={"h": (45, 110), "grand": (50, 130)}, anciens=["bureau-enfant"]),
+    S("BUR-REUNION", "Table de réunion", "BUR", [r"conference table", r"meeting table", r"boardroom table", r"table de reunion", r"konferenztisch", r"tavolo riunioni", r"mesa de reuniones", r"vergadertafel"], ["table de conférence"], "Table de réunion professionnelle.", "professionnel", ACCESSOIRES, bornes={"h": (65, 85), "grand": (100, 500)}),
+    S("BUR-CLASSEUR", "Armoire ou meuble de classement", "BUR", [r"filing cabinet", r"file cabinet", r"lateral file", r"vertical file", r"armoire de classement", r"armoire de bureau", r"aktenschrank", r"hangeregistraturschrank", r"schedario", r"archivador", r"archiefkast", r"office cabinet", r"storage cabinet.{0,20}(?:office|lock)"], ["classeur à tiroirs", "armoire à rideaux"], "Meuble de classement de bureau.", "dossiers suspendus", ACCESSOIRES + [r"\bfolder", r"\blabel", r"\bdivider", r"\bdesktop", r"\bbox\b", r"\bfile (?:folder|box|sorter|organizer|holder|tray|rack)"], bornes={"h": (50, 200), "grand": (35, 120)}, anciens=["armoire-de-bureau"]),
+    S("BUR-CAISSON", "Caisson de bureau", "BUR", [r"mobile pedestal", r"rolling file", r"\bpedestal\b.{0,20}(?:drawer|file)", r"caisson", r"rollcontainer", r"cassettiera (?:da )?ufficio", r"cajonera de oficina", r"ladeblok"], ["caisson à roulettes"], "Petit meuble à tiroirs sous le bureau.", "sous le bureau", ACCESSOIRES, bornes={"h": (45, 75), "grand": (35, 70)}, anciens=["caisson-de-bureau"]),
+    S("BUR-DROIT", "Bureau droit", "BUR", [r"\bdesk\b", r"\bwriting desk", r"computer desk", r"office desk", r"study table", r"\bbureau\b", r"\bschreibtisch", r"\bscrivania", r"\bescritorio\b", r"\bbureau\b", r"\bskrivbord"], ["bureau", "table de travail"], "Bureau rectiligne.", "plateau droit", ACCESSOIRES + [r"\bchair\b", r"\blamp", r"\bmat\b", r"\bpad\b", r"\borganizer", r"\bcalendar", r"\btidy", r"\bfan\b", r"\bclock", r"\bshelf\b(?!.*desk)", r"\bmonitor", r"\briser", r"\bstand\b", r"\btray", r"\bcaddy", r"\bdesk ?top\b", r"\bcable", r"\bclamp", r"\bhutch\b(?!.*desk)", r"\blap ?desk", r"\bhelp ?desk", r"\bfront desk"], types=["DESK", "HOME_FURNITURE_AND_DECOR", "FURNITURE", "OFFICE_PRODUCTS", "TABLE"], bornes={"h": (60, 110), "grand": (60, 220)}, anciens=["bureau"]),
+
+    # ------------------------------------------------------------------ INFORMATIQUE, IMAGE ET SON
+    S("INF-TV-75", "Téléviseur 70 pouces et plus", "INF", [r"\b(?:70|75|77|80|82|83|85|86|98|100)[\s-]*(?:inch|in\b|\"|pouces|zoll)", r"\b(?:178|189|190|195|203|209|215|217|248)\s*cm\b"], ["grand téléviseur"], "Téléviseur de 70 pouces et plus.", "diagonale ≥ 70 pouces", [r"\bmount", r"\bstand\b", r"\bcabinet", r"\bcover", r"\bremote", r"\bcable", r"\bcase\b", r"\bscreen protector", r"\bfurniture"], types=["TELEVISION", "CONSUMER_ELECTRONICS", "FLAT_SCREEN_DISPLAY"], bornes={"h": (80, 150), "grand": (150, 230)}, anciens=["television"]),
+    S("INF-TV-55", "Téléviseur 50 à 65 pouces", "INF", [r"\b(?:50|55|58|60|65)[\s-]*(?:inch|in\b|\"|pouces|zoll)", r"\b(?:126|127|139|140|146|147|151|152|163|164|165)\s*cm\b"], ["téléviseur 55 pouces"], "Téléviseur de 50 à 65 pouces.", "diagonale 50–65 pouces", [r"\bmount", r"\bstand\b", r"\bcabinet", r"\bcover", r"\bremote", r"\bcable", r"\bcase\b", r"\bfurniture"], types=["TELEVISION", "CONSUMER_ELECTRONICS", "FLAT_SCREEN_DISPLAY"], bornes={"h": (60, 110), "grand": (105, 160)}, anciens=["television"]),
+    S("INF-TV-43", "Téléviseur 40 à 49 pouces", "INF", [r"\b(?:40|42|43|48|49)[\s-]*(?:inch|in\b|\"|pouces|zoll)", r"\b(?:101|102|106|108|109|121|122|123|124)\s*cm\b"], ["téléviseur 43 pouces"], "Téléviseur de 40 à 49 pouces.", "diagonale 40–49 pouces", [r"\bmount", r"\bstand\b", r"\bcabinet", r"\bcover", r"\bremote", r"\bcable", r"\bcase\b", r"\bfurniture"], types=["TELEVISION", "CONSUMER_ELECTRONICS", "FLAT_SCREEN_DISPLAY"], bornes={"h": (50, 80), "grand": (85, 115)}, anciens=["television"]),
+    S("INF-TV-32", "Téléviseur jusqu'à 39 pouces", "INF", [r"\b(?:19|22|24|28|32|39)[\s-]*(?:inch|in\b|\"|pouces|zoll)", r"\b(?:48|55|60|70|80|81|98|99)\s*cm\b"], ["petit téléviseur"], "Téléviseur jusqu'à 39 pouces.", "diagonale ≤ 39 pouces", [r"\bmount", r"\bstand\b", r"\bcabinet", r"\bcover", r"\bremote", r"\bcable", r"\bcase\b", r"\bfurniture"], types=["TELEVISION", "CONSUMER_ELECTRONICS", "FLAT_SCREEN_DISPLAY"], bornes={"h": (25, 60), "grand": (40, 95)}, anciens=["television"]),
+    S("INF-ENCEINTE", "Enceinte colonne ou caisson de basses", "INF", [r"floor[\s-]*standing speaker", r"tower speaker", r"subwoofer", r"enceinte colonne", r"standlautsprecher", r"caisson de basses", r"\bsoundbar\b"], ["colonne audio"], "Enceinte sur pied, caisson ou barre de son.", "audio", [r"\bmount", r"\bstand\b", r"\bcable", r"\bcover", r"\bbracket"], bornes={"h": (5, 140), "grand": (20, 130)}, anciens=["enceinte-colonne"]),
+    S("INF-IMPRIMANTE", "Imprimante ou multifonction", "INF", [r"\bprinter\b", r"\bimprimante\b", r"\bdrucker\b", r"\bstampante\b", r"\bimpresora\b"], ["photocopieur"], "Imprimante de bureau.", "bureautique", [r"\bink", r"\btoner", r"\bpaper", r"\bcable", r"\b3d printer", r"\bfilament", r"\bstand\b", r"\bcartridge", r"\blabel"], bornes={"h": (10, 120), "grand": (25, 80)}, anciens=["imprimante"]),
+    S("INF-ORDI", "Ordinateur fixe, écran ou poste de travail", "INF", [r"desktop (?:computer|pc)", r"\bmonitor\b", r"\bpc tower", r"\bimac\b", r"\becran\b", r"\bordinateur\b", r"all[\s-]*in[\s-]*one (?:pc|computer)"], ["unité centrale", "moniteur"], "Ordinateur fixe ou écran.", "informatique", [r"\bmount", r"\bstand\b", r"\barm\b", r"\briser", r"\bcable", r"\bbaby monitor", r"\bheart", r"\bblood", r"\bscreen protector", r"\bfilter", r"\bcleaner", r"\bprivacy", r"\bmonitor light", r"\blamp"], bornes={"h": (10, 80), "grand": (15, 130)}, anciens=["ordinateur-fixe"]),
+
+    # ------------------------------------------------------------------ SALLE DE BAIN
+    S("SDB-VASQUE", "Meuble sous-vasque", "SDB", [r"(?:bathroom )?vanity (?:unit|cabinet)(?!.*makeup)", r"sink (?:cabinet|unit)", r"under[\s-]*sink", r"meuble (?:sous[\s-]*)?vasque", r"waschbeckenunterschrank", r"mobile (?:sotto)?lavabo", r"mueble de lavabo", r"wastafelkast", r"bathroom vanity"], ["meuble de salle de bain"], "Meuble sous lavabo, avec ou sans vasque.", "sous lavabo", ACCESSOIRES + [r"\borganizer\b", r"\bmakeup", r"\bmirror\b(?!.*cabinet)", r"\bshelf\b(?!.*cabinet)", r"\btray"], bornes={"h": (40, 100), "grand": (40, 160)}, anciens=["meuble-vasque"]),
+    S("SDB-ARMOIRE", "Armoire de toilette ou meuble suspendu", "SDB", [r"medicine cabinet", r"bathroom (?:wall )?cabinet", r"mirror(?:ed)? cabinet", r"armoire de toilette", r"spiegelschrank", r"pensile bagno", r"armario de bano"], ["armoire à pharmacie"], "Petit meuble suspendu de salle de bain.", "suspendu", ACCESSOIRES + [r"\borganizer\b", r"\bfloor"], bornes={"h": (25, 100), "grand": (25, 120)}),
+    S("SDB-COLONNE", "Colonne de salle de bain", "SDB", [r"bathroom (?:tall|floor|storage|linen) cabinet", r"linen (?:cabinet|tower)", r"tall bathroom", r"colonne (?:de )?salle de bain", r"hochschrank bad", r"colonna bagno", r"columna de bano", r"badkamerkast"], ["meuble colonne"], "Meuble haut et étroit de salle de bain.", "haut et étroit", ACCESSOIRES + [r"\borganizer\b"], bornes={"h": (100, 200), "grand": (25, 70)}, anciens=["colonne-salle-de-bain"]),
+    S("SDB-ETAGERE", "Étagère de salle de bain", "SDB", [r"bathroom (?:shelf|shelves|shelving|rack|storage rack)", r"over[\s-]*the[\s-]*toilet", r"space saver", r"etagere (?:de )?salle de bain", r"badregal", r"scaffale bagno", r"estanteria de bano"], ["étagère WC"], "Étagère de salle de bain.", "salle de bain", ACCESSOIRES + [r"\bshower caddy", r"\btowel bar", r"\bsuction"], bornes={"h": (30, 200), "grand": (20, 90)}, anciens=["etagere-salle-de-bain"]),
+    S("SDB-PANIER", "Panier à linge", "SDB", [r"laundry (?:hamper|basket|sorter|bin)", r"\bhamper\b", r"panier a linge", r"wascheko?rb", r"wasche ?sammler", r"cesto (?:per la )?biancheria", r"cesto de ropa", r"wasmand"], ["corbeille à linge"], "Panier ou trieur à linge.", "linge sale", ACCESSOIRES + [r"\bbag\b(?!.*hamper)", r"\bpop[\s-]*up"], bornes={"h": (30, 100), "grand": (25, 90)}, anciens=["panier-a-linge"]),
+
+    # ------------------------------------------------------------------ ENFANTS
+    S("ENF-COFFRE", "Coffre à jouets", "ENF", [r"toy (?:box|chest|storage|organizer)", r"coffre a jouets", r"spielzeugkiste", r"cesta (?:para )?juguetes", r"baule (?:per )?giocattoli", r"speelgoedkist"], ["bac à jouets"], "Coffre ou meuble de rangement de jouets.", "jouets", ACCESSOIRES, bornes={"h": (20, 120), "grand": (30, 130)}, anciens=["coffre-a-jouets"]),
+    S("ENF-POUSSETTE", "Poussette", "ENF", [r"\bstroller\b", r"\bpram\b", r"\bpushchair\b", r"\bbuggy\b", r"\bpoussette\b", r"\bkinderwagen\b", r"\bpasseggino\b", r"\bcarrito de bebe", r"\bkinderwagen"], ["landau"], "Poussette ou landau.", "roues, pliable", [r"\bfan\b", r"\borganizer", r"\bhook", r"\bcup holder", r"\bcover", r"\bnet\b", r"\bblanket", r"\btoy\b", r"\bweight", r"\bfootmuff", r"\bcanopy"], bornes={"h": (30, 120), "grand": (40, 110)}, anciens=["poussette"]),
+    S("ENF-PARC", "Parc ou lit parapluie", "ENF", [r"\bplaypen\b", r"\bplayard\b", r"pack[\s-]*n[\s-]*play", r"travel cot", r"lit parapluie", r"\bparc bebe", r"\blaufstall", r"\breisebett", r"\bbox per bambini", r"\bcorralito", r"\bbox bebe"], ["parc bébé"], "Parc ou lit pliant de voyage.", "pliant", ACCESSOIRES + [r"\bsheet", r"\bmattress\b(?!.*playard)"], bornes={"h": (50, 110), "grand": (70, 150)}),
+    S("ENF-TABLE-LANGER", "Table à langer", "ENF", [r"changing (?:table|station|unit|dresser)", r"table a langer", r"wickeltisch", r"fasciatoio", r"cambiador", r"commode a langer"], ["commode à langer"], "Table ou commode à langer.", "plan à langer", ACCESSOIRES + [r"\bpad\b", r"\bcover\b", r"\bliner"], bornes={"h": (70, 110), "grand": (50, 120)}),
+
+    # ------------------------------------------------------------------ JARDIN
+    S("JAR-SALON", "Salon de jardin (ensemble)", "JAR", [r"(?:patio|garden|outdoor|balcony|bistro|conversation|lounge|dining)[\s-]*(?:furniture )?set\b", r"salon de jardin", r"gartenmobel[\s-]*set", r"gartenlounge", r"set da giardino", r"conjunto de jardin", r"tuinset", r"loungeset"], ["ensemble de jardin"], "Ensemble de jardin (table et sièges, ou salon bas).", "ensemble de plusieurs pièces", ACCESSOIRES + [r"\bcover\b", r"\bcushion"], bornes={"h": (20, 130), "grand": (40, 300)}, anciens=["salon-de-jardin"]),
+    S("JAR-TRANSAT", "Bain de soleil ou transat", "JAR", [r"chaise lounge", r"sun lounger", r"\blounger\b", r"\bsunbed\b", r"bain de soleil", r"\btransat\b", r"sonnenliege", r"gartenliege", r"lettino prendisole", r"tumbona", r"ligbed", r"zero gravity chair", r"\brecliner\b.{0,20}(?:outdoor|patio|garden)"], ["chaise longue de jardin"], "Siège allongé d'extérieur.", "allongé", ACCESSOIRES + [r"\bcover\b", r"\bcushion\b(?!.*with)"], bornes={"h": (20, 110), "grand": (60, 220)}, anciens=["bain-de-soleil"]),
+    S("JAR-TABLE", "Table de jardin", "JAR", [r"(?:patio|garden|outdoor|picnic|balcony)[\s-]*(?:dining )?table", r"table de jardin", r"gartentisch", r"tavolo da giardino", r"mesa de jardin", r"tuintafel", r"picnic table"], ["table d'extérieur"], "Table d'extérieur.", "extérieur", ACCESSOIRES + [r"\bumbrella", r"\bcover\b", r"\bset\b", r"\bheater", r"\bfire"], bornes={"h": (35, 110), "grand": (40, 300)}, anciens=["table-de-jardin"]),
+    S("JAR-CHAISE", "Chaise ou fauteuil de jardin", "JAR", [r"(?:patio|garden|outdoor|lawn|adirondack|deck|balcony|camping|beach)[\s-]*(?:dining |folding |lounge |rocking |arm)?chair", r"chaise de jardin", r"fauteuil de jardin", r"gartenstuhl", r"gartensessel", r"sedia da giardino", r"silla de jardin", r"tuinstoel", r"adirondack"], ["fauteuil d'extérieur"], "Siège d'extérieur.", "extérieur", ACCESSOIRES + [r"\bcover\b", r"\bcushion\b(?!.*with)", r"\bset\b"], bornes={"h": (50, 120), "grand": (40, 100)}, anciens=["chaise-de-jardin"]),
+    S("JAR-BALANCELLE", "Balancelle, hamac ou fauteuil suspendu", "JAR", [r"porch swing", r"patio swing", r"\bhammock\b", r"hanging (?:egg )?chair", r"egg chair", r"\bbalancelle\b", r"\bhamac\b", r"hollywoodschaukel", r"hangematte", r"hangesessel", r"dondolo", r"columpio"], ["fauteuil œuf"], "Assise suspendue d'extérieur ou d'intérieur.", "suspendue", ACCESSOIRES + [r"\bstrap", r"\brope only", r"\bhook\b"], bornes={"h": (50, 230), "grand": (50, 300)}),
+    S("JAR-PARASOL", "Parasol", "JAR", [r"patio umbrella", r"market umbrella", r"cantilever umbrella", r"\bparasol\b", r"sonnenschirm", r"ombrellone", r"sombrilla"], ["parasol déporté"], "Parasol de jardin.", "toile + mât", [r"\bbase\b", r"\bstand\b", r"\bcover\b", r"\blight", r"\bholder"], bornes={"h": (10, 300), "grand": (10, 400)}, anciens=["parasol"]),
+    S("JAR-BARBECUE", "Barbecue ou plancha", "JAR", [r"\bgrill\b", r"\bbarbecue\b", r"\bbbq\b", r"\bsmoker\b", r"\bplancha\b", r"\bgriddle\b.{0,15}(?:outdoor|gas)", r"\bgrillwagen", r"\bkugelgrill", r"\bbarbacoa"], ["barbecue à gaz", "barbecue à charbon"], "Barbecue, fumoir ou plancha d'extérieur.", "cuisson extérieure", [r"\bcover\b", r"\bbrush", r"\btool", r"\bmat\b", r"\bthermometer", r"\bgrate", r"\bpan\b", r"\bbasket", r"\bpanini", r"\bcontact grill", r"\bindoor", r"\bgloves?", r"\btongs", r"\bcleaner", r"\bburner", r"\bigniter", r"\bwood chips", r"\bcharcoal\b(?!.*grill)", r"\bsauce", r"\bseasoning", r"\blight\b"], types=["BARBECUE_GRILL", "OUTDOOR_LIVING", "HOME", "KITCHEN"], bornes={"h": (30, 160), "grand": (40, 200)}, anciens=["barbecue"]),
+    S("JAR-ABRI", "Abri, coffre ou serre de jardin", "JAR", [r"\bshed\b", r"deck box", r"storage box.{0,15}(?:outdoor|garden|patio)", r"(?:outdoor|garden|patio).{0,15}storage (?:box|bench|cabinet)", r"\bgreenhouse\b", r"abri de jardin", r"coffre de jardin", r"gartenhaus", r"gartenbox", r"auflagenbox", r"casetta da giardino", r"baul de jardin", r"\bgazebo\b", r"\bpergola\b", r"\bcarport\b", r"\bcanopy tent"], ["coffre de terrasse", "tonnelle"], "Abri, coffre, serre ou tonnelle de jardin.", "structure d'extérieur", ACCESSOIRES + [r"\bcover\b", r"\banchor", r"\bshelf\b"], bornes={"h": (40, 350), "grand": (60, 600)}, anciens=["abri-de-jardin"]),
+    S("JAR-JARDINIERE", "Jardinière ou grand pot", "JAR", [r"\bplanter\b", r"raised (?:garden )?bed", r"jardiniere", r"\bpflanzkubel", r"\bhochbeet", r"\bfioriera", r"\bmacetero", r"\bplantenbak", r"\bflower ?pot\b", r"\bpot\b.{0,15}(?:large|tall|outdoor)"], ["bac à fleurs"], "Grand pot, bac ou carré potager.", "contenant à plantes", ACCESSOIRES + [r"\bsaucer", r"\bhanger\b", r"\bhook", r"\bliner", r"\bseed", r"\bsoil", r"\bfertilizer"], bornes={"h": (15, 150), "grand": (20, 250)}, anciens=["jardiniere"]),
+    S("JAR-TONDEUSE", "Tondeuse et matériel motorisé de jardin", "JAR", [r"lawn ?mower", r"\btondeuse\b", r"rasenmaher", r"tosaerba", r"cortacesped", r"grasmaaier", r"leaf blower", r"\bsouffleur\b", r"\bchainsaw\b", r"pressure washer", r"nettoyeur haute pression", r"hochdruckreiniger", r"\btiller\b", r"snow ?blower"], ["matériel de jardin motorisé"], "Tondeuse, souffleur, tronçonneuse, nettoyeur haute pression…", "moteur", [r"\bblade", r"\bspark plug", r"\bbag\b", r"\bcover\b", r"\boil\b", r"\bfilter", r"\bbattery\b(?!.*mower)", r"\bnozzle", r"\bwand\b", r"\bhose\b", r"\bchain\b(?!saw)", r"\bsharpener", r"\bgloves?"], bornes={"h": (20, 130), "grand": (30, 200)}, anciens=["tondeuse"]),
+
+    # ------------------------------------------------------------------ SPORT ET LOISIRS
+    S("SPO-TAPIS-COURSE", "Tapis de course", "SPO", [r"\btreadmill\b", r"tapis de course", r"laufband", r"tapis roulant", r"cinta de correr", r"loopband"], ["tapis roulant"], "Tapis de course motorisé ou non.", "bande roulante", [r"\bmat\b", r"\blubricant", r"\bbelt\b(?!.*treadmill)", r"\bdesk\b(?!.*treadmill)", r"\bcover", r"\bkey\b"], bornes={"h": (15, 170), "grand": (100, 220)}, anciens=["tapis-de-course"]),
+    S("SPO-VELO-APPART", "Vélo d'appartement ou elliptique", "SPO", [r"exercise bike", r"stationary bike", r"indoor (?:cycling|cycle|bike)", r"spin bike", r"recumbent bike", r"elliptical", r"cross[\s-]*trainer", r"velo d appartement", r"heimtrainer", r"cyclette", r"bicicleta estatica", r"hometrainer", r"stationary bicycle"], ["vélo elliptique"], "Vélo d'appartement ou vélo elliptique.", "appareil de cardio", [r"\bmat\b", r"\bseat cover", r"\bcushion", r"\bstand\b(?!.*bike)", r"\btrainer stand", r"\bpedal\b(?!.*bike)"], bornes={"h": (50, 180), "grand": (50, 200)}, anciens=["velo-appartement"]),
+    S("SPO-RAMEUR", "Rameur", "SPO", [r"rowing machine", r"\brower\b", r"\brameur\b", r"rudergerat", r"vogatore", r"remo indoor", r"roeitrainer"], ["machine à ramer"], "Rameur d'appartement.", "long et bas", [r"\bmat\b", r"\bcover"], bornes={"h": (30, 110), "grand": (150, 270)}, anciens=["rameur"]),
+    S("SPO-BANC-MUSCU", "Banc de musculation ou station", "SPO", [r"weight bench", r"workout bench", r"exercise bench", r"utility bench", r"fitness bench", r"power rack", r"squat rack", r"home gym", r"multi[\s-]*gym", r"banc de musculation", r"hantelbank", r"kraftstation", r"panca (?:per )?pesi", r"banco de pesas", r"fitnessbank"], ["cage de musculation"], "Banc de musculation, cage ou station de fitness.", "musculation", [r"\bmat\b", r"\bpad\b(?!.*bench)", r"\bband\b", r"\bdumbbell\b(?!.*bench)"], bornes={"h": (30, 240), "grand": (60, 250)}, anciens=["banc-de-musculation"]),
+    S("SPO-PINGPONG", "Table de ping-pong", "SPO", [r"(?:table tennis|ping[\s-]*pong) table", r"table de ping[\s-]*pong", r"tischtennisplatte", r"tavolo da ping pong", r"mesa de ping pong", r"tafeltennistafel"], ["table de tennis de table"], "Table de tennis de table.", "grande table pliable", [r"\bnet\b(?!.*table)", r"\bpaddle", r"\bball\b", r"\bcover\b", r"\bracket"], bornes={"h": (60, 180), "grand": (100, 280)}, anciens=["table-de-ping-pong"]),
+    S("SPO-BABYFOOT", "Baby-foot", "SPO", [r"\bfoosball\b", r"\bbaby[\s-]*foot\b", r"\btischkicker\b", r"\bkicker\b", r"\bcalcio balilla", r"\bfutbolin\b", r"soccer table"], ["football de table"], "Table de baby-foot.", "jeu de table", [r"\bball\b(?!.*table)", r"\bhandle", r"\bcover\b"], bornes={"h": (60, 110), "grand": (80, 160)}, anciens=["baby-foot"]),
+    S("SPO-BILLARD", "Billard", "SPO", [r"pool table", r"billiard table", r"\bbillard\b", r"billardtisch", r"tavolo da biliardo", r"mesa de billar", r"snooker table"], ["table de billard"], "Table de billard.", "très lourd", [r"\bcue\b", r"\bball\b", r"\bcover\b", r"\bchalk", r"\brack\b", r"\blight"], bornes={"h": (60, 100), "grand": (140, 400)}, anciens=["billard"]),
+    S("SPO-TRAMPOLINE", "Trampoline", "SPO", [r"\btrampoline\b", r"\btrampolin\b", r"\btrampolino\b", r"\bcama elastica"], ["trampoline de jardin"], "Trampoline d'intérieur ou de jardin.", "rond, filet", [r"\bcover\b", r"\bnet\b(?!.*trampoline)", r"\bspring\b(?!.*trampoline)", r"\banchor", r"\bladder"], bornes={"h": (20, 300), "grand": (80, 500)}),
+    S("SPO-SURF", "Planche de surf ou paddle", "SPO", [r"surf ?board", r"paddle ?board", r"\bsup board", r"\bplanche de surf", r"\bkayak\b", r"\bcanoe\b"], ["paddle gonflable", "kayak"], "Planche, paddle, kayak.", "long", [r"\bleash", r"\bwax\b", r"\bfin\b", r"\bbag\b", r"\bpaddle\b(?!.*board)", r"\brack\b", r"\bpump"], bornes={"h": (5, 60), "grand": (150, 500)}, anciens=["planche-de-surf"]),
+    S("SPO-SKI", "Skis, snowboard et équipement de glisse", "SPO", [r"\bskis?\b", r"\bsnowboard\b", r"\bski\b"], ["snowboard"], "Skis ou snowboard.", "long et fin", [r"\bgoggle", r"\bhelmet", r"\bglove", r"\bsock", r"\bjacket", r"\bpant", r"\bmask", r"\bwax\b", r"\bbag\b", r"\brack\b", r"\bpole\b", r"\bskin\b(?!s?\b)", r"\bskincare", r"\bmachine"], types=["SPORTING_GOODS", "OUTDOOR_RECREATION_PRODUCT"], bornes={"h": (3, 30), "grand": (80, 210)}, anciens=["skis"]),
+    S("SPO-GOLF", "Sac de golf", "SPO", [r"golf (?:bag|club set|cart bag|stand bag)", r"sac de golf", r"golftasche", r"sacca da golf", r"bolsa de golf"], ["sac de golf avec clubs"], "Sac de golf (avec ou sans clubs).", "sac long", [r"\bball\b", r"\bglove", r"\btee\b", r"\bcover\b", r"\btowel"], bornes={"h": (60, 140), "grand": (20, 60)}, anciens=["sac-de-golf"]),
+    S("SPO-TENTE", "Tente et gros matériel de camping", "SPO", [r"\btent\b", r"\btente\b", r"\bzelt\b", r"\btenda\b", r"\btienda de campana", r"sleeping bag", r"camp(?:ing)? (?:cot|bed|kitchen|chair)"], ["matériel de camping"], "Tente, lit de camp, gros matériel de camping (rangé).", "pliable", [r"\bstake", r"\bpeg", r"\bpole\b(?!.*tent)", r"\blight\b", r"\bfan\b", r"\bheater", r"\bfootprint", r"\btarp\b"], bornes={"h": (5, 250), "grand": (20, 500)}),
+
+    # ------------------------------------------------------------------ VÉLOS ET ENGINS
+    S("VEL-ADULTE", "Vélo adulte", "VEL", [r"\bbicycle\b", r"\bbike\b", r"\bvelo\b", r"\bfahrrad\b", r"\bbicicletta\b", r"\bbicicleta\b", r"\bfiets\b", r"\bcykel\b", r"\be[\s-]*bike\b"], ["vélo de ville", "VTT", "vélo électrique"], "Vélo d'adulte (route, ville, VTT, électrique).", "roues ≥ 26 pouces", [r"\bexercise", r"\bstationary", r"\bindoor", r"\bspin\b", r"\bkids?\b", r"\bchild", r"\btoddler", r"\bbalance", r"\bhelmet", r"\block\b", r"\blight\b", r"\bpump\b", r"\brack\b", r"\bstand\b", r"\bseat\b", r"\bsaddle", r"\btube\b", r"\btire\b", r"\btyre", r"\bbell\b", r"\bbag\b", r"\bbasket", r"\bcover\b", r"\bglove", r"\bshort", r"\bjersey", r"\bmount\b", r"\bcomputer", r"\bholder", r"\bbottle", r"\bchain\b", r"\bpedal\b", r"\bgrip", r"\bmirror", r"\btool", r"\btrainer", r"\btrailer", r"\bhook", r"\bcarrier", r"\bfender", r"\bkickstand", r"\bbrake", r"\bshoe"], types=["BICYCLE", "SPORTING_GOODS", "OUTDOOR_RECREATION_PRODUCT", "CYCLING_EQUIPMENT"], bornes={"h": (60, 140), "grand": (120, 220)}, anciens=["velo"]),
+    S("VEL-ENFANT", "Vélo ou draisienne enfant", "VEL", [r"(?:kids?|child|children|toddler|balance) (?:bike|bicycle)", r"velo enfant", r"draisienne", r"kinderfahrrad", r"laufrad", r"bici(?:cletta)? (?:per )?bambini", r"bicicleta infantil", r"kinderfiets", r"\btricycle\b", r"\btrike\b"], ["tricycle"], "Vélo, tricycle ou draisienne d'enfant.", "petites roues", [r"\bhelmet", r"\bstabilizer", r"\btraining wheels\b(?!.*bike)", r"\bbell\b", r"\bbasket", r"\bseat\b(?!.*bike)"], bornes={"h": (40, 110), "grand": (50, 160)}, anciens=["velo-enfant"]),
+    S("VEL-TROTTINETTE", "Trottinette", "VEL", [r"\bscooter\b", r"\btrottinette\b", r"\btretroller\b", r"\bmonopattino\b", r"\bpatinete\b", r"\bstep\b.{0,10}(?:kinder|electrische)", r"kick scooter"], ["trottinette électrique"], "Trottinette (mécanique ou électrique).", "plateau + guidon", [r"\bmobility scooter", r"\bhelmet", r"\bgrip", r"\bwheel\b(?!.*scooter)", r"\bbag\b", r"\bcharger", r"\bbattery\b(?!.*scooter)", r"\bholder", r"\block\b"], bornes={"h": (30, 140), "grand": (40, 130)}, anciens=["trottinette"]),
+
+    # ------------------------------------------------------------------ MUSIQUE
+    S("MUS-PIANO-DROIT", "Piano droit", "MUS", [r"upright piano", r"piano droit", r"\bklavier\b(?!.*digital)", r"pianoforte verticale", r"piano vertical"], ["piano"], "Piano acoustique droit.", "très lourd (≥ 150 kg)", [r"\bdigital", r"\bkeyboard", r"\bbench", r"\bstool", r"\bcover\b", r"\blamp", r"\btoy\b"], bornes={"h": (100, 145), "grand": (130, 165), "petit": (45, 75)}, anciens=["piano-droit"], hors_abo=False),
+    S("MUS-PIANO-QUEUE", "Piano à queue", "MUS", [r"grand piano", r"baby grand", r"piano a queue", r"flugel", r"pianoforte a coda", r"piano de cola"], ["demi-queue", "crapaud"], "Piano acoustique à queue.", "très lourd et encombrant", [r"\btoy\b", r"\bminiature", r"\bmusic box", r"\bcover\b", r"\blamp", r"\bbench"], bornes={"h": (90, 110), "grand": (140, 310)}, anciens=["piano-a-queue"]),
+    S("MUS-PIANO-NUM", "Piano numérique ou clavier", "MUS", [r"digital piano", r"\bkeyboard\b.{0,20}(?:88|76|61)[\s-]*key", r"(?:88|76|61)[\s-]*key", r"piano numerique", r"digitalpiano", r"e[\s-]*piano", r"stage piano", r"\bsynthesizer\b"], ["clavier arrangeur"], "Piano numérique ou clavier électronique.", "électronique", [r"\bstand\b", r"\bbench", r"\bcase\b", r"\bbag\b", r"\bcover\b", r"\bpedal\b(?!.*piano)", r"\bcomputer keyboard", r"\bwireless keyboard", r"\bmouse"], bornes={"h": (5, 120), "grand": (60, 150)}, anciens=["piano-numerique"]),
+    S("MUS-GUITARE", "Guitare, basse ou instrument à cordes", "MUS", [r"\bguitar\b", r"\bguitare\b", r"\bgitarre\b", r"\bchitarra\b", r"\bguitarra\b", r"\bbass guitar", r"\bukulele", r"\bviolin", r"\bcello\b", r"\bviolon"], ["instrument à cordes"], "Guitare, basse, violon, violoncelle…", "étui", [r"\bstring set", r"\bstrings\b", r"\bpick\b", r"\bstrap", r"\bcapo", r"\btuner", r"\bstand\b", r"\bhanger", r"\bcable", r"\bamp\b", r"\bamplifier", r"\bpedal", r"\bstrings?\b"], types=["GUITARS", "STRINGED_INSTRUMENTS", "INSTRUMENT_PARTS_AND_ACCESSORIES", "MUSICAL_INSTRUMENTS"], bornes={"h": (5, 140), "grand": (40, 200)}),
+    S("MUS-BATTERIE", "Batterie ou percussions", "MUS", [r"drum (?:kit|set)", r"\bbatterie (?:acoustique|electronique)", r"schlagzeug", r"\bcajon\b", r"electronic drum", r"\bbatteria\b"], ["batterie électronique"], "Batterie acoustique ou électronique.", "plusieurs éléments", [r"\bsticks?\b", r"\bpad\b(?!.*kit)", r"\bhead\b", r"\bthrone\b(?!.*kit)", r"\bkey\b", r"\bmute"], bornes={"h": (20, 160), "grand": (30, 200)}),
+
+    # ------------------------------------------------------------------ DÉCORATION, LUMINAIRES, TAPIS
+    S("DEC-LAMPADAIRE", "Lampadaire", "DEC", [r"floor lamp", r"standing lamp", r"torchiere", r"arc lamp", r"\blampadaire\b", r"stehlampe", r"stehleuchte", r"lampada da terra", r"lampara de pie", r"vloerlamp", r"golvlampa"], ["lampe sur pied"], "Lampe sur pied.", "hauteur ≥ 120 cm", [r"\bbulb", r"\bshade\b(?!.*lamp)", r"\bswitch", r"\bharp\b", r"\bdesk lamp", r"\btable lamp"], bornes={"h": (100, 220), "grand": (15, 100)}, anciens=["lampadaire"]),
+    S("DEC-LAMPE", "Lampe à poser", "DEC", [r"table lamp", r"desk lamp", r"bedside lamp", r"lampe a poser", r"tischlampe", r"tischleuchte", r"lampada da tavolo", r"lampara de mesa", r"tafellamp", r"\blamp\b"], ["lampe de chevet"], "Lampe à poser (à mettre en carton).", "petite", [r"\bbulb", r"\bfloor", r"\bstanding", r"\bshade\b(?!.*lamp)", r"\bheat lamp", r"\buv\b", r"\bsalt", r"\bclip", r"\bstring", r"\bnail", r"\bmagnifying", r"\bring light", r"\bcar\b", r"\bheadlamp", r"\bflashlight", r"\boil lamp", r"\blava"], types=["LAMP", "LIGHT_FIXTURE", "HOME_LIGHTING_AND_LAMPS", "HOME", "HOME_FURNITURE_AND_DECOR"], bornes={"h": (15, 100), "grand": (8, 60)}, anciens=["lampe-a-poser"]),
+    S("DEC-MIROIR-GRAND", "Grand miroir (sur pied ou mural)", "DEC", [r"(?:full[\s-]*length|floor|standing|leaning|large|oversized|cheval|wall) mirror", r"miroir (?:sur pied|psyche|mural)", r"standspiegel", r"wandspiegel", r"specchio da terra", r"espejo de pie", r"\bmirror\b"], ["psyché", "miroir"], "Miroir (le volume dépend fortement de la taille).", "verre, fragile", [r"\bcar\b", r"\bmakeup", r"\bvanity mirror", r"\bcompact", r"\bhand ?held", r"\bbathroom cabinet", r"\bmedicine", r"\bclip", r"\bbicycle", r"\bbike", r"\bsticker", r"\bdecal", r"\bacrylic sheet", r"\btile", r"\bmagnifying", r"\bshaving", r"\bblind spot", r"\brear ?view"], types=["HOME_MIRROR", "HOME", "HOME_FURNITURE_AND_DECOR", "HOME_BED_AND_BATH"], bornes={"h": (20, 220), "grand": (20, 200)}, anciens=["miroir-mural"]),
+    S("DEC-TAPIS-GRAND", "Grand tapis (plus de 4 m²)", "DEC", [r"\b(?:8\s*x\s*10|9\s*x\s*12|10\s*x\s*14|8\s*'\s*x\s*10|9\s*'\s*x\s*12)\b", r"\b(?:200|240|250|300)\s*x\s*(?:290|300|340|350|400)\b"], ["tapis 200 × 300"], "Tapis de grande taille.", "surface > 4 m²", [r"\bpad\b", r"\bgripper", r"\bunderlay", r"\btape\b", r"\bcleaner", r"\bbath", r"\bdoor ?mat", r"\byoga", r"\bmouse"], types=["RUG", "HOME", "HOME_FURNITURE_AND_DECOR"], bornes={"grand": (200, 450), "petit": (180, 400)}, anciens=["tapis"]),
+    S("DEC-TAPIS-MOYEN", "Tapis moyen (1,5 à 4 m²)", "DEC", [r"\b(?:5\s*x\s*7|5\s*x\s*8|6\s*x\s*9|5\s*'\s*x\s*[78]|5\s*'\s*3)", r"\b(?:120|133|140|150|160|170)\s*x\s*(?:170|180|190|200|230|240)\b"], ["tapis 160 × 230"], "Tapis de taille moyenne.", "surface 1,5–4 m²", [r"\bpad\b", r"\bgripper", r"\bunderlay", r"\btape\b", r"\bcleaner", r"\bbath", r"\bdoor ?mat", r"\byoga", r"\bmouse"], types=["RUG", "HOME", "HOME_FURNITURE_AND_DECOR"], bornes={"grand": (150, 260), "petit": (100, 200)}, anciens=["tapis"]),
+    S("DEC-TAPIS-PETIT", "Petit tapis ou descente de lit (jusqu'à 1,5 m²)", "DEC", [r"\b(?:2\s*x\s*3|3\s*x\s*5|4\s*x\s*6|2\s*'\s*x\s*3|3\s*'\s*x\s*5|4\s*'\s*x\s*6)\b", r"\brunner\b", r"\b(?:60|70|80|90|100|120)\s*x\s*(?:90|110|120|140|150|160|170|180|200|230|240|250|300)\b"], ["tapis de couloir"], "Petit tapis, descente de lit ou passage.", "surface ≤ 1,5 m²", [r"\bpad\b", r"\bgripper", r"\bunderlay", r"\btape\b", r"\bcleaner", r"\bbath", r"\bdoor ?mat", r"\byoga", r"\bmouse", r"\btable runner"], types=["RUG", "HOME", "HOME_FURNITURE_AND_DECOR"], bornes={"grand": (50, 400), "petit": (30, 130)}, anciens=["tapis"]),
+    S("DEC-TAPIS-NC", "Tapis (taille non précisée)", "DEC", [r"\brug\b", r"\btapis\b", r"\bteppich\b", r"\btappeto\b", r"\balfombra\b", r"\bvloerkleed", r"\bmatta\b", r"\bcarpet\b"], ["tapis"], "Tapis dont la fiche ne précise pas la taille.", "à préciser", [r"\bpad\b", r"\bgripper", r"\bunderlay", r"\btape\b", r"\bcleaner", r"\bbath", r"\bdoor ?mat", r"\byoga", r"\bmouse", r"\bcar\b", r"\bshampoo"], types=["RUG", "HOME", "HOME_FURNITURE_AND_DECOR"], bornes={"grand": (30, 600)}, anciens=["tapis"]),
+    S("DEC-PARAVENT", "Paravent ou séparateur", "DEC", [r"room divider", r"folding screen", r"\bparavent\b", r"raumteiler", r"\bseparee\b", r"\bbiombo\b", r"\bkamerscherm"], ["séparateur de pièce"], "Paravent pliant ou séparateur.", "pliant", [r"\bcurtain\b(?!.*divider)", r"\btrack\b", r"\bhook"], bornes={"h": (60, 220), "grand": (40, 300)}),
+    S("DEC-PLANTE", "Grande plante (artificielle ou en pot)", "DEC", [r"artificial (?:tree|plant)", r"faux (?:tree|plant)", r"fake (?:tree|plant)", r"silk (?:tree|plant)", r"plante artificielle", r"kunstpflanze", r"kunstbaum", r"pianta artificiale", r"planta artificial", r"\bkunstplant", r"olive tree", r"fiddle leaf", r"\bpalm tree"], ["plante verte"], "Plante haute (le volume dépend de la taille).", "haute, fragile", [r"\bpot\b(?!.*tree)", r"\bsticker", r"\bwall decal", r"\bgarland", r"\bwreath", r"\bvine\b", r"\bhanging", r"\bseed"], bornes={"h": (60, 300), "grand": (20, 150)}, anciens=["plante-grande"]),
+    S("DEC-TABLEAU", "Tableau ou cadre", "DEC", [r"wall art", r"canvas (?:print|art|painting)", r"framed (?:print|art|poster)", r"\bpainting\b", r"\bpicture frame", r"\bphoto frame", r"\btableau\b", r"\bleinwand", r"\bwandbild", r"\bquadro\b", r"\bcuadro\b", r"\bschilderij"], ["toile", "cadre photo"], "Tableau, toile ou cadre (à emballer).", "plat et fragile", [r"\bsticker", r"\bdecal", r"\bhook", r"\bnail", r"\bhanging kit", r"\bpaint ?brush", r"\bpaint\b(?!ing)", r"\beasel"], types=["WALL_ART", "PICTURE_FRAME", "HOME", "HOME_FURNITURE_AND_DECOR"], bornes={"grand": (15, 250)}, anciens=["tableau-cadre"]),
+
+    # ------------------------------------------------------------------ BRICOLAGE, ATELIER, GARAGE
+    S("BRI-ETABLI", "Établi", "BRI", [r"work ?bench", r"\betabli\b", r"werkbank", r"banco da lavoro", r"banco de trabajo", r"werkbank"], ["plan de travail d'atelier"], "Établi d'atelier.", "plateau épais", [r"\bvise\b(?!.*bench)", r"\blight\b", r"\bmat\b", r"\bclamp\b(?!.*bench)"], bornes={"h": (60, 110), "grand": (60, 250)}, anciens=["etabli"]),
+    S("BRI-SERVANTE", "Servante ou coffre à outils roulant", "BRI", [r"tool (?:chest|cabinet|cart|trolley)", r"rolling tool", r"servante", r"werkstattwagen", r"carrello porta ?attrezzi", r"carro de herramientas", r"gereedschapswagen"], ["desserte d'atelier"], "Meuble à outils à roulettes.", "tiroirs + roulettes", [r"\bliner", r"\bdrawer liner", r"\bsocket organizer", r"\btool bag", r"\bbox\b(?!.*cabinet)"], bornes={"h": (30, 130), "grand": (40, 130)}, anciens=["servante-outils"]),
+    S("BRI-ARMOIRE-GARAGE", "Armoire de garage ou d'atelier", "BRI", [r"garage (?:cabinet|storage cabinet|locker)", r"(?:metal|steel) (?:storage )?cabinet", r"armoire (?:de garage|metallique|d atelier)", r"werkstattschrank", r"metallschrank", r"armadio metallico", r"armario metalico", r"\blocker\b"], ["vestiaire métallique"], "Armoire métallique de garage ou d'atelier.", "métal", ACCESSOIRES + [r"\bliner", r"\bshelf\b(?!.*cabinet)", r"\bmedicine", r"\bbathroom", r"\bjewel", r"\bkey\b"], bornes={"h": (60, 210), "grand": (40, 130)}, anciens=["armoire-de-garage"]),
+    S("BRI-ECHELLE", "Échelle ou escabeau", "BRI", [r"\bladder\b", r"step ?stool", r"\bescabeau\b", r"\bechelle\b", r"\bleiter\b", r"\btrittleiter", r"\bscala\b", r"\bescalera\b", r"\bladdertje", r"\btrapleer", r"\bstege\b"], ["marchepied"], "Échelle, escabeau ou marchepied.", "pliable", [r"\bladder (?:shelf|bookcase|bookshelf|rack|desk)", r"\bblanket ladder", r"\btowel ladder", r"\bladder hook", r"\bstabilizer", r"\bmitt", r"\bpool ladder\b(?!.*step)"], bornes={"h": (20, 400), "grand": (30, 200)}, anciens=["echelle"]),
+    S("BRI-COMPRESSEUR", "Compresseur, groupe électrogène ou gros outillage", "BRI", [r"air compressor", r"\bgenerator\b", r"table saw", r"miter saw", r"band saw", r"drill press", r"\bcompresseur\b", r"groupe electrogene", r"kompressor", r"stromerzeuger", r"generatore", r"generador", r"\bwelder\b", r"shop vac", r"wet[\s-]*dry vac"], ["gros outillage"], "Machine d'atelier lourde ou encombrante.", "lourd", [r"\bblade", r"\bhose\b(?!.*compressor)", r"\bfitting", r"\bcoupler", r"\bgauge", r"\bfilter", r"\bbag\b", r"\bcover\b", r"\bcord\b", r"\bcable\b"], bornes={"h": (15, 150), "grand": (25, 150)}),
+
+    # ------------------------------------------------------------------ BAGAGES, MALLES, COFFRES
+    S("BAG-MALLE", "Malle ou coffre", "BAG", [r"\btrunk\b(?!.*(?:car|organizer|tree|show))", r"storage chest", r"blanket chest", r"hope chest", r"\bmalle\b", r"\btruhe\b", r"\bbaule\b", r"\bbaul\b", r"\bkist\b", r"\bcoffre\b(?!.*fort)", r"wooden chest", r"\bchest\b(?!.*(?:drawer|of|freezer|pain|protector|rig|strap|harness|wader|guard|pack|press|bag))"], ["coffre de rangement", "bahut"], "Malle ou coffre de rangement.", "boîte avec couvercle", ACCESSOIRES + [r"\btoy\b", r"\bjewel", r"\bice\b", r"\btool\b", r"\bdeck box", r"\boutdoor", r"\bpatio", r"\bgarden", r"\bfreezer", r"\btreasure", r"\bwar chest", r"\bmedicine"], bornes={"h": (20, 90), "grand": (40, 150)}, anciens=["malle"]),
+    S("BAG-VALISE-GRANDE", "Grande valise (soute)", "BAG", [r"\b(?:28|29|30|32)[\s-]*(?:inch|in\b|\")", r"\blarge\b.{0,20}(?:suitcase|luggage|trolley|valise)", r"(?:suitcase|luggage|valise|koffer|trolley).{0,40}\blarge\b", r"checked (?:bag|luggage)", r"\b(?:75|76|77|78|79|80|81|82)\s*cm\b"], ["valise de soute"], "Valise de grande taille (≥ 70 cm).", "hauteur ≥ 70 cm", [r"\bcover\b", r"\bstrap", r"\btag\b", r"\block\b", r"\bscale\b", r"\bset\b", r"\borganizer", r"\bcube"], types=["SUITCASE", "LUGGAGE"], bornes={"h": (60, 90), "grand": (35, 60)}, anciens=["valise"]),
+    S("BAG-VALISE", "Valise ou bagage", "BAG", [r"\bsuitcase\b", r"\bluggage\b", r"\bvalise\b", r"\bkoffer\b", r"\btrolley\b", r"\bvaligia\b", r"\bmaleta\b", r"\bresvaska", r"\bcarry[\s-]*on\b", r"\bduffel\b"], ["bagage cabine"], "Valise ou bagage (à vide, peut contenir des affaires).", "rigide ou souple", [r"\bcover\b", r"\bstrap", r"\btag\b", r"\block\b", r"\bscale\b", r"\borganizer", r"\bcube", r"\bbelt\b", r"\bset of", r"\brack\b", r"\bcart\b"], types=["SUITCASE", "LUGGAGE", "BACKPACK", "TOTE_BAG", "CARRYING_CASE_OR_BAG"], bornes={"h": (30, 90), "grand": (20, 60)}, anciens=["valise"]),
+    S("BAG-SET", "Ensemble de valises", "BAG", [r"luggage set", r"(?:2|3|4)[\s-]*piece (?:luggage|suitcase)", r"set of (?:2|3|4) (?:suitcases|luggage)", r"kofferset", r"set di valigie", r"juego de maletas"], ["lot de valises"], "Lot de valises gigognes (dimensions de la plus grande).", "gigognes", [r"\bcover\b", r"\borganizer", r"\bcube"], types=["SUITCASE", "LUGGAGE"], bornes={"h": (40, 90), "grand": (25, 60)}),
+
+    # ------------------------------------------------------------------ OBJETS PARTICULIERS
+    S("DIV-COFFRE-FORT", "Coffre-fort", "DIV", [r"\bsafe\b(?!.*(?:food|dishwasher|microwave|oven|freezer|baby|kid|pet|skin|hair|sensitive|color|colour|water|non[\s-]*toxic|grill|bpa|fda|travel ?safe|sun|eco))", r"coffre[\s-]*fort", r"\btresor\b", r"\bcassaforte\b", r"\bcaja fuerte\b", r"\bkluis\b", r"gun safe", r"fireproof (?:box|chest)"], ["armoire forte"], "Coffre-fort (très lourd à volume égal).", "très lourd", [r"\bkey\b(?!.*safe)", r"\bbattery", r"\bdehumidifier", r"\bsafety\b", r"\bsafeguard"], types=["SAFE", "HOME", "OFFICE_PRODUCTS", "HARDWARE", "SECURITY_ELECTRONICS", "ACCESSORY"], bornes={"h": (15, 200), "grand": (20, 120)}, anciens=["coffre-fort"]),
+    S("DIV-AQUARIUM", "Aquarium ou terrarium", "DIV", [r"\baquarium\b", r"fish tank", r"\bterrarium\b", r"\bvivarium\b", r"\bacquario\b", r"\bacuario\b"], ["bac à poissons"], "Aquarium ou terrarium (à vider pour le transport).", "verre, fragile", [r"\bfilter", r"\bgravel", r"\bheater", r"\blight\b", r"\bdecor", r"\bplant", r"\bfood\b", r"\bnet\b", r"\bpump", r"\bbackground", r"\bthermometer", r"\bcleaner", r"\bwater (?:conditioner|treatment)", r"\bornament", r"\bkey\s?chain"], bornes={"h": (15, 200), "grand": (20, 250)}, anciens=["aquarium"]),
+    S("DIV-HORLOGE-COMTOISE", "Horloge comtoise ou de parquet", "DIV", [r"grandfather clock", r"longcase clock", r"horloge comtoise", r"standuhr", r"orologio a pendolo da terra", r"reloj de pie", r"staande klok", r"golvur"], ["horloge de parquet"], "Grande horloge sur pied.", "très haute et fragile", [r"\bminiature", r"\bwall\b", r"\btable clock", r"\bdesk\b", r"\balarm"], bornes={"h": (150, 260), "grand": (30, 80)}, anciens=["horloge-comtoise"]),
+    S("DIV-POUBELLE", "Grande poubelle ou conteneur", "DIV", [r"trash (?:can|bin)", r"garbage (?:can|bin)", r"waste (?:bin|container)", r"recycling bin", r"wheelie bin", r"\bpoubelle\b", r"mulleimer", r"mulltonne", r"pattumiera", r"cubo de basura", r"prullenbak", r"afvalbak"], ["poubelle à pédale"], "Poubelle de cuisine ou conteneur.", "contenant", [r"\bbag\b", r"\bliner", r"\bsack", r"\bdeodorizer", r"\bsticker", r"\block\b", r"\bmini\b", r"\bdesk", r"\bcar\b"], types=["TRASH_CAN", "HOME", "KITCHEN", "JANITORIAL_SUPPLY", "OUTDOOR_LIVING"], bornes={"h": (25, 120), "grand": (20, 80)}),
+    S("DIV-CHEMINEE", "Poêle ou cheminée d'appoint", "DIV", [r"electric fireplace", r"fireplace (?:insert|heater|tv stand)", r"wood stove", r"pellet stove", r"\bfire pit\b", r"\bbrasero\b", r"\bpoele a bois", r"\bkaminofen", r"\bfeuerschale"], ["cheminée électrique", "brasero"], "Poêle, cheminée électrique ou brasero.", "lourd", [r"\bcover\b", r"\bscreen\b(?!.*fireplace)", r"\btool", r"\bglove", r"\bgrate\b(?!.*fire pit)", r"\blog\b", r"\bpoker", r"\bmatch", r"\blighter"], bornes={"h": (20, 150), "grand": (40, 200)}),
+
+    S("PEM-AUTRE", "Petit électroménager (à mettre en carton)", "PEM", [r"coffee (?:maker|machine)", r"espresso machine", r"\btoaster\b", r"\bblender\b", r"\bkettle\b", r"air fryer", r"food processor", r"stand mixer", r"rice cooker", r"slow cooker", r"bread maker", r"\bjuicer\b", r"cafetiere", r"bouilloire", r"grille[\s-]*pain", r"kaffeemaschine", r"wasserkocher", r"toaster"],
+      ["cafetière", "bouilloire", "robot de cuisine"], "Petit appareil de cuisine ou de maison, transporté en carton.", "petit, se range en carton", [r"\bfilter", r"\bpod", r"\bcapsule", r"\bdescal", r"\bcover\b", r"\bbag\b", r"\bblade\b", r"\bjar\b(?!.*blender)", r"\blid\b", r"\bparts?\b", r"\bbrush"], bornes={"h": (5, 60), "grand": (10, 60)}, anciens=["petit-electromenager"]),
+    S("CAR-SAC", "Sac, ballot ou housse remplis", "CAR", [], ["ballot", "sac de linge", "housse de couette"], "Contenu souple emballé (sac, ballot) : volume variable, à estimer au cas par cas.", "souple", hors_abo=True, anciens=["sac-ou-ballot"]),
+    S("DIV-AUTRE", "Objet non classé", "DIV", [], ["autre objet"], "Objet qui ne correspond à aucune sous-catégorie : dimensions à préciser (jamais de volume inventé).", "à préciser", hors_abo=True, anciens=["autre-objet"]),
+
+    # ------------------------------------------------------------------ CARTONS ET CONTENANTS
+    S("CAR-BAC", "Caisse ou bac de rangement", "CAR", [r"storage (?:bin|box|tote|container|crate)", r"plastic (?:bin|box|tote|drawer|storage)", r"\btote\b.{0,10}(?:lid|storage)", r"\bcrate\b", r"caisse de rangement", r"\baufbewahrungsbox", r"\bboite de rangement", r"\bcontenitore\b", r"\bcaja de almacenaje", r"\bopbergbox", r"\bstorage drawer"], ["bac plastique", "caisse"], "Bac, caisse ou boîte de rangement.", "contenant", [r"\bfood\b", r"\bjewel", r"\bpill\b", r"\btackle", r"\bbread", r"\bpencil", r"\bmakeup", r"\btea\b", r"\bshoe\b(?!.*box)", r"\bdesk", r"\bkey\b", r"\bdeck box", r"\boutdoor", r"\bmini\b", r"\bsmall\b", r"\bset of (?:6|8|10|12)"], bornes={"h": (8, 80), "grand": (20, 100)}, anciens=["caisse-plastique"]),
+    S("CAR-CARTON", "Carton de déménagement", "CAR", [r"moving box", r"shipping box", r"corrugated (?:box|carton)", r"\bcardboard box", r"carton de demenagement", r"\bumzugskarton", r"\bscatolone", r"\bcaja de mudanza", r"\bverhuisdoos", r"wardrobe box", r"book box"], ["carton standard", "carton livres", "carton penderie"], "Carton de déménagement (dimensions du carton plein).", "carton", [r"\btape\b", r"\bbubble", r"\bmarker", r"\blabel", r"\bsmall\b.{0,10}(?:gift|jewel)", r"\bgift box", r"\bmailer\b", r"\benvelope"], bornes={"h": (15, 130), "grand": (20, 80)}, anciens=["carton-standard", "carton-livres", "carton-penderie", "lot-10-cartons"]),
+
+    # ------------------------------------------------------------------ MOBILIER ANCIEN (Wikidata / collections publiques)
+    S("ANC-ARMOIRE", "Armoire ancienne", "ANC", [], ["armoire normande", "armoire de mariage", "armoire bretonne"], "Armoire de facture ancienne (collections publiques).", "ancien, souvent massif", hors_abo=True, bornes={"h": (100, 300), "grand": (60, 300)}, anciens=["armoire-2-portes"]),
+    S("ANC-COMMODE", "Commode ancienne", "ANC", [], ["commode Louis XV", "commode galbée"], "Commode de facture ancienne.", "ancien", hors_abo=True, bornes={"h": (60, 130), "grand": (60, 200)}, anciens=["commode"]),
+    S("ANC-BUFFET", "Buffet ancien ou cabinet", "ANC", [], ["buffet deux corps", "cabinet"], "Buffet, cabinet ou meuble de rangement ancien.", "ancien", hors_abo=True, bornes={"h": (50, 300), "grand": (40, 300)}, anciens=["buffet-bas"]),
+    S("ANC-COFFRE", "Coffre ancien", "ANC", [], ["coffre de mariage", "bahut"], "Coffre de facture ancienne.", "ancien", hors_abo=True, bornes={"h": (20, 120), "grand": (30, 250)}, anciens=["malle"]),
+    S("ANC-CHAISE", "Chaise ancienne", "ANC", [], ["chaise de style"], "Chaise de facture ancienne.", "ancien", hors_abo=True, bornes={"h": (50, 150), "grand": (30, 90)}, anciens=["chaise"]),
+    S("ANC-FAUTEUIL", "Fauteuil ancien", "ANC", [], ["bergère", "fauteuil de style"], "Fauteuil de facture ancienne.", "ancien", hors_abo=True, bornes={"h": (50, 160), "grand": (40, 130)}, anciens=["fauteuil"]),
+    S("ANC-TABLE", "Table ancienne", "ANC", [], ["table de style"], "Table de facture ancienne.", "ancien", hors_abo=True, bornes={"h": (30, 120), "grand": (30, 500)}, anciens=["table-a-manger-6"]),
+    S("ANC-BUREAU", "Bureau ou secrétaire ancien", "ANC", [], ["bureau plat", "secrétaire à abattant"], "Bureau ou secrétaire de facture ancienne.", "ancien", hors_abo=True, bornes={"h": (60, 260), "grand": (40, 250)}, anciens=["bureau"]),
+    S("ANC-LIT", "Lit ancien", "ANC", [], ["lit à baldaquin", "lit clos"], "Lit de facture ancienne.", "ancien", hors_abo=True, bornes={"h": (30, 350), "grand": (100, 300)}, anciens=["lit-double"]),
+    S("ANC-AUTRE", "Autre meuble ancien", "ANC", [], ["meuble de style"], "Meuble ancien d'un autre type (petits objets de moins de 30 cm exclus des statistiques).", "ancien", hors_abo=True, bornes={"h": (30, 400), "grand": (30, 500)}),
+]
+
+# Exclusions complémentaires, ajoutées après revue des faux positifs (25/11/2026).
+EXCLUS_SUPPLEMENTAIRES = {
+    "FAU-RELAX": [r"\bkids?\b", r"\byouth\b", r"\bchild"],
+    "FAU-PIVOT": [r"\bexecutive", r"\bhigh[\s-]*back", r"\bmesh\b"],
+    "PEM-AUTRE": [r"\boven\b", r"\bgrill\b"],
+    "CAN-3P": [r"\bdaybed", r"\bday bed"], "CAN-2P": [r"\bdaybed", r"\bday bed"],
+    "CHA-PLIANTE": [r"\bkids?\b", r"\bchild", r"\bpapasan"],
+    "COM-3T": [r"\btv\b", r"\bmedia", r"\bbuffet", r"\bsideboard", r"\bconsole", r"\bdesk\b", r"\bnightstand", r"\bbedside", r"\bcredenza"],
+    "COM-4T": [r"\btv\b", r"\bmedia", r"\bbuffet", r"\bsideboard", r"\bconsole", r"\bdesk\b", r"\borganizer", r"\bopslag", r"\bcredenza"],
+    "COM-5T": [r"\btv\b", r"\bmedia", r"\bbuffet", r"\bsideboard", r"\bconsole", r"\bdesk\b", r"\borganizer", r"\bcredenza"],
+    "COM-LARGE": [r"\btv\b", r"\bmedia", r"\bbuffet", r"\bsideboard", r"\bconsole", r"\borganizer", r"\bcredenza"],
+    "COM-NC": [r"\btv\b", r"\bmedia", r"\bbuffet", r"\bsideboard", r"\bconsole", r"\borganizer"],
+    "CAN-4P": [r"\btable\b", r"\bdining"], "CAN-5P": [r"\btable\b", r"\bdining"], "CAN-3P": [r"\btable\b", r"\bdining"], "CAN-2P": [r"\btable\b", r"\bdining"],
+    "ARM-ANG": [r"\btv\b", r"\bmedia", r"\bentertainment"],
+    "ARM-NC": [r"\bhook", r"\bhaken", r"\bgarderobenhaken", r"\brail\b", r"\brod\b", r"\bbar\b"],
+    "ARM-TISSU": [r"\bhanging closet organi[sz]er", r"\bhanging (?:shelf|shelves|organi)"],
+    "ENF-POUSSETTE": [r"\bbag\b", r"\bbackpack", r"\bdiaper", r"\bnappy"],
+    "ELM-SL": [r"\bairer", r"\bwall\b", r"\bdrying rack", r"\bclothes ?line"],
+    "MAT-90": [r"\bairbed", r"\bair ?bed", r"\bair mattress", r"\binflatable"], "MAT-140": [r"\bairbed", r"\bair ?bed", r"\bair mattress", r"\binflatable"],
+    "MAT-160": [r"\bairbed", r"\bair ?bed", r"\bair mattress", r"\binflatable"], "MAT-180": [r"\bairbed", r"\bair ?bed", r"\bair mattress", r"\binflatable"],
+    "MAT-NC": [r"\bairbed", r"\bair ?bed", r"\bair mattress", r"\binflatable"],
+    "BRI-COMPRESSEUR": [r"\binflator", r"\btyre", r"\btire\b"],
+    "BRI-ARMOIRE-GARAGE": [r"\bbook safe", r"\bbook style"],
+    "SPO-TAPIS-COURSE": [r"\bmat\b", r"\balfombrilla", r"\bfloor protector"],
+    "VEL-ADULTE": [r"\bsacoche", r"\bsaddle bag", r"\bpannier"],
+    "SDB-VASQUE": [r"\bfixture", r"\blight", r"\blamp", r"\bsconce"],
+    "DEC-PLANTE": [r"\bframe", r"\bprint\b"],
+    "RAN-BUFFET-HAUT": [r"\bdesk\b"],
+    "TAB-4": [r"\bgarden", r"\bpatio", r"\boutdoor", r"\bbalcony"], "TAB-6": [r"\bgarden", r"\bpatio", r"\boutdoor"], "TAB-8+": [r"\bgarden", r"\bpatio", r"\boutdoor"],
+    "TAB-REPAS-NC": [r"\bgarden", r"\bpatio", r"\boutdoor", r"\bbistro set", r"\bpicnic"], "TAB-PLIANTE": [r"\bgarden", r"\bpatio", r"\bcamping"],
+    "JAR-PARASOL": [r"\btravel", r"\bautomatic", r"\bcompact", r"\bgolf", r"\brain\b"],
+    "JAR-TRANSAT": [r"\bscratch", r"\bcat\b"],
+    "INF-ORDI": [r"\bsacoche", r"\bbag\b", r"\bbackpack", r"\bportable\b", r"\blaptop", r"\bnotebook"],
+    "INF-IMPRIMANTE": [r"\bholder", r"\borgani[sz]", r"\bshelf", r"\btable\b"],
+    "CHA-BANC": [r"\bparque\b", r"\bpark\b"],
+    "DEC-MIROIR-GRAND": [r"\bcar\b", r"\bsun ?visor"],
+    "CUI-DESSERTE": [r"\blaptop", r"\bnotebook", r"\bluggage", r"\bsuitcase", r"\brollkoffer"],
+    "PEM-VENTIL": [r"\bcover\b", r"\bceiling"],
+    "LIT-KING": [r"\bqueen\b(?!.*\bking\b)"],
+}
+for _id, _motifs in EXCLUS_SUPPLEMENTAIRES.items():
+    _s = next(x for x in SOUS_CATEGORIES if x.id == _id)
+    _s.exclus = _s.exclus + _motifs
+    _s.__post_init__()
+
+
+EXCLUS_SUPPLEMENTAIRES_2 = {
+    "ARM-5P+": [r"porte[\s-]*blocs?", r"\bclipboard"], "BAG-MALLE": [r"\bdrawer", r"\btower\b"],
+    "BUR-CLASSEUR": [r"\btiras?\b", r"\bseparador", r"\bdivider", r"\btabs?\b", r"\binsert", r"\bpestan"],
+    "BUR-DROIT": [r"organisat", r"organizer", r"\bfilhallare"], "CAN-4P": [r"\bmat\b", r"\bnapkin", r"\bplace ?mat"],
+    "CAN-PANO": [r"imprim", r"\bprint", r"\bwall", r"\bwallpaper"], "COM-SEMAINIER": [r"\bagenda", r"\bplanner"],
+    "CUI-ILOT": [r"\bstool", r"\btaburete", r"\bsgabell"],
+    "DEC-TAPIS-GRAND": [r"\bframe", r"\bphoto", r"\bcollage"], "DEC-TAPIS-MOYEN": [r"\bframe", r"\bphoto", r"\bcollage"],
+    "DEC-TAPIS-PETIT": [r"\bframe", r"\bphoto", r"\bcollage"], "DEC-TAPIS-NC": [r"\bframe", r"\bphoto", r"\bcollage"],
+    "DIV-CHEMINEE": [r"\bhousse", r"\bfunda", r"\bcopertura", r"\bcover"], "DIV-POUBELLE": [r"\blid\b", r"\bcouvercle"],
+    "ELM-CONG": [r"\bbox(?:es)?\b", r"\bboite"], "ELM-REF": [r"\bfiltr", r"\bcartouche", r"\bcartridge", r"\bcartucc"],
+    "ELM-REF-COMBI": [r"\bfiltr", r"\bcartouche", r"\bcartridge"], "ELM-REF-US": [r"\bfiltr", r"\bcartouche", r"\bcartridge"],
+    "ENF-CHAISE-HAUTE": [r"\bsillon", r"\bpoltron"], "ENF-POUSSETTE": [r"windel", r"\btasche", r"\bsac\b"],
+    "ENF-TABLE-LANGER": [r"\bpanales", r"\bimpermeable", r"\bmochila", r"\bespejo", r"\bpad\b"],
+    "ETA-NC": [r"\bsuction", r"\bventosa", r"\btray\b", r"\bairer", r"\bdryer", r"\bdrying", r"\btendedero", r"\bhanging", r"\bwaschestander", r"\bstendino"],
+    "ARM-PORT": [r"\btendedero", r"\bairer", r"\bdrying", r"\bwaschestander", r"\bstendino", r"\bsechoir"],
+    "ENT-CHAUSS": [r"\bwardrobe\b(?!.*shoe)"], "INF-ORDI": [r"\bfiltr", r"pare[\s-]*vue", r"\bprivacy", r"\bprivacidad"],
+    "JAR-BARBECUE": [r"\bcopertura", r"\bfunda", r"\bhousse"], "JAR-TONDEUSE": ACCESSOIRES,
+    "LIT-BEBE": [r"\bprendisole", r"\brollaway", r"\bsun ?lounger"], "MUS-GUITARE": [r"\bpuas", r"\bplectr", r"\bsoporte", r"\bsupport mural", r"\bwall mount"],
+    "PEM-ASPI": [r"\bsacchett", r"\bsachets?\b", r"\bbolsas?\b", r"\bbeutel"], "SPO-SKI": [r"\bsac\b", r"\bbags?\b", r"\bhousse", r"\btasche"],
+    "SPO-SURF": [r"\bbase layer", r"\bdry bag", r"\bbolsa"], "SPO-TAPIS-COURSE": [r"\btappetino", r"\blesestander", r"\bequipement d.exercice"],
+    "VEL-ADULTE": [r"\bhitch", r"\benganche", r"\belliptic", r"\beliptica"], "SDB-ETAGERE": [r"\bshower", r"\bself[\s-]*adhesive"],
+    "SDB-PANIER": [r"\bsac\b", r"\bbag\b"], "SOM-STD": [r"\bplatform bed\b"],
+}
+for _id, _motifs in EXCLUS_SUPPLEMENTAIRES_2.items():
+    _s = next(x for x in SOUS_CATEGORIES if x.id == _id)
+    _s.exclus = _s.exclus + _motifs
+    _s.__post_init__()
+
+# Types de produit plus restreints pour quelques sous-catégories (après revue des faux positifs).
+TYPES_RESTREINTS = {
+    "BRI-ECHELLE": ["LADDER", "TOOLS", "ABIS_HOME_IMPROVEMENT", "HARDWARE", "HOME_FURNITURE_AND_DECOR", "STOOL_SEATING"],
+    "ELM-CUISINIERE": ["MAJOR_HOME_APPLIANCES", "COOKING_OVEN"], "ELM-LL": ["MAJOR_HOME_APPLIANCES", "LAUNDRY_APPLIANCE", "WASHER_DRYER_COMBINATION"],
+    "ELM-SL": ["MAJOR_HOME_APPLIANCES", "LAUNDRY_APPLIANCE", "WASHER_DRYER_COMBINATION"], "ELM-LV": ["MAJOR_HOME_APPLIANCES", "DISHWASHER"],
+    "ELM-FOUR": ["MAJOR_HOME_APPLIANCES", "COOKING_OVEN"], "ELM-CONG": ["MAJOR_HOME_APPLIANCES", "REFRIGERATOR", "REFRIGERATION_APPLIANCE", "ICE_CHEST"],
+    "ARM-5P+": ["CABINET", "HOME_FURNITURE_AND_DECOR", "FURNITURE", "HOME"], "ARM-NC": ["CABINET", "HOME_FURNITURE_AND_DECOR", "FURNITURE", "HOME", "CLOTHES_RACK"],
+    "LIT-BEBE": ["BABY_PRODUCT", "BED", "BED_FRAME", "FURNITURE", "HOME_FURNITURE_AND_DECOR"],
+    "VEL-ADULTE": ["BICYCLE", "CYCLING_EQUIPMENT"], "JAR-PARASOL": ["OUTDOOR_LIVING", "ABIS_LAWN_AND_GARDEN", "UMBRELLA", "HOME", "FURNITURE"],
+}
+for _id, _types in TYPES_RESTREINTS.items():
+    next(x for x in SOUS_CATEGORIES if x.id == _id).types = _types
+
+# Téléviseurs : le mot « TV / télévision » est exigé en plus de la diagonale.
+_TV = r"(?=.*\b(?:tv|television|televiseur|fernseher|televisore|televisor)\b)"
+for _id in ("INF-TV-75", "INF-TV-55", "INF-TV-43", "INF-TV-32"):
+    _s = next(x for x in SOUS_CATEGORIES if x.id == _id)
+    _s.motifs = [_TV + ".*" + m for m in _s.motifs]
+    _s.__post_init__()
+
+# Parasol : seulement les parasols de jardin explicites (pas les parapluies).
+_p = next(x for x in SOUS_CATEGORIES if x.id == "JAR-PARASOL")
+_p.motifs = [r"patio umbrella", r"market umbrella", r"cantilever umbrella", r"offset umbrella", r"garden umbrella", r"outdoor umbrella", r"\bparasol\b", r"sonnenschirm", r"ombrellone", r"sombrilla"]
+_p.__post_init__()
+
+REAFFECTATIONS_V3 = {'INF-TV-75': 'TEL', 'INF-TV-55': 'TEL', 'INF-TV-43': 'TEL', 'INF-TV-32': 'TEL', 'INF-ENCEINTE': 'AUD', 'DEC-LAMPADAIRE': 'LUM', 'DEC-LAMPE': 'LUM', 'DEC-TAPIS-GRAND': 'TAP', 'DEC-TAPIS-MOYEN': 'TAP', 'DEC-TAPIS-PETIT': 'TAP', 'DEC-TAPIS-NC': 'TAP', 'DEC-MIROIR-GRAND': 'MIR', 'DEC-TABLEAU': 'MIR', 'DEC-PLANTE': 'PLA', 'DIV-AQUARIUM': 'ANI', 'SPO-PINGPONG': 'JEU', 'SPO-BABYFOOT': 'JEU', 'SPO-BILLARD': 'JEU', 'ELM-CLIM': 'CHF', 'PEM-VENTIL': 'CHF', 'DIV-CHEMINEE': 'CHF'}
+for _id, _fam in REAFFECTATIONS_V3.items():
+    next(x for x in SOUS_CATEGORIES if x.id == _id).famille = _fam
+
+from taxonomie_v3_ajouts import AJOUTS_EN_TETE, AJOUTS_EN_FIN  # noqa: E402
+SOUS_CATEGORIES[:0] = AJOUTS_EN_TETE
+SOUS_CATEGORIES.extend(AJOUTS_EN_FIN)
+
+PAR_ID = {s.id: s for s in SOUS_CATEGORIES}
+assert len(PAR_ID) == len(SOUS_CATEGORIES), "identifiant de sous-catégorie en double"
+for s in SOUS_CATEGORIES:
+    assert s.famille in NOMS_FAMILLES, s.id
+
+
+def classer(texte: str, type_produit: str | None) -> SousCategorie | None:
+    """Première sous-catégorie dont les règles acceptent le produit (ordre de la liste).
+    Le texte peut contenir plusieurs noms séparés par « | » : le nom principal (le premier) est essayé
+    d'abord, les autres langues seulement si le nom principal ne permet aucun classement."""
+    morceaux = [m for m in texte.split(" | ") if m.strip()]
+    for essai in ([morceaux[0]] if morceaux else []) + ([texte] if len(morceaux) > 1 else []):
+        for s in SOUS_CATEGORIES:
+            if s.accepte(essai, type_produit):
+                return s
+    return None
+
+
+# --------------------------------------------------------------------------- ajouts v4 (26/11/2026)
+# Bornes du lave-linge, du sèche-linge et du lave-linge séchant élargies : les modèles nord-américains (ENERGY STAR)
+# mesurent jusqu'à 120 cm de haut (chargement par le dessus, socle intégré) et 90 cm de profondeur. Les modèles
+# européens courants (85 × 60 × 60 cm) restent dans les bornes. Le champ `nb_modeles_par_source` signale l'origine.
+for _id in ("ELM-LL", "ELM-SL", "ELM-LAVANTE-SECHANTE"):
+    PAR_ID[_id].bornes = {"h": (60, 125), "grand": (40, 95)}
+
+
+# Matelas : de vrais matelas ABO sont publiés sous les types « HOME_BED_AND_BATH », « HOME », « FURNITURE »…
+# (constaté le 26/11/2026). Types élargis, accessoires de literie exclus explicitement.
+for _id in ("MAT-90", "MAT-140", "MAT-160", "MAT-180", "MAT-NC"):
+    _s = PAR_ID[_id]
+    _s.types = ["MATTRESS", "AIR_MATTRESS", "HOME_BED_AND_BATH", "HOME_FURNITURE_AND_DECOR", "FURNITURE", "HOME", "BED"]
+    _s.exclus = _s.exclus + [r"\bprotector", r"\bprotege", r"\btopper", r"\bsurmatelas", r"\bpad\b", r"\bsham\b", r"\bcoverlet",
+                             r"\bcubrecolchon", r"\bcoprimaterasso", r"\bmatratzenschoner", r"\bmatelasse", r"\bencasement",
+                             r"\bcover\b", r"\bsheet", r"\bfitted", r"\bmattress (?:bag|storage|lift|wedge|gripper|elevator)", r"\bcrib\b",
+                             r"\bpet\b", r"\bdog\b", r"\bcamping\b", r"\bsleeping pad", r"\bair\b"]
+    _s.__post_init__()
+# … et le mot « matelas » (toutes langues) est exigé pour les tailles : sans lui, « King » ou « 180 × 200 » désignent
+# aussi des draps-housses, taies, couettes (constaté le 26/11/2026).
+_MATELAS = r"(?=.*\b(?:mattress|matelas|matratze|materasso|colchon|madrass|matras)\b)"
+for _id in ("MAT-90", "MAT-140", "MAT-160", "MAT-180"):
+    _s = PAR_ID[_id]
+    _s.motifs = [_MATELAS + ".*" + m for m in _s.motifs]
+    _s.__post_init__()
+# … sans les sommiers, surmatelas, matelas gonflables et lits d'appoint (contrôle du 26/11/2026).
+for _id in ("MAT-90", "MAT-140", "MAT-160", "MAT-180", "MAT-NC"):
+    _s = PAR_ID[_id]
+    _s.exclus = _s.exclus + [r"\bfoundation\b", r"box[\s-]*spring", r"sur[\s-]*matelas", r"\bgonfiabile", r"\binflatable", r"\bhinchable",
+                             r"\baufblasbar", r"\brollaway", r"guest bed", r"\bcot\b", r"\bfolding bed"]
+    _s.__post_init__()

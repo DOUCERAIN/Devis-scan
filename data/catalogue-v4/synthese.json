@@ -1,0 +1,64 @@
+{
+ "version": "4.0-preparatoire",
+ "observations": 30215,
+ "observations_v3": 23109,
+ "nouvelles_observations": 7106,
+ "observations_par_source": {
+  "CMA": 317,
+  "MET": 4851,
+  "SMITHSONIAN": 4971,
+  "WIKIDATA": 1166,
+  "MOMA": 748,
+  "ABO": 11032,
+  "ITEMFITS": 131,
+  "ENERGYSTAR": 6999
+ },
+ "produits_independants": 24475,
+ "produits_independants_utilisables": 9971,
+ "familles": 46,
+ "sous_categories": 311,
+ "variantes_de_taille": 201,
+ "observations_1_dimension": 1960,
+ "observations_2_dimensions": 8130,
+ "observations_3_dimensions": 18488,
+ "observations_utilisables_volume": 13851,
+ "sous_categories_prioritaires": 171,
+ "prioritaires_completes": 132,
+ "prioritaires_partielles": 6,
+ "fiabilite_sous_categories": {
+  "faible": 72,
+  "moyenne": 112,
+  "élevée": 44,
+  "non vérifiée": 83
+ },
+ "pertinence": {
+  "1 — courant": 87,
+  "2 — complémentaire": 139,
+  "3 — spécifique ou exceptionnel": 66,
+  "4 — peu pertinent pour un inventaire classique": 19
+ },
+ "couverture_ponderee_documentee_pct": 77.2,
+ "couverture_ponderee_fiable_pct": 55.8,
+ "references_exploitables_moteur_ia": 149,
+ "correspondance_statuts": {
+  "documentée (fiabilité équivalente)": 55,
+  "non améliorée (aucun modèle documenté)": 34,
+  "améliorée": 45
+ },
+ "audit_dimensions": {
+  "observations_3_dimensions": 18488,
+  "utilisables": 13851,
+  "orientation_suspecte": 1652,
+  "orientation_suspecte_utilisables": 693,
+  "erreurs_unite": 1138,
+  "colis_possibles": 230,
+  "colis_possibles_utilisables": 59,
+  "discordances_nom": 457,
+  "modeles_aberrants_exclus": 236,
+  "ecarts_calcul_volume": 0,
+  "references_ordre_statistiques_incoherent": 0,
+  "references_ratio_medianes_hors_0_67_1_5": 8,
+  "variantes_produits_etrangers": 0,
+  "variantes_ordre_ou_chevauchement": 0
+ }
+}
