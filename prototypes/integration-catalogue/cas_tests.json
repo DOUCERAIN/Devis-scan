@@ -1,0 +1,391 @@
+{
+ "version_catalogue": "5.0-preparatoire",
+ "empreinte_catalogue_sha256": "bad9b4adef89fcf4157a59aae42da6a33421b5bef33415e7db0d9867dcc4737d",
+ "cas": [
+  {
+   "id": "armoire-1-porte",
+   "objet_attendu": "Armoire une porte",
+   "requete": {
+    "libelle": "Armoire une porte",
+    "famille_id": "ARM",
+    "caracteristiques": {
+     "nb_portes": 1
+    },
+    "dimensions_apparentes_cm": null
+   },
+   "sous_categorie_attendue": "ARM-1P",
+   "reference_attendue": "ARM-1P",
+   "variantes_possibles": [],
+   "incertitude": "fiabilité faible (3 modèles) : volume provisoire",
+   "volume_catalogue_attendu": {
+    "statut": "reference_geometrique",
+    "geometrique_mediane_m3": 0.507,
+    "q1": 0.505,
+    "q3": 0.566,
+    "demenagement_reference_m3": 0.5,
+    "fiabilite": "faible",
+    "nb_modeles": 3
+   }
+  },
+  {
+   "id": "armoire-2-portes",
+   "objet_attendu": "Armoire deux portes",
+   "requete": {
+    "libelle": "Armoire deux portes",
+    "famille_id": "ARM",
+    "caracteristiques": {
+     "nb_portes": 2
+    },
+    "dimensions_apparentes_cm": null
+   },
+   "sous_categorie_attendue": "ARM-2P",
+   "reference_attendue": "ARM-2P",
+   "variantes_possibles": [],
+   "incertitude": "pas de variante de taille (12 modèles) : la taille apparente ne change pas la référence",
+   "volume_catalogue_attendu": {
+    "statut": "reference_geometrique",
+    "geometrique_mediane_m3": 0.876,
+    "q1": 0.609,
+    "q3": 1.105,
+    "demenagement_reference_m3": 0.8,
+    "fiabilite": "moyenne",
+    "nb_modeles": 12
+   }
+  },
+  {
+   "id": "armoire-4-portes",
+   "objet_attendu": "Armoire quatre portes",
+   "requete": {
+    "libelle": "Armoire quatre portes",
+    "famille_id": "ARM",
+    "caracteristiques": {
+     "nb_portes": 4
+    },
+    "dimensions_apparentes_cm": null
+   },
+   "sous_categorie_attendue": "ARM-4P",
+   "reference_attendue": "ARM-4P",
+   "variantes_possibles": [
+    "ARM-5P+",
+    "ARM-COUL"
+   ],
+   "incertitude": "fiabilité faible (3 modèles) ; volume géométrique 2,17 m³ contre 1,2 m³ de volume de déménagement hérité : à arbitrer",
+   "volume_catalogue_attendu": {
+    "statut": "reference_geometrique",
+    "geometrique_mediane_m3": 2.173,
+    "q1": 1.853,
+    "q3": 2.337,
+    "demenagement_reference_m3": 1.2,
+    "fiabilite": "faible",
+    "nb_modeles": 3
+   }
+  },
+  {
+   "id": "canape-2-places",
+   "objet_attendu": "Canapé deux places",
+   "requete": {
+    "libelle": "Canapé deux places",
+    "famille_id": "CAN",
+    "caracteristiques": {
+     "nb_places": 2
+    },
+    "dimensions_apparentes_cm": null
+   },
+   "sous_categorie_attendue": "CAN-2P",
+   "reference_attendue": "CAN-2P",
+   "variantes_possibles": [],
+   "incertitude": "nombre de places masqué par des coussins → CAN-NC et confirmation",
+   "volume_catalogue_attendu": {
+    "statut": "reference_geometrique",
+    "geometrique_mediane_m3": 1.317,
+    "q1": 1.122,
+    "q3": 1.47,
+    "demenagement_reference_m3": 1.0,
+    "fiabilite": "élevée",
+    "nb_modeles": 80
+   }
+  },
+  {
+   "id": "canape-3-places",
+   "objet_attendu": "Canapé trois places",
+   "requete": {
+    "libelle": "Canapé trois places",
+    "famille_id": "CAN",
+    "caracteristiques": {
+     "nb_places": 3
+    },
+    "dimensions_apparentes_cm": null
+   },
+   "sous_categorie_attendue": "CAN-3P",
+   "reference_attendue": "CAN-3P",
+   "variantes_possibles": [],
+   "incertitude": "",
+   "volume_catalogue_attendu": {
+    "statut": "reference_geometrique",
+    "geometrique_mediane_m3": 1.459,
+    "q1": 1.262,
+    "q3": 1.667,
+    "demenagement_reference_m3": 1.5,
+    "fiabilite": "élevée",
+    "nb_modeles": 48
+   }
+  },
+  {
+   "id": "canape-angle",
+   "objet_attendu": "Canapé d'angle",
+   "requete": {
+    "libelle": "Canapé d'angle",
+    "famille_id": "CAN",
+    "caracteristiques": {},
+    "dimensions_apparentes_cm": {
+     "hauteur": 85,
+     "largeur": 250,
+     "profondeur": 160
+    }
+   },
+   "sous_categorie_attendue": "CAN-ANG",
+   "reference_attendue": "CAN-ANG",
+   "variantes_possibles": [
+    "CAN-ANG-C",
+    "CAN-ANG-S",
+    "CAN-ANG-L"
+   ],
+   "incertitude": "variante choisie seulement si les dimensions apparentes la justifient",
+   "volume_catalogue_attendu": {
+    "statut": "reference_geometrique",
+    "geometrique_mediane_m3": 2.046,
+    "q1": 1.712,
+    "q3": 3.104,
+    "demenagement_reference_m3": 1.62,
+    "fiabilite": "élevée",
+    "nb_modeles": 18
+   }
+  },
+  {
+   "id": "lit-double",
+   "objet_attendu": "Lit double",
+   "requete": {
+    "libelle": "Lit double",
+    "famille_id": "LIT",
+    "caracteristiques": {
+     "largeur_couchage_cm": 140
+    },
+    "dimensions_apparentes_cm": null
+   },
+   "sous_categorie_attendue": "LIT-DOUBLE",
+   "reference_attendue": "LIT-DOUBLE",
+   "variantes_possibles": [
+    "LIT-DOUBLE-C",
+    "LIT-DOUBLE-S",
+    "LIT-DOUBLE-L"
+   ],
+   "incertitude": "largeur de couchage souvent non mesurable sur image : LIT-NC + confirmation",
+   "volume_catalogue_attendu": {
+    "statut": "reference_geometrique",
+    "geometrique_mediane_m3": 1.023,
+    "q1": 0.898,
+    "q3": 2.217,
+    "demenagement_reference_m3": 1.2,
+    "fiabilite": "moyenne",
+    "nb_modeles": 18
+   }
+  },
+  {
+   "id": "lit-king-size",
+   "objet_attendu": "Lit king size",
+   "requete": {
+    "libelle": "Lit king size",
+    "famille_id": "LIT",
+    "caracteristiques": {
+     "largeur_couchage_cm": 180
+    },
+    "dimensions_apparentes_cm": null
+   },
+   "sous_categorie_attendue": "LIT-KING",
+   "reference_attendue": "LIT-KING",
+   "variantes_possibles": [
+    "LIT-KING-C",
+    "LIT-KING-S",
+    "LIT-KING-L"
+   ],
+   "incertitude": "volume géométrique du lit monté (3,21 m³) ≠ volume transporté démonté (2,07 m³ hérité)",
+   "volume_catalogue_attendu": {
+    "statut": "reference_geometrique",
+    "geometrique_mediane_m3": 3.213,
+    "q1": 1.396,
+    "q3": 5.13,
+    "demenagement_reference_m3": 2.07,
+    "fiabilite": "moyenne",
+    "nb_modeles": 34
+   }
+  },
+  {
+   "id": "refrigerateur-combine",
+   "objet_attendu": "Réfrigérateur combiné",
+   "requete": {
+    "libelle": "Réfrigérateur combiné",
+    "famille_id": "ELM",
+    "caracteristiques": {},
+    "dimensions_apparentes_cm": null
+   },
+   "sous_categorie_attendue": "ELM-REF-COMBI",
+   "reference_attendue": "ELM-REF-COMBI",
+   "variantes_possibles": [
+    "ELM-REF"
+   ],
+   "incertitude": "dimensions partielles (hauteur et largeur, ENERGY STAR) : aucun volume géométrique, volume de déménagement hérité seulement",
+   "volume_catalogue_attendu": {
+    "statut": "dimensions_partielles",
+    "geometrique_mediane_m3": null,
+    "q1": null,
+    "q3": null,
+    "demenagement_reference_m3": 0.4,
+    "fiabilite": "non vérifiée",
+    "nb_modeles": 0
+   }
+  },
+  {
+   "id": "refrigerateur-americain",
+   "objet_attendu": "Réfrigérateur américain",
+   "requete": {
+    "libelle": "Réfrigérateur américain",
+    "famille_id": "ELM",
+    "caracteristiques": {},
+    "dimensions_apparentes_cm": null
+   },
+   "sous_categorie_attendue": "ELM-REF-US",
+   "reference_attendue": "ELM-REF-US",
+   "variantes_possibles": [
+    "ELM-REF"
+   ],
+   "incertitude": "dimensions partielles, aucun volume de déménagement : volume à saisir (EPREL comblerait)",
+   "volume_catalogue_attendu": {
+    "statut": "dimensions_partielles",
+    "geometrique_mediane_m3": null,
+    "q1": null,
+    "q3": null,
+    "demenagement_reference_m3": null,
+    "fiabilite": "non vérifiée",
+    "nb_modeles": 0
+   }
+  },
+  {
+   "id": "grande-plante",
+   "objet_attendu": "Grande plante en pot",
+   "requete": {
+    "libelle": "Grande plante en pot",
+    "famille_id": "PLA",
+    "caracteristiques": {},
+    "dimensions_apparentes_cm": null
+   },
+   "sous_categorie_attendue": "DEC-PLANTE",
+   "reference_attendue": "DEC-PLANTE",
+   "variantes_possibles": [
+    "PLA-ARBRE"
+   ],
+   "incertitude": "aucune dimension de référence : volume non disponible",
+   "volume_catalogue_attendu": {
+    "statut": "non_disponible",
+    "geometrique_mediane_m3": null,
+    "q1": null,
+    "q3": null,
+    "demenagement_reference_m3": null,
+    "fiabilite": "non vérifiée",
+    "nb_modeles": 0
+   }
+  },
+  {
+   "id": "petite-plante",
+   "objet_attendu": "Petite plante en pot",
+   "requete": {
+    "libelle": "Petite plante en pot",
+    "famille_id": "PLA",
+    "caracteristiques": {},
+    "dimensions_apparentes_cm": {
+     "hauteur": 35,
+     "largeur": 20,
+     "profondeur": 20
+    }
+   },
+   "sous_categorie_attendue": null,
+   "reference_attendue": null,
+   "variantes_possibles": [],
+   "incertitude": "absente du catalogue (objet à mettre en carton) : le modèle doit répondre « inconnue »",
+   "volume_catalogue_attendu": null
+  },
+  {
+   "id": "bureau-angle",
+   "objet_attendu": "Bureau d'angle",
+   "requete": {
+    "libelle": "Bureau d'angle",
+    "famille_id": "BUR",
+    "caracteristiques": {},
+    "dimensions_apparentes_cm": null
+   },
+   "sous_categorie_attendue": "BUR-ANGLE",
+   "reference_attendue": "BUR-ANGLE",
+   "variantes_possibles": [],
+   "incertitude": "",
+   "volume_catalogue_attendu": {
+    "statut": "reference_geometrique",
+    "geometrique_mediane_m3": 1.303,
+    "q1": 1.256,
+    "q3": 1.406,
+    "demenagement_reference_m3": 1.52,
+    "fiabilite": "moyenne",
+    "nb_modeles": 8
+   }
+  },
+  {
+   "id": "table-extensible",
+   "objet_attendu": "Table à manger extensible",
+   "requete": {
+    "libelle": "Table à manger extensible",
+    "famille_id": "TAB",
+    "caracteristiques": {
+     "extensible": true
+    },
+    "dimensions_apparentes_cm": {
+     "hauteur": 75,
+     "largeur": 160,
+     "profondeur": 90
+    }
+   },
+   "sous_categorie_attendue": "TAB-6",
+   "reference_attendue": "TAB-6",
+   "variantes_possibles": [
+    "TAB-REPAS-NC",
+    "TAB-8+"
+   ],
+   "incertitude": "position fermée ou ouverte inconnue : à confirmer ; aucune sous-catégorie « extensible » en v5",
+   "volume_catalogue_attendu": {
+    "statut": "reference_geometrique",
+    "geometrique_mediane_m3": 1.129,
+    "q1": 1.129,
+    "q3": 1.129,
+    "demenagement_reference_m3": 0.8,
+    "fiabilite": "faible",
+    "nb_modeles": 1
+   }
+  },
+  {
+   "id": "objet-atypique",
+   "objet_attendu": "Cabine de sauna d'intérieur",
+   "requete": {
+    "libelle": "Cabine de sauna d'intérieur",
+    "famille_id": null,
+    "caracteristiques": {},
+    "dimensions_apparentes_cm": {
+     "hauteur": 200,
+     "largeur": 120,
+     "profondeur": 100
+    }
+   },
+   "sous_categorie_attendue": null,
+   "reference_attendue": null,
+   "variantes_possibles": [],
+   "incertitude": "aucun équivalent : « inconnue », dimensions à saisir",
+   "volume_catalogue_attendu": null
+  }
+ ]
+}

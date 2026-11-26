@@ -1,0 +1,929 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://devis-scan.local/contrats/analyse-piece-2.0.json",
+  "title": "Contrat commun des réponses IA Devis Scan — version 2.0",
+  "description": "Réponse d'un modèle de reconnaissance (tout fournisseur) pour une pièce. Le modèle ne renvoie jamais de volume ni de prix : il désigne une référence existante du catalogue Devis Scan ; le serveur vérifie l'identifiant et lit dimensions et volumes dans le catalogue. Généré depuis prototypes/integration-catalogue/contrat.ts (zod).",
+  "type": "object",
+  "properties": {
+    "version_contrat": {
+      "type": "string",
+      "const": "2.0"
+    },
+    "objets": {
+      "maxItems": 150,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id_objet": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "libelle": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "famille_id": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 10
+          },
+          "sous_categorie_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 40
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reference_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 40
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "statut_reference": {
+            "type": "string",
+            "enum": [
+              "trouvee",
+              "a_confirmer",
+              "inconnue"
+            ]
+          },
+          "alternatives": {
+            "maxItems": 3,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "reference_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 40
+                },
+                "raison": {
+                  "type": "string",
+                  "maxLength": 200
+                }
+              },
+              "required": [
+                "reference_id",
+                "raison"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "quantite": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200
+          },
+          "exemplaires": {
+            "maxItems": 200,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id_exemplaire": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 40
+                },
+                "images": {
+                  "maxItems": 64,
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 63
+                  }
+                },
+                "cadres": {
+                  "maxItems": 64,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "image": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 63
+                      },
+                      "x": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      },
+                      "y": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      },
+                      "largeur": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      },
+                      "hauteur": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      }
+                    },
+                    "required": [
+                      "image",
+                      "x",
+                      "y",
+                      "largeur",
+                      "hauteur"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "position_piece": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "signes_distinctifs": {
+                  "type": "string",
+                  "maxLength": 200
+                }
+              },
+              "required": [
+                "id_exemplaire",
+                "images",
+                "cadres",
+                "position_piece",
+                "signes_distinctifs"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "caracteristiques": {
+            "type": "object",
+            "properties": {
+              "nb_portes": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 20
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "nb_places": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 20
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "nb_tiroirs": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 40
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "largeur_couchage_cm": {
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "minimum": 40,
+                    "maximum": 250
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "diagonale_pouces": {
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "minimum": 10,
+                    "maximum": 150
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "forme": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "maxLength": 80
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "materiau": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "maxLength": 80
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "portes_coulissantes": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "extensible": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "demontable_apparent": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "fragile": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "ancien": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "nb_portes",
+              "nb_places",
+              "nb_tiroirs",
+              "largeur_couchage_cm",
+              "diagonale_pouces",
+              "forme",
+              "materiau",
+              "portes_coulissantes",
+              "extensible",
+              "demontable_apparent",
+              "fragile",
+              "ancien"
+            ],
+            "additionalProperties": false
+          },
+          "dimensions_apparentes_cm": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "hauteur": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 2000
+                  },
+                  "largeur": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 2000
+                  },
+                  "profondeur": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 2000
+                  }
+                },
+                "required": [
+                  "hauteur",
+                  "largeur",
+                  "profondeur"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "indices": {
+            "maxItems": 10,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            }
+          },
+          "confiance": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "motif_incertitude": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 300
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "doute_identite": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "autre_objet_id": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 40
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "autre_piece": {
+                    "type": "boolean"
+                  },
+                  "raison": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 300
+                  }
+                },
+                "required": [
+                  "autre_objet_id",
+                  "autre_piece",
+                  "raison"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id_objet",
+          "libelle",
+          "famille_id",
+          "sous_categorie_id",
+          "reference_id",
+          "statut_reference",
+          "alternatives",
+          "quantite",
+          "exemplaires",
+          "caracteristiques",
+          "dimensions_apparentes_cm",
+          "indices",
+          "confiance",
+          "motif_incertitude",
+          "doute_identite"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "remarques_piece": {
+      "type": "string",
+      "maxLength": 1000
+    }
+  },
+  "required": [
+    "version_contrat",
+    "objets",
+    "remarques_piece"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "enveloppe_serveur": {
+      "description": "Ajoutée par le serveur, jamais par le modèle : traçabilité et rejeu.",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "id_analyse": {
+          "type": "string",
+          "minLength": 1
+        },
+        "id_piece": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fournisseur": {
+          "type": "string",
+          "minLength": 1
+        },
+        "modele": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version_consignes": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version_catalogue": {
+          "type": "string",
+          "minLength": 1
+        },
+        "empreinte_catalogue": {
+          "type": "string",
+          "minLength": 8
+        },
+        "horodatage": {
+          "type": "string",
+          "minLength": 10
+        },
+        "reponse_brute": {
+          "type": "string"
+        },
+        "reponse": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "version_contrat": {
+                  "type": "string",
+                  "const": "2.0"
+                },
+                "objets": {
+                  "maxItems": 150,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id_objet": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 40
+                      },
+                      "libelle": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                      },
+                      "famille_id": {
+                        "type": "string",
+                        "minLength": 2,
+                        "maxLength": 10
+                      },
+                      "sous_categorie_id": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "maxLength": 40
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "reference_id": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "maxLength": 40
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "statut_reference": {
+                        "type": "string",
+                        "enum": [
+                          "trouvee",
+                          "a_confirmer",
+                          "inconnue"
+                        ]
+                      },
+                      "alternatives": {
+                        "maxItems": 3,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "reference_id": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 40
+                            },
+                            "raison": {
+                              "type": "string",
+                              "maxLength": 200
+                            }
+                          },
+                          "required": [
+                            "reference_id",
+                            "raison"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "quantite": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 200
+                      },
+                      "exemplaires": {
+                        "maxItems": 200,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id_exemplaire": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 40
+                            },
+                            "images": {
+                              "maxItems": 64,
+                              "type": "array",
+                              "items": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 63
+                              }
+                            },
+                            "cadres": {
+                              "maxItems": 64,
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "image": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 63
+                                  },
+                                  "x": {
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "maximum": 1
+                                  },
+                                  "y": {
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "maximum": 1
+                                  },
+                                  "largeur": {
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "maximum": 1
+                                  },
+                                  "hauteur": {
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "maximum": 1
+                                  }
+                                },
+                                "required": [
+                                  "image",
+                                  "x",
+                                  "y",
+                                  "largeur",
+                                  "hauteur"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "position_piece": {
+                              "type": "string",
+                              "maxLength": 200
+                            },
+                            "signes_distinctifs": {
+                              "type": "string",
+                              "maxLength": 200
+                            }
+                          },
+                          "required": [
+                            "id_exemplaire",
+                            "images",
+                            "cadres",
+                            "position_piece",
+                            "signes_distinctifs"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "caracteristiques": {
+                        "type": "object",
+                        "properties": {
+                          "nb_portes": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 20
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "nb_places": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 20
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "nb_tiroirs": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 40
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "largeur_couchage_cm": {
+                            "anyOf": [
+                              {
+                                "type": "number",
+                                "minimum": 40,
+                                "maximum": 250
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "diagonale_pouces": {
+                            "anyOf": [
+                              {
+                                "type": "number",
+                                "minimum": 10,
+                                "maximum": 150
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "forme": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "maxLength": 80
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "materiau": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "maxLength": 80
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "portes_coulissantes": {
+                            "type": [
+                              "boolean",
+                              "null"
+                            ]
+                          },
+                          "extensible": {
+                            "type": [
+                              "boolean",
+                              "null"
+                            ]
+                          },
+                          "demontable_apparent": {
+                            "type": [
+                              "boolean",
+                              "null"
+                            ]
+                          },
+                          "fragile": {
+                            "type": [
+                              "boolean",
+                              "null"
+                            ]
+                          },
+                          "ancien": {
+                            "type": [
+                              "boolean",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "nb_portes",
+                          "nb_places",
+                          "nb_tiroirs",
+                          "largeur_couchage_cm",
+                          "diagonale_pouces",
+                          "forme",
+                          "materiau",
+                          "portes_coulissantes",
+                          "extensible",
+                          "demontable_apparent",
+                          "fragile",
+                          "ancien"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "dimensions_apparentes_cm": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "hauteur": {
+                                "type": "number",
+                                "exclusiveMinimum": 0,
+                                "maximum": 2000
+                              },
+                              "largeur": {
+                                "type": "number",
+                                "exclusiveMinimum": 0,
+                                "maximum": 2000
+                              },
+                              "profondeur": {
+                                "type": "number",
+                                "exclusiveMinimum": 0,
+                                "maximum": 2000
+                              }
+                            },
+                            "required": [
+                              "hauteur",
+                              "largeur",
+                              "profondeur"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "indices": {
+                        "maxItems": 10,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 160
+                        }
+                      },
+                      "confiance": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      },
+                      "motif_incertitude": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "maxLength": 300
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "doute_identite": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "autre_objet_id": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "maxLength": 40
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "autre_piece": {
+                                "type": "boolean"
+                              },
+                              "raison": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 300
+                              }
+                            },
+                            "required": [
+                              "autre_objet_id",
+                              "autre_piece",
+                              "raison"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id_objet",
+                      "libelle",
+                      "famille_id",
+                      "sous_categorie_id",
+                      "reference_id",
+                      "statut_reference",
+                      "alternatives",
+                      "quantite",
+                      "exemplaires",
+                      "caracteristiques",
+                      "dimensions_apparentes_cm",
+                      "indices",
+                      "confiance",
+                      "motif_incertitude",
+                      "doute_identite"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "remarques_piece": {
+                  "type": "string",
+                  "maxLength": 1000
+                }
+              },
+              "required": [
+                "version_contrat",
+                "objets",
+                "remarques_piece"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "erreur": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "id_analyse",
+        "id_piece",
+        "fournisseur",
+        "modele",
+        "version_consignes",
+        "version_catalogue",
+        "empreinte_catalogue",
+        "horodatage",
+        "reponse_brute",
+        "reponse",
+        "erreur"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

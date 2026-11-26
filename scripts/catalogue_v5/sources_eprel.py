@@ -25,11 +25,23 @@ TYPES = {  # groupe EPREL → sous-catégorie par défaut (affinée par le type 
 UNITE_CM = {"refrigeratingappliances2019": 0.1}  # mm → cm ; les autres groupes sont en cm
 
 
+EXCLUS_CLES = ("pack", "box", "carton", "niche", "recess", "cavity", "installation", "opening", "door", "drum", "interior", "internal", "screen")
+
+
+def _aplatir(d, prefixe=""):
+    for k, v in d.items():
+        cle = f"{prefixe}.{k}" if prefixe else k
+        if isinstance(v, dict):
+            yield from _aplatir(v, cle)
+        else:
+            yield cle.lower(), v
+
+
 def _valeur(fiche, mot):
-    for k, v in fiche.items():
-        if mot in k.lower() and isinstance(v, (int, float)) and v > 0:
-            return float(v)
-    return None
+    """Valeur hors tout : clé contenant height / width / depth, jamais une dimension d'emballage, de niche
+    d'encastrement, de porte, de tambour, d'écran ou intérieure. Ambiguïté (plusieurs valeurs) : None."""
+    vals = {v for k, v in _aplatir(fiche) if mot in k and not any(x in k for x in EXCLUS_CLES) and isinstance(v, (int, float)) and not isinstance(v, bool) and v > 0}
+    return float(vals.pop()) if len(vals) == 1 else None
 
 
 def lire_eprel(dossier: str, date_collecte: str):
