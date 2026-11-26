@@ -12,6 +12,19 @@ valider par les déménageurs pilotes.
 """
 
 COMPARABLES = {
+    # v6.1 — alignement sur la convention Démén'House : utilisés quand la seule valeur professionnelle disponible
+    # vient d'une source dont la convention est manifestement différente (conventions_sources.csv).
+    "LIT-QUEEN": ("LIT-DOUBLE", "facteur", 1.15, "lit 160 au lieu de 140 cm de large (convention « lit complet »)"),
+    "ARM-2P": ("ARM-4P", "proportion", None, "armoire, proportion des géométriques mesurés"),
+    "ARM-3P": ("ARM-4P", "proportion", None, "armoire, proportion des géométriques mesurés"),
+    "CAN-ANG": ("CAN-3P", "proportion", None, "canapé, proportion des géométriques mesurés"),
+    "CAN-CONV": ("CAN-3P", "proportion", None, "canapé, proportion des géométriques mesurés"),
+    "TAB-6": ("TAB-REPAS-NC", "proportion", None, "table à manger, proportion des géométriques"),
+    "TAB-4": ("TAB-REPAS-NC", "proportion", None, "table à manger, proportion des géométriques"),
+    "MAT-140": ("MAT-160", "proportion", None, "matelas, proportion des géométriques (formadem.com : convention plus basse)"),
+    "RAN-BIB-HAUTE": ("RAN-BIB-NC", "proportion", None, "bibliothèque, proportion des géométriques mesurés"),
+    "RAN-BIB-BASSE": ("RAN-BIB-NC", "proportion", None, "bibliothèque, proportion des géométriques mesurés"),
+    "ARM-COUL": ("ARM-4P", "proportion", None, "grande armoire, proportion des géométriques mesurés"),
     # id: (comparable, mode, facteur, justification)
     "LIT-KING": ("LIT-QUEEN", "facteur", 1.15, "180 cm au lieu de 160 cm de large ; géométrique mesuré jugé non représentatif (tête de lit, ensembles)"),
     "LIT-COFFRE": ("LIT-QUEEN", "facteur", 1.3, "lit 140/160 à coffre : le coffre ne se démonte pas ; géométrique mesuré (4,36 m³) non représentatif"),
@@ -30,8 +43,7 @@ COMPARABLES = {
     "COM-4T": ("COM-NC", "proportion", None, "commode, proportion des géométriques mesurés"),
     "COM-5T": ("COM-NC", "proportion", None, "commode, proportion des géométriques mesurés"),
     "COM-LARGE": ("COM-NC", "proportion", None, "commode, proportion des géométriques mesurés"),
-    "TAB-REPAS-NC": ("TAB-6", "proportion", None, "table à manger, proportion des géométriques"),
-    "TAB-8+": ("TAB-6", "proportion", None, "table à manger, proportion des géométriques"),
+    "TAB-8+": ("TAB-REPAS-NC", "proportion", None, "table à manger, proportion des géométriques"),
     "INF-TV-75": ("INF-TV-55", "facteur", 1.4, "surface d'écran 1,85 fois plus grande, épaisseur et emballage comparables"),
     "MAT-90": ("MAT-140", "proportion", None, "matelas, proportion des géométriques"),
     "MAT-180": ("MAT-160", "proportion", None, "matelas, proportion des géométriques"),

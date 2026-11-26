@@ -101,6 +101,8 @@ est("PRO-ARMOIRE-RIDEAU", 198, 120, 45, 0.50, 1.20, "armoire de bureau à rideau
 est("RES-VITRINE-REFRIG", 200, 60, 65, 0.60, 1.60, "vitrine réfrigérée 1 porte")
 est("RES-TABLE-INOX", 90, 140, 70, 0.50, 1.20, "table inox de cuisine professionnelle")
 est("RES-FRIGO-PRO", 200, 70, 80, 0.90, 2.00, "armoire réfrigérée professionnelle 600 L")
+est("RES-DISTRIBUTEUR", 180, 80, 85, 0.80, 1.60, "distributeur automatique de boissons ou de friandises ; les produits mesurés en v5 étaient de petits distributeurs muraux (exclus en v6.1)")
+est("PRO-COMPTOIR", 110, 200, 60, 0.60, 2.50, "comptoir d'accueil de 2 m ; le seul produit mesuré en v5 était un micro-ondes (exclu en v6.1)")
 est("SPO-TRAMPOLINE", 30, 150, 60, 0.15, 0.60, "trampoline démonté (tubes, toile, filet)", etat="transport")
 est("SPO-PANIER-BASKET", 30, 120, 80, 0.15, 0.60, "panier sur pied démonté", etat="transport")
 est("JAR-PISCINE", 40, 120, 80, 0.20, 3.20, "piscine tubulaire démontée ; un spa rigide fait environ 3 m³ (sous-catégorie à scinder)", etat="transport")

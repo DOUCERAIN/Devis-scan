@@ -1,4 +1,5 @@
-"""Contrôles du catalogue v6 : `python3 -m unittest scripts/catalogue_v6/test_enrichir.py`."""
+"""Contrôles du catalogue v6.1 : `python3 -m unittest scripts/catalogue_v6/test_enrichir.py`."""
+import csv
 import json
 import sys
 import unittest
@@ -7,89 +8,162 @@ from pathlib import Path
 ICI = Path(__file__).resolve().parent
 sys.path.insert(0, str(ICI))
 import enrichir  # noqa: E402
+from releves_demenageurs import RELEVES, SOURCES  # noqa: E402
+
+SORTIE = enrichir.SORTIE
 
 
-class CatalogueV6(unittest.TestCase):
+class CatalogueV61(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.cat, _, cls.v5, cls.base, cls.variantes, cls.ratios, _, _ = enrichir.construire()
+        (cls.cat, cls.produits, cls.v5, cls.base, cls.variantes, cls.ratios, _, cls.releves, cls.ordre, _) = enrichir.construire()
 
-    def test_311_sous_categories_et_identifiants_stables(self):
+    # --- couverture et identifiants
+    def test_311_sous_categories_identifiants_stables(self):
         self.assertEqual(len(self.base), 311)
         self.assertEqual(set(self.base), set(self.v5))
 
-    def test_couverture_numerique_ou_exception(self):
+    def test_volume_ou_exception(self):
         for e in self.base.values():
-            ok = e["volume_demenagement_m3"] is not None or e["statut_demenagement"] == "exception documentée"
-            self.assertTrue(ok, e["identifiant"])
+            self.assertTrue(e["volume_demenagement_m3"] is not None or e["type_reference"] == "exception documentée", e["identifiant"])
 
-    def test_aucune_valeur_presentee_comme_verifiee(self):
-        self.assertFalse(any(e["statut_global"] == "vérifié" for e in self.base.values()))
+    # --- décisions validées
+    def test_carton_010(self):
+        c = self.base["CAR-CARTON"]
+        self.assertEqual(c["volume_demenagement_m3"], 0.10)
+        self.assertEqual(c["type_reference"], "convention validée par Devis Scan")
+        self.assertIn("pas une mesure", c["statut_validation"])
+
+    def test_carton_010_dans_les_exports(self):
+        with open(SORTIE / "catalogue_volumes_v6.csv", newline="") as f:
+            l = {r["identifiant"]: r for r in csv.DictReader(f, delimiter=";")}
+        self.assertEqual(float(l["CAR-CARTON"]["volume_demenagement_m3"]), 0.10)
+        j = json.loads((SORTIE / "catalogue_volumes_v6.json").read_text())
+        self.assertEqual(next(e for e in j["sous_categories"] if e["identifiant"] == "CAR-CARTON")["volume_demenagement_m3"], 0.10)
+        self.assertFalse([v for v in j["variantes"] if v["variante_de"] == "CAR-CARTON"])
+
+    def test_demenhouse_prioritaire_quand_il_correspond(self):
+        for i, e in self.base.items():
+            dh = [x for x in e["references_pro"] if x["source"] == "demenhouse" and x["valeur_m3"] is not None and not x["aberrant"]]
+            if dh and i != "CAR-CARTON":
+                if e["regle"].startswith("1"):
+                    self.assertEqual(e["volume_demenagement_m3"], dh[0]["valeur_m3"], i)
+                else:
+                    self.assertTrue(e["rejets"], f"{i} : valeur Démén'House non retenue sans motif")
+
+    def test_meuble_tv_demenhouse_non_retenu(self):
+        self.assertNotEqual(self.base["RAN-MEUBLE-TV"]["volume_demenagement_m3"], 3.2)
+
+    def test_valeur_retenue_est_une_valeur_publiee(self):
+        """Aucune moyenne : une valeur professionnelle retenue existe telle quelle dans les relevés."""
+        for i, e in self.base.items():
+            if e["regle"][:1] in "123":
+                publiees = {v for sc, v, *_ in RELEVES if sc == i and v is not None}
+                self.assertIn(e["volume_demenagement_m3"], publiees, i)
+
+    def test_fourchettes_jamais_reduites_au_milieu(self):
+        for sc, v, b, h, *_ in RELEVES:
+            self.assertTrue((v is None) == (b is not None and h is not None), (sc, v, b, h))
+
+    def test_convention_lit_complet(self):
+        q = self.base["LIT-QUEEN"]
+        self.assertNotEqual(q["volume_demenagement_m3"], 1.2)  # « cadre et sommier sans matelas » écarté
+        from inventaires_types import INVENTAIRES
+        for inv in INVENTAIRES.values():
+            ids = [sc for sc, _ in inv["objets"]]
+            if any(i.startswith("LIT-") for i in ids):
+                self.assertFalse([i for i in ids if i.startswith("MAT-") or i == "SOM-STD"], "literie comptée deux fois")
+
+    # --- qualité et traçabilité
+    def test_aucune_valeur_validee_par_un_professionnel(self):
+        for e in self.base.values():
+            self.assertNotIn("validé par un professionnel", e["statut_validation"])
+            if e["identifiant"] != "CAR-CARTON":
+                self.assertTrue(e["statut_validation"].startswith("non validé"), e["identifiant"])
+
+    def test_fiabilite_moyenne_exige_corroboration_attribuee(self):
+        for e in self.base.values():
+            if e["fiabilite_demenagement"] == "moyenne":
+                self.assertTrue(e["pro"]["corroboration_attribuee"], e["identifiant"])
+
+    def test_sources_anonymes_comptent_pour_une(self):
+        for e in self.base.values():
+            att = {x["domaine"] for x in e["references_pro"] if x["attribution"] == "attribuée" and not x["aberrant"]}
+            self.assertLessEqual(e["nb_sources_independantes_pro"], len(att) + 1)
+
+    def test_14_domaines_attribues(self):
+        dom = {SOURCES[r[4]][0] for r in RELEVES if r[5] == "attribuée"}
+        self.assertEqual(len(dom), 14, sorted(dom))
 
     def test_estimations_jamais_presentees_comme_mesures(self):
         for e in self.base.values():
             if e.get("estimation_ia") and not e["estimation_ia"]["dimensions_mesurees"]:
                 self.assertEqual(e["statut_geo"], "estimé (IA)")
-                self.assertEqual(e["fiabilite_geo"], "provisoire")
                 self.assertIn("PAS une médiane", e["methode_geo"])
 
-    def test_mediane_mesuree_reprise_de_la_v5_sans_changement(self):
+    def test_geometrique_v5_inchange_sauf_exclusions(self):
         for i, e in self.base.items():
-            if e["statut_geo"] == "mesuré":
-                self.assertEqual(e["volume_geometrique_m3"], self.v5[i]["volume_geometrique_median_m3"])
+            if e["statut_geo"] == "mesuré" and not e["produits_exclus_v6_1"]:
+                self.assertEqual(e["volume_geometrique_m3"], self.v5[i]["volume_geometrique_median_m3"], i)
 
-    def test_geometrique_et_demenagement_distincts(self):
+    def test_produits_mal_classes_exclus_mais_conserves(self):
+        with open(SORTIE / "mesures_individuelles.csv", newline="") as f:
+            m = list(csv.DictReader(f, delimiter=";"))
+        exclus = [r for r in m if r["statut_mesure"] == "mesuré — exclu v6.1 (mal classé)"]
+        self.assertTrue(exclus)
+        self.assertEqual({r["sous_categorie_id"] for r in exclus}, {"RES-DISTRIBUTEUR", "PRO-COMPTOIR", "PRO-PRESENTOIR", "ENF-CHAISE-HAUTE"})
+
+    def test_mesures_individuelles_toutes_conservees(self):
+        with open(SORTIE / "mesures_individuelles.csv", newline="") as f:
+            ids = {r["id_produit"] for r in csv.DictReader(f, delimiter=";") if r["id_produit"]}
+        for r in self.v5.values():
+            for pid in r.get("produits_utilises", []) + r.get("produits_exclus", []):
+                if pid in self.produits:
+                    self.assertIn(pid, ids)
+
+    def test_rigide_jamais_sous_son_volume(self):
         for e in self.base.values():
-            self.assertIn("volume_geometrique_m3", e)
-            self.assertIn("volume_demenagement_m3", e)
-            self.assertNotEqual(e["methode_geo"], e["methode_demenagement"])
+            if e["classe_manutention"] in ("appareils et objets rigides", "meubles et objets non démontables") and e["statut_geo"] == "mesuré" and e["regle"][:1] in "123":
+                self.assertGreaterEqual(e["volume_demenagement_m3"], 0.8 * e["volume_geometrique_m3"], e["identifiant"])
 
-    def test_seuils_de_fiabilite(self):
-        f = enrichir.fiabilite_geo
-        self.assertEqual(f(10, 3, 0.5), "élevée")
-        self.assertEqual(f(10, 2, 0.5), "moyenne")
-        self.assertEqual(f(5, 2, 0.5), "moyenne")
-        self.assertEqual(f(4, 4, 0.5), "provisoire")
-        self.assertEqual(f(50, 5, 1.4), "moyenne")  # dispersion forte : un niveau de moins
-        self.assertEqual(f(0, 0, None), "provisoire")
+    def test_ordres_incoherents_signales(self):
+        with open(SORTIE / "anomalies.csv", newline="") as f:
+            signales = {r["sous_categories"] for r in csv.DictReader(f, delimiter=";") if r["type"] == "ordre incohérent entre variantes"}
+        for petit, grand in enrichir.ORDRES_ATTENDUS:
+            vp, vg = self.base[petit]["volume_demenagement_m3"], self.base[grand]["volume_demenagement_m3"]
+            if vp >= vg:
+                self.assertIn(f"{petit}, {grand}", signales)
 
-    def test_estime_seulement_avec_au_moins_deux_releves(self):
-        for e in self.base.values():
-            if e["statut_demenagement"] == "estimé":
-                self.assertGreaterEqual(e["nb_releves"], 2)
-            if e["fiabilite_demenagement"] == "moyenne":
-                self.assertGreaterEqual(e["nb_sources_releves"], 3)
+    def test_anomalies_ont_un_etat(self):
+        with open(SORTIE / "anomalies.csv", newline="") as f:
+            for r in csv.DictReader(f, delimiter=";"):
+                self.assertIn(r["etat_resolution"], ("ouverte", "contournée provisoirement", "résolue"))
+                self.assertTrue(r["id"].startswith("ANO-"))
 
-    def test_releve_aberrant_ecarte(self):
-        self.assertLess(self.base["ELM-MO"]["volume_demenagement_m3"], 0.2)
-
-    def test_volumes_positifs_et_plausibles(self):
-        for e in self.base.values():
+    def test_exports_coherents_avec_les_donnees(self):
+        with open(SORTIE / "catalogue_volumes_v6.csv", newline="") as f:
+            l = list(csv.DictReader(f, delimiter=";"))
+        self.assertEqual(len(l), 311)
+        for r in l:
+            e = self.base[r["identifiant"]]
             v = e["volume_demenagement_m3"]
-            if v is not None:
-                self.assertGreater(v, 0, e["identifiant"])
-                self.assertLess(v, 10, e["identifiant"])
+            self.assertEqual(r["volume_demenagement_m3"], "" if v is None else str(v))
+            g = e["volume_geometrique_m3"]
+            self.assertEqual(r["volume_geometrique_m3"], "" if g is None else str(g))
 
-    def test_variantes_toutes_couvertes(self):
+    def test_variantes_heritees_explicites(self):
         self.assertEqual(len(self.variantes), 204)
-        self.assertTrue(all(v["volume_demenagement_m3"] is not None for v in self.variantes))
+        for v in self.variantes:
+            self.assertEqual(v["type_reference"], "hérité de la sous-catégorie parente")
+            self.assertEqual(v["fiabilite_demenagement"], "provisoire")
 
-    def test_ordre_des_variantes_importantes(self):
-        b = self.base
-        v = lambda i: b[i]["volume_demenagement_m3"]  # noqa: E731
-        self.assertLess(v("ARM-2P"), v("ARM-3P"))
-        self.assertLess(v("ARM-3P"), v("ARM-4P"))
-        self.assertLess(v("ELM-REF-TOP"), v("ELM-REF"))
-        self.assertLess(v("ELM-REF"), v("ELM-REF-US"))
-        self.assertLess(v("CAN-2P"), v("CAN-3P"))
-        self.assertLess(v("CAN-3P"), v("CAN-ANG"))
-        self.assertLess(v("LIT-SIMPLE"), v("LIT-DOUBLE"))
-        self.assertLess(v("LIT-DOUBLE"), v("LIT-SUPERP"))
-        self.assertLess(v("TAB-4"), v("TAB-6"))
-        self.assertLess(v("TAB-6"), v("TAB-8+"))
-        self.assertLess(v("BUR-DROIT"), v("BUR-ANGLE"))
-        self.assertLess(v("INF-TV-43"), v("INF-TV-55"))
-        self.assertLess(v("INF-TV-55"), v("INF-TV-75"))
+    def test_revue_40(self):
+        with open(SORTIE / "revue_40_categories.csv", newline="") as f:
+            l = list(csv.DictReader(f, delimiter=";"))
+        self.assertEqual(len(l), 40)
+        self.assertEqual(len({r["id_devis_scan"] for r in l}), 40)
+        for r in l:
+            self.assertTrue(r["question_au_professionnel"])
 
     def test_v5_non_modifiee(self):
         brut = json.loads((enrichir.V5 / "catalogue_devis_scan.json").read_text())

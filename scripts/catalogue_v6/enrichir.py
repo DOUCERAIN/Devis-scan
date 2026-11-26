@@ -1,14 +1,16 @@
-"""Catalogue v6 — enrichissement des volumes de référence (26/11/2026).
+"""Catalogue v6.1 — volumes de référence pour le déménagement (26/11/2026).
 
-Lit le catalogue v5 sans le modifier et écrit dans `data/catalogue-v6/` :
-- un volume géométrique pour chaque sous-catégorie : mesuré (médiane des volumes individuels, v5),
-  partiellement mesuré, ou estimé par l'IA (modèle type) ;
-- un volume de déménagement de référence, distinct et provisoire, établi dans cet ordre :
-  relevés publics de déménageurs, puis analogie avec les sous-catégories de la même classe de
-  manutention, puis exception documentée ;
-- la traçabilité de chaque valeur, les anomalies à trancher, la couverture des inventaires.
+Lit le catalogue v5 sans le modifier et écrit dans `data/catalogue-v6/`.
 
-Rien n'est branché : ni base de données, ni moteur IA, ni moteur de devis.
+Règles validées par le porteur du projet le 26/11/2026 :
+- un carton standard vaut 0,10 m³ (convention commerciale Devis Scan) ;
+- le volume de déménagement retenu est d'abord la valeur unique publiée par Démén'House, quand elle existe et
+  correspond à l'objet ; sinon une autre valeur professionnelle, dont l'origine est précisée ;
+- on retient toujours une valeur réellement publiée : jamais une moyenne ni une médiane de sources hétérogènes ;
+- les divergences sont signalées, pas lissées ;
+- le volume géométrique reste distinct et n'est jamais utilisé tel quel comme volume commercial.
+
+Rien n'est branché : ni base de données, ni moteur IA, ni moteur de devis, ni parcours client.
 Exécution : `python3 scripts/catalogue_v6/enrichir.py`.
 """
 from __future__ import annotations
@@ -23,27 +25,48 @@ from pathlib import Path
 
 ICI = Path(__file__).resolve().parent
 sys.path.insert(0, str(ICI))
-from estimations_ia import E as ESTIM, T as TRANSPORT  # noqa: E402
-from releves_demenageurs import RELEVES, S as SOURCES, ABERRANTS  # noqa: E402
-from inventaires_types import INVENTAIRES  # noqa: E402
 from comparables import COMPARABLES  # noqa: E402
+from estimations_ia import E as ESTIM, T as TRANSPORT  # noqa: E402
+from inventaires_types import INVENTAIRES  # noqa: E402
+from releves_demenageurs import ABERRANTS, RELEVES, SOURCES  # noqa: E402
 
 RACINE = ICI.parents[1]
 V5 = RACINE / "data" / "catalogue-v5"
 SORTIE = RACINE / "data" / "catalogue-v6"
+HIST = SORTIE / "historique" / "v6.0"
+VERSION = "6.1-preparatoire"
 
-# Seuils de fiabilité demandés (géométrique), adaptés à la dispersion.
-SEUIL_ELEVEE = (10, 3)
-SEUIL_MOYENNE = (5, 2)
-DISPERSION_FORTE = 1.0  # (P75 − P25) / médiane au-delà de laquelle on descend d'un niveau
+# ------------------------------------------------------------------ paramètres documentés
+CARTON = {"id": "CAR-CARTON", "volume": 0.10, "decision": "convention commerciale validée par le porteur du projet le 26/11/2026 : un carton standard = 0,10 m³ (100 L)"}
+SEUIL_ELEVEE, SEUIL_MOYENNE, DISPERSION_FORTE = (10, 3), (5, 2), 1.0
 NIVEAUX = ["provisoire", "moyenne", "élevée"]
+# Une valeur Démén'House plus de 6 fois supérieure au géométrique médian mesuré (≥ 3 produits) est jugée ne
+# pas correspondre à l'objet courant de la sous-catégorie (exemple : meuble TV à 3,2 m³ pour 0,32 m³ mesuré).
+DH_RAPPORT_MAX = 6.0
+CORROBORATION = 0.35  # une autre source corrobore si sa valeur, ou sa fourchette, tombe à ± 35 % de la valeur retenue
+DIVERGENCE = 1.5      # écart signalé si une autre valeur publiée est 1,5 fois plus grande ou plus petite
+# Conventions incompatibles avec la sous-catégorie : conservées comme références, jamais retenues.
+CONVENTIONS_EXCLUES = {"sans matelas, démonté": "convention « lit complet » de Devis Scan : un lit compte cadre, sommier et matelas",
+                       "demi-queue": "objet différent (piano demi-queue, plus petit qu'un piano à queue)"}
+# Produits mal classés en v5 : exclus en v6.1 (conservés dans mesures_individuelles.csv).
+EXCLUSIONS_SC = {
+    "RES-DISTRIBUTEUR": (lambda p: True, "petits distributeurs muraux de collections muséales, pas un distributeur automatique"),
+    "PRO-COMPTOIR": (lambda p: True, "le produit est un four à micro-ondes, pas un comptoir"),
+    "PRO-PRESENTOIR": (lambda p: float(p["volume_geometrique_m3"] or 0) < 0.1, "vitrine à drapeau ou présentoir à fruits, pas une gondole"),
+    "ENF-CHAISE-HAUTE": (lambda p: True, "rehausseur de voyage plié (1,3 cm de profondeur), pas une chaise haute"),
+}
+DH_SRC = {"demenhouse", "demenhouse-2"}
+CONVENTIONS = {}
 
 
 def r3(x):
     return None if x is None else round(x, 3)
 
 
-# ------------------------------------------------------------------ chargement
+def domaine(src):
+    return SOURCES[src][0]
+
+
 def charger():
     cat = json.loads((V5 / "catalogue_devis_scan.json").read_text())
     with open(V5 / "produits_independants.csv", newline="") as f:
@@ -51,9 +74,9 @@ def charger():
     return cat, produits
 
 
-def source_produit(p: dict) -> str:
-    """Source distincte d'une mesure : la marque ou le fabricant pour un produit du commerce,
-    sinon la base documentaire (musée, Wikidata…). Deux musées différents = deux sources."""
+def source_produit(p):
+    """Source distincte d'une mesure : la marque ou le fabricant pour un produit du commerce, sinon la base
+    documentaire (musée, Wikidata…)."""
     m = (p.get("marque") or p.get("fabricant") or "").strip().lower()
     return f"marque:{m}" if m else f"base:{p['sources'].split(',')[0].strip()}"
 
@@ -65,7 +88,7 @@ PLATS = {"DEC", "LUM", "MIR", "TAP"}
 SOUPLES = {"MAT-90", "MAT-140", "MAT-160", "MAT-180", "MAT-NC", "CAR-SAC", "FAU-POIRE"}
 
 
-def classe(ref: dict) -> str:
+def classe(ref):
     i, fam = ref["identifiant"], ref["famille_id"]
     if i in TRANSPORT or ESTIM.get(i, {}).get("etat") == "transport":
         return "objets transportés pliés ou démontés"
@@ -83,7 +106,7 @@ def classe(ref: dict) -> str:
 
 
 # ------------------------------------------------------------------ volume géométrique
-def fiabilite_geo(n: int, n_src: int, dispersion):
+def fiabilite_geo(n, n_src, dispersion):
     if n == 0:
         return "provisoire"
     niv = 2 if (n >= SEUIL_ELEVEE[0] and n_src >= SEUIL_ELEVEE[1]) else 1 if (n >= SEUIL_MOYENNE[0] and n_src >= SEUIL_MOYENNE[1]) else 0
@@ -92,24 +115,38 @@ def fiabilite_geo(n: int, n_src: int, dispersion):
     return NIVEAUX[niv]
 
 
-def geometrique(ref: dict, produits: dict):
+def quartiles(v):
+    if len(v) == 1:
+        return v[0], v[0], v[0]
+    q = statistics.quantiles(v, n=4, method="inclusive")
+    return q[0], statistics.median(v), q[2]
+
+
+def geometrique(ref, produits):
     i = ref["identifiant"]
     utilises = [produits[p] for p in ref.get("produits_utilises", []) if p in produits]
+    exclus_v61 = []
+    if i in EXCLUSIONS_SC:
+        test, motif = EXCLUSIONS_SC[i]
+        exclus_v61 = [p for p in utilises if test(p)]
+        utilises = [p for p in utilises if not test(p)]
     n_src = len({source_produit(p) for p in utilises})
+    g = {"nb_produits_independants": len(utilises), "nb_sources_distinctes": n_src,
+         "nb_exclus_aberrants": ref.get("nb_modeles_exclus_aberrants", 0), "produits_exclus_v6_1": [p["id_produit"] for p in exclus_v61],
+         "geo_p25_m3": ref.get("volume_geometrique_q1_m3"), "geo_p75_m3": ref.get("volume_geometrique_q3_m3"),
+         "geo_dispersion": ref.get("dispersion_relative"), "estimation_ia": None, "volume_transport_m3": None, "transport_ia": None}
     mesure = ref.get("volume_geometrique_median_m3")
-    g = {
-        "nb_produits_independants": ref.get("nb_modeles_independants", 0),
-        "nb_sources_distinctes": n_src,
-        "nb_exclus_aberrants": ref.get("nb_modeles_exclus_aberrants", 0),
-        "geo_p25_m3": ref.get("volume_geometrique_q1_m3"),
-        "geo_p75_m3": ref.get("volume_geometrique_q3_m3"),
-        "geo_dispersion": ref.get("dispersion_relative"),
-        "estimation_ia": None,
-        "volume_transport_m3": None,
-    }
+    if exclus_v61 and utilises:
+        vols = sorted(float(p["volume_geometrique_m3"]) for p in utilises)
+        q1, med, q3 = quartiles(vols)
+        mesure = med
+        g.update(geo_p25_m3=r3(q1), geo_p75_m3=r3(q3), geo_dispersion=round((q3 - q1) / med, 2) if med else None)
+    elif exclus_v61:
+        mesure = None
     if mesure is not None and ref["couverture_dimensions"] == "complète":
-        g.update(volume_geometrique_m3=mesure, statut_geo="mesuré",
-                 methode_geo="médiane des volumes individuels (hauteur × largeur × profondeur de chaque produit), valeurs aberrantes exclues sur l'échelle logarithmique (v5)",
+        g.update(volume_geometrique_m3=r3(mesure), statut_geo="mesuré",
+                 methode_geo="médiane des volumes individuels (hauteur × largeur × profondeur de chaque produit), aberrants exclus sur l'échelle logarithmique (v5)"
+                 + (f" ; {len(exclus_v61)} produit(s) mal classé(s) exclu(s) en v6.1" if exclus_v61 else ""),
                  fiabilite_geo=fiabilite_geo(g["nb_produits_independants"], n_src, g["geo_dispersion"]))
     elif i in ESTIM:
         e = ESTIM[i]
@@ -117,19 +154,16 @@ def geometrique(ref: dict, produits: dict):
         h = e["h"] if e["h"] is not None else part.get("hauteur_mediane_cm")
         l = e["l"] if e["l"] is not None else part.get("largeur_mediane_cm")
         p = e["p"] if e["p"] is not None else part.get("profondeur_mediane_cm")
-        vol = h * l * p / 1e6
         mesurees = [k for k, v in (("hauteur", e["h"]), ("largeur", e["l"]), ("profondeur", e["p"])) if v is None]
-        statut = "partiellement mesuré" if mesurees else "estimé (IA)"
-        methode = (f"{', '.join(mesurees)} : médiane mesurée sur {part.get('n')} modèle(s) (v5) ; autre dimension estimée par l'IA ; produit des dimensions d'un modèle type, PAS une médiane de volumes"
-                   if mesurees else "dimensions d'un modèle type estimées par l'IA, sans mesure ; PAS une médiane")
-        g.update(volume_geometrique_m3=r3(vol), statut_geo=statut, methode_geo=methode, fiabilite_geo="provisoire",
+        g.update(volume_geometrique_m3=r3(h * l * p / 1e6), statut_geo="partiellement mesuré" if mesurees else "estimé (IA)",
+                 methode_geo=(f"{', '.join(mesurees)} : médiane mesurée sur {part.get('n')} modèle(s) (v5) ; autre dimension estimée par l'IA ; produit des dimensions d'un modèle type, PAS une médiane de volumes"
+                              if mesurees else "dimensions d'un modèle type estimées par l'IA, sans mesure ; PAS une médiane"),
+                 fiabilite_geo="provisoire", nb_produits_independants=0 if not mesurees else 0, nb_sources_distinctes=0,
                  geo_p25_m3=e["vmin"], geo_p75_m3=e["vmax"], geo_dispersion=None,
                  estimation_ia={"hauteur_cm": h, "largeur_cm": l, "profondeur_cm": p, "etat": e["etat"], "note": e["note"],
-                                "fourchette_m3": [e["vmin"], e["vmax"]], "dimensions_mesurees": mesurees})
+                                "fourchette_m3": [e["vmin"], e["vmax"]], "dimensions_mesurees": mesurees, "n_partiel": part.get("n")})
         if e["etat"] == "transport":
-            g["volume_transport_m3"] = r3(vol)
-    elif mesure is not None:  # dimensions partielles mais volume v5 présent (cas résiduel)
-        g.update(volume_geometrique_m3=mesure, statut_geo="mesuré", methode_geo="v5", fiabilite_geo="provisoire")
+            g["volume_transport_m3"] = g["volume_geometrique_m3"]
     else:
         g.update(volume_geometrique_m3=None, statut_geo="aucun", methode_geo="aucune donnée", fiabilite_geo="provisoire")
     if i in TRANSPORT:
@@ -139,129 +173,113 @@ def geometrique(ref: dict, produits: dict):
     return g
 
 
-# ------------------------------------------------------------------ volume de déménagement
+# ------------------------------------------------------------------ références professionnelles
 def releves_par_sc():
     par = defaultdict(list)
-    for sc, v, src, attr, lib in RELEVES:
-        par[sc].append({"valeur_m3": v, "source": src, "attribution": attr, "libelle": lib, "aberrant": (sc, v) in ABERRANTS})
+    for sc, v, bas, haut, src, attr, lib, conv in RELEVES:
+        par[sc].append({"valeur_m3": v, "bas": bas, "haut": haut, "source": src, "domaine": domaine(src), "attribution": attr,
+                        "libelle": lib, "convention": conv, "aberrant": (sc, v) in ABERRANTS,
+                        "convention_exclue": CONVENTIONS_EXCLUES.get(conv)})
     return par
 
 
-def ratios_de_classe(base: dict, releves: dict):
-    """Rapport (médiane des relevés publics) / (volume géométrique mesuré) des sous-catégories « ancres » :
-    au moins 2 relevés utilisables et au moins 3 produits mesurés. La médiane par classe sert à proposer
-    un volume provisoire aux sous-catégories de la même classe qui n'ont aucun relevé."""
-    ancres = defaultdict(list)
-    for i, e in base.items():
-        vals = [x["valeur_m3"] for x in releves.get(i, []) if not x["aberrant"]]
-        if len(vals) >= 2 and e["statut_geo"] == "mesuré" and e["nb_produits_independants"] >= 3 and e["volume_geometrique_m3"]:
-            ancres[e["classe_manutention"]].append((i, statistics.median(vals) / e["volume_geometrique_m3"]))
-    tous = [r for l in ancres.values() for _, r in l]
-    globale = statistics.median(tous)
+def classement_sources():
+    """Ordre de préférence des sources attribuées autres que Démén'House : la plus couvrante d'abord (un barème
+    étendu applique plus probablement une même convention à tous les objets), puis l'ordre alphabétique."""
+    n = Counter(src for _, v, _, _, src, attr, *_ in RELEVES if attr == "attribuée" and v is not None and src not in DH_SRC)
+    return sorted(n, key=lambda s: (-n[s], s)), n
+
+
+CONVENTION_COMPATIBLE = (0.67, 1.5)
+DH_NON_CORRESPONDANTS = {"RAN-MEUBLE-TV"}  # écartée par la règle de correspondance (rapport au géométrique > 6)  # rapport médian source / Démén'House jugé compatible
+
+
+def conventions_sources():
+    """Rapport médian (valeur de la source / valeur unique de Démén'House) sur les sous-catégories où les deux
+    existent. Les synthèses non attribuées sont regroupées en une seule « source »."""
+    dh = {sc: v for sc, v, b, h, src, *_ in RELEVES if src == "demenhouse" and v is not None and (sc, v) not in ABERRANTS and sc not in DH_NON_CORRESPONDANTS}
+    par = defaultdict(list)
+    for sc, v, b, h, src, attr, lib, conv in RELEVES:
+        if src in DH_SRC or v is None or (sc, v) in ABERRANTS or sc not in dh or sc == CARTON["id"]:
+            continue
+        cle = SOURCES[src][0]
+        par[cle].append((sc, v / dh[sc]))
     res = {}
-    for c in sorted({e["classe_manutention"] for e in base.values()}):
-        l = ancres.get(c, [])
-        if len(l) >= 3:
-            res[c] = {"ratio": statistics.median(r for _, r in l), "ancres": l, "origine": "médiane de la classe"}
-        else:
-            res[c] = {"ratio": globale, "ancres": l, "origine": f"moins de 3 ancres dans la classe : médiane globale ({len(tous)} ancres)"}
-    return res, globale
+    for cle, l in par.items():
+        r = statistics.median(x for _, x in l)
+        res[cle] = {"rapport_median": round(r, 2), "nb_communes": len(l), "communes": l,
+                    "convention": ("indéterminée (une seule sous-catégorie commune)" if len(l) < 2 else
+                                   "compatible avec Démén'House" if CONVENTION_COMPATIBLE[0] <= r <= CONVENTION_COMPATIBLE[1] else
+                                   "différente de Démén'House (plus basse)" if r < CONVENTION_COMPATIBLE[0] else "différente de Démén'House (plus haute)")}
+    return res
 
 
-def demenagement(e: dict, releves: list, ratios: dict, comparable_dem=None):
-    utiles = [x for x in releves if not x["aberrant"]]
-    vals = [x["valeur_m3"] for x in utiles]
-    srcs = {x["source"] for x in utiles}
-    if e["identifiant"] == "DIV-AUTRE":
-        return dict(volume_demenagement_m3=None, statut_demenagement="exception documentée", fiabilite_demenagement="sans objet",
-                    methode_demenagement="objet non classé : le volume vient d'une sous-catégorie comparable choisie au cas par cas (règle `volume_source = comparable`), sinon il est fixé par le déménageur ; jamais de volume par défaut",
-                    dem_p25_m3=None, dem_p75_m3=None, nb_releves=0, nb_sources_releves=0)
-    if len(vals) >= 2:
-        q = statistics.quantiles(vals, n=4, method="inclusive") if len(vals) >= 2 else [None, None, None]
-        disp_ok = max(vals) / min(vals) <= 3
-        fiab = "moyenne" if (len(srcs) >= 3 and disp_ok) else "provisoire"
-        return dict(volume_demenagement_m3=r3(statistics.median(vals)), statut_demenagement="estimé",
-                    fiabilite_demenagement=fiab,
-                    methode_demenagement=f"médiane de {len(vals)} relevés publics de déménageurs ({len(srcs)} source(s)) ; valeurs commerciales hétérogènes, non validées par un déménageur pilote",
-                    dem_p25_m3=r3(q[0]), dem_p75_m3=r3(q[2]), nb_releves=len(vals), nb_sources_releves=len(srcs))
-    base_vol = e["volume_transport_m3"] or e["volume_geometrique_m3"]
-    rc = ratios[e["classe_manutention"]]
-    comp = COMPARABLES.get(e["identifiant"])
-    if comp and comparable_dem is not None:
-        cid, mode, facteur, justif = comp
-        v_c = comparable_dem(cid, mode, facteur, e)
-        if v_c is not None:
-            if len(vals) == 1:
-                v = statistics.median([vals[0], v_c])
-                meth = f"un seul relevé public ({vals[0]} m³) et la proposition par sous-catégorie comparable ({r3(v_c)} m³ : {cid}, {justif}) : moyenne des deux"
-            else:
-                v = v_c
-                meth = f"sous-catégorie comparable {cid} ({justif}) ; AUCUNE donnée de déménageur propre à cette sous-catégorie"
-            return dict(volume_demenagement_m3=r3(v), statut_demenagement="provisoire", fiabilite_demenagement="provisoire",
-                        methode_demenagement=meth, dem_p25_m3=None, dem_p75_m3=None, nb_releves=len(vals), nb_sources_releves=len(srcs))
-    if base_vol is None:
-        return dict(volume_demenagement_m3=None, statut_demenagement="manquant", fiabilite_demenagement="provisoire",
-                    methode_demenagement="aucune base", dem_p25_m3=None, dem_p75_m3=None, nb_releves=len(vals), nb_sources_releves=len(srcs))
-    prop = base_vol * rc["ratio"]
-    if len(vals) == 1:
-        v = statistics.median([vals[0], prop])
-        meth = (f"un seul relevé public ({vals[0]} m³) combiné à la proposition par analogie ({r3(prop)} m³ = "
-                f"{'volume de transport' if e['volume_transport_m3'] else 'volume géométrique'} × {rc['ratio']:.2f}, rapport médian de la classe « {e['classe_manutention']} ») : moyenne des deux")
-    else:
-        v = prop
-        meth = (f"analogie : {'volume de transport (plié ou démonté)' if e['volume_transport_m3'] else 'volume géométrique'} {r3(base_vol)} m³ × {rc['ratio']:.2f} "
-                f"(rapport médian relevés / géométrique de la classe « {e['classe_manutention']} », {rc['origine']}) ; AUCUNE donnée de déménageur pour cette sous-catégorie")
-    lo = e["geo_p25_m3"] if e["statut_geo"] != "mesuré" else e["geo_p25_m3"]
-    p25 = r3(lo * rc["ratio"]) if lo and not e["volume_transport_m3"] else None
-    hi = e["geo_p75_m3"]
-    p75 = r3(hi * rc["ratio"]) if hi and not e["volume_transport_m3"] else None
-    if e["volume_transport_m3"] and e.get("transport_ia"):
-        p25, p75 = r3(e["transport_ia"]["fourchette_m3"][0] * rc["ratio"]), r3(e["transport_ia"]["fourchette_m3"][1] * rc["ratio"])
-    return dict(volume_demenagement_m3=r3(v), statut_demenagement="provisoire", fiabilite_demenagement="provisoire",
-                methode_demenagement=meth, dem_p25_m3=p25, dem_p75_m3=p75, nb_releves=len(vals), nb_sources_releves=len(srcs))
+def texte_ref(x):
+    val = f"{x['valeur_m3']}" if x["valeur_m3"] is not None else f"{x['bas']}–{x['haut']}"
+    return f"{val} m³ ({x['domaine'] if x['attribution'] == 'attribuée' else 'non attribuée'}{' – ' + x['convention'] if x['convention'] != 'non précisée' else ''})"
 
 
-# ------------------------------------------------------------------ anomalies
-def anomalies(e: dict, ref: dict, releves: list):
-    a = []
-    i = e["identifiant"]
-    herite = ref.get("volume_demenagement_reference_m3")
-    geo = e["volume_geometrique_m3"]
-    dem = e["volume_demenagement_m3"]
+def corrobore(x, v):
+    lo, hi = v * (1 - CORROBORATION), v * (1 + CORROBORATION)
+    if x["valeur_m3"] is not None:
+        return lo <= x["valeur_m3"] <= hi
+    return x["bas"] <= hi and x["haut"] >= lo
+
+
+def valeur_professionnelle(e, refs, ordre):
+    """Choisit UNE valeur réellement publiée, sans moyenne. Renvoie None si aucune ne convient."""
+    utiles = [x for x in refs if not x["aberrant"] and not x["convention_exclue"]]
+    rejets = []
+    geo_fiable = e["volume_geometrique_m3"] if e["statut_geo"] == "mesuré" and e["nb_produits_independants"] >= 3 else None
+    geo_plancher = e["volume_geometrique_m3"] if e["statut_geo"] in ("mesuré", "partiellement mesuré") else None
     rigide = e["classe_manutention"] in ("appareils et objets rigides", "meubles et objets non démontables")
-    if herite is not None and dem:
-        ecart = (herite - dem) / dem
-        if abs(ecart) > 0.5:
-            a.append(("volume hérité très différent", f"ancien catalogue {herite} m³ contre {dem} m³ proposé ({ecart:+.0%})", "choisir la valeur de référence avec un déménageur pilote", "élevée" if ref["niveau_pertinence"] <= 2 else "moyenne"))
-    if herite is not None and geo and rigide and herite < 0.8 * geo and e["statut_geo"] == "mesuré":
-        a.append(("volume de déménagement inférieur au volume du meuble", f"ancien catalogue {herite} m³ pour un objet rigide non démontable de {geo} m³ (géométrique médian)", "impossible physiquement sauf emboîtement : à corriger", "élevée"))
-    if dem and geo and rigide and e["statut_demenagement"] == "estimé" and dem < 0.7 * geo and not e["volume_transport_m3"]:
-        a.append(("relevés publics sous le volume géométrique", f"relevés {dem} m³ < 70 % du géométrique {geo} m³", "vérifier le périmètre des sous-catégories (modèles mesurés plus grands que ceux des déménageurs ?)", "moyenne"))
-    if e["statut_geo"] == "mesuré" and e["nb_produits_independants"] <= 2 and ref["niveau_pertinence"] <= 2:
-        a.append(("géométrique sur 1 ou 2 produits", f"{e['nb_produits_independants']} produit(s) mesuré(s)", "compléter par des mesures", "moyenne"))
-    if dem and geo and e["statut_demenagement"] == "estimé" and e["statut_geo"] == "mesuré" and dem > 2.5 * geo:
-        a.append(("relevés publics très supérieurs au volume géométrique", f"relevés {dem} m³ = {dem / geo:.1f} × le géométrique médian {geo} m³", "vérifier si les barèmes visent de plus grands modèles ou incluent le contenu ; fixer la convention", "moyenne"))
-    vals = [x["valeur_m3"] for x in releves if not x["aberrant"]]
-    if len(vals) >= 2 and max(vals) / min(vals) > 3:
-        a.append(("relevés publics très dispersés", f"de {min(vals)} à {max(vals)} m³", "fixer une convention avec les déménageurs pilotes", "moyenne"))
-    for x in releves:
-        if x["aberrant"]:
-            a.append(("relevé public aberrant écarté", f"{x['valeur_m3']} m³ ({x['libelle']})", "aucune (écarté)", "faible"))
-    if i in TRANSPORT or (e.get("estimation_ia") or {}).get("etat") == "transport":
-        a.append(("volume géométrique déployé sans sens pour le déménagement", f"géométrique {geo} m³ ; volume de transport estimé {e['volume_transport_m3']} m³", "valider l'état de transport (plié, démonté)", "moyenne"))
-    if i in ("JAR-ABRI", "JAR-PISCINE"):
-        a.append(("sous-catégorie hétérogène", "objets de volumes très différents réunis (coffre ou abri ; piscine tubulaire ou spa)", "scinder la sous-catégorie", "moyenne"))
-    return a
+    uniques = []
+    for x in utiles:
+        if x["valeur_m3"] is None:
+            continue
+        if rigide and geo_plancher and x["valeur_m3"] < 0.8 * geo_plancher:
+            rejets.append(f"{x['valeur_m3']} m³ ({x['domaine']}) non retenue : inférieure à 80 % du volume de l'objet rigide ({geo_plancher} m³)")
+            continue
+        uniques.append(x)
+    choix = None
+    dh = [x for x in uniques if x["source"] == "demenhouse"]
+    if dh:
+        x = dh[0]
+        if geo_fiable and x["valeur_m3"] / geo_fiable > DH_RAPPORT_MAX:
+            rejets.append(f"valeur Démén'House {x['valeur_m3']} m³ non retenue : {x['valeur_m3'] / geo_fiable:.1f} fois le géométrique médian mesuré ({geo_fiable} m³), ne correspond pas à l'objet courant de la sous-catégorie")
+        else:
+            choix, regle = x, "1 — valeur unique publiée par Démén'House"
+    if choix is None:
+        attrib = sorted((x for x in uniques if x["attribution"] == "attribuée" and x["source"] not in DH_SRC), key=lambda x: ordre.index(x["source"]))
+        if attrib:
+            choix, regle = attrib[0], "2 — valeur d'une autre source professionnelle attribuée (barème le plus couvrant d'abord)"
+    if choix is None:
+        anon = [x for x in uniques if x["attribution"] == "non attribuée"]
+        if anon:
+            med = statistics.median(x["valeur_m3"] for x in anon)
+            soutien = lambda x: sum(1 for y in utiles if y is not x and corrobore(y, x["valeur_m3"]))  # noqa: E731
+            choix = min(anon, key=lambda x: (-soutien(x), abs(x["valeur_m3"] - med), -x["valeur_m3"]))
+            regle = "3 — valeur publiée non attribuée (la plus soutenue par les autres références, puis la plus centrale ; aucune moyenne)"
+    if choix is None:
+        return None, rejets
+    v = choix["valeur_m3"]
+    autres = [x for x in utiles if x is not choix]
+    dom_choix = choix["domaine"]
+    corrob = {x["domaine"] for x in autres if x["attribution"] == "attribuée" and x["domaine"] != dom_choix and corrobore(x, v)}
+    corrob_anon = any(x["attribution"] == "non attribuée" and corrobore(x, v) for x in autres)
+    divergentes = [x for x in autres if x["valeur_m3"] is not None and (x["valeur_m3"] > v * DIVERGENCE or x["valeur_m3"] < v / DIVERGENCE)]
+    interne = [x for x in autres if x["source"] == "demenhouse-2" and choix["source"] == "demenhouse" and not (x["bas"] <= v <= x["haut"])]
+    return {"valeur": v, "choix": choix, "regle": regle, "autres": autres, "corroboration_attribuee": sorted(corrob),
+            "corroboration_non_attribuee": corrob_anon, "divergentes": divergentes, "incoherence_dh": interne, "rejets": rejets}, rejets
 
 
-ANOMALIES_MANUELLES = [
-    ("LIT-QUEEN, LIT-KING, LIT-COFFRE, LIT-NC", "incohérence entre tailles de lit", "géométriques 2,93 / 3,21 / 4,36 / 4,38 m³ contre 1,02 m³ pour LIT-DOUBLE : les grands lits mesurés semblent inclure tête de lit, coffres ou ensembles ; LIT-DOUBLE et LIT-SIMPLE non", "revoir le périmètre des produits (lit seul / lit avec tête / ensemble)", "élevée"),
-    ("COM-3T, COM-4T", "ordre inversé", "commode 4 tiroirs 0,286 m³ < commode 3 tiroirs 0,323 m³ (petits échantillons, 13 et 17 produits)", "accepter (les tiroirs ne font pas la taille) ou regrouper", "faible"),
-    ("ELM-REF-COMBI, ELM-REF-US, ELM-REF-1P, ELM-REF-TOP, ELM-CAVE", "biais de marché", "largeurs médianes issues d'ENERGY STAR (marché nord-américain) : combiné de 74,9 cm de large au lieu de 60 cm courant en France", "compléter par EPREL (démarche en attente) ou par des mesures françaises", "moyenne"),
-    ("RES-DISTRIBUTEUR, PRO-COMPTOIR, PRO-PRESENTOIR, INF-IMPRIMANTE", "volumes géométriques mesurés invraisemblables", "0,022 / 0,068 / 0,028 / 0,013 m³ pour un distributeur automatique, un comptoir, une gondole, une imprimante : produits mal classés (petits accessoires)", "revoir le classement des produits ; le volume de déménagement proposé reste provisoire", "moyenne"),
-    ("MUS-PIANO-CARRE", "volume hérité recopié", "5,0 m³ repris de l'ancien « piano à queue », pour un piano carré de 0,77 m³ géométrique", "fixer avec un déménageur spécialisé", "faible"),
-    ("CAR-CARTON", "convention du carton", "relevés publics 0,05 et 0,1 m³ ; l'ancien catalogue retient 0,1 m³ ; le carton standard de 50 × 40 × 30 cm fait 0,06 m³", "décision commerciale : volume d'un carton dans le parcours (cartons déclarés par le client)", "élevée"),
-]
+def type_reference(choix):
+    if choix["source"] in DH_SRC:
+        return "attribuée — entreprise de déménagement (Démén'House)"
+    nat = SOURCES[choix["source"]][2]
+    if choix["attribution"] == "attribuée":
+        return f"attribuée — {nat}"
+    return "non attribuée — synthèse de résultats de recherche"
 
 
 # ------------------------------------------------------------------ construction
@@ -270,53 +288,139 @@ def construire():
     refs = cat["references"]
     base_refs = {r["identifiant"]: r for r in refs if not r.get("variante_de")}
     releves = releves_par_sc()
-    inconnus = set(releves) - set(base_refs)
-    assert not inconnus, f"relevés sur des sous-catégories inconnues : {inconnus}"
-    inconnus = (set(ESTIM) | set(TRANSPORT)) - set(base_refs)
-    assert not inconnus, f"estimations sur des sous-catégories inconnues : {inconnus}"
-
+    assert not (set(releves) - set(base_refs)), set(releves) - set(base_refs)
+    assert not ((set(ESTIM) | set(TRANSPORT) | set(COMPARABLES)) - set(base_refs))
+    ordre, couverture_src = classement_sources()
+    global CONVENTIONS
+    CONVENTIONS = conventions_sources()
     base = {}
     for i, r in base_refs.items():
-        e = {"identifiant": i, "nom": r["nom"], "famille_id": r["famille_id"], "famille": r["famille"],
-             "niveau_pertinence": r["niveau_pertinence"], "prioritaire": r["niveau_pertinence"] <= 2,
-             "classe_manutention": classe(r)}
+        e = {"identifiant": i, "nom": r["nom"], "famille_id": r["famille_id"], "famille": r["famille"], "niveau_pertinence": r["niveau_pertinence"],
+             "prioritaire": r["niveau_pertinence"] <= 2, "classe_manutention": classe(r), "volume_v5_m3": r.get("volume_demenagement_reference_m3"),
+             "origine_v5": r.get("volume_demenagement_origine", "")}
         e.update(geometrique(r, produits))
         base[i] = e
-    ratios, globale = ratios_de_classe(base, releves)
 
-    def comparable_dem(cid, mode, facteur, e):
+    # Étape 1 : valeurs professionnelles, convention du carton, exception.
+    for i, e in base.items():
+        e["references_pro"] = releves.get(i, [])
+        e["rejets"] = []
+        e["pro"] = None
+        if i == CARTON["id"]:
+            e.update(volume_demenagement_m3=CARTON["volume"], type_reference="convention validée par Devis Scan", source_principale="Devis Scan (décision du 26/11/2026)",
+                     regle="convention", methode_demenagement=CARTON["decision"], fiabilite_demenagement="élevée (convention validée)",
+                     statut_validation="convention commerciale validée par Devis Scan (pas une mesure)")
+            continue
+        if i == "DIV-AUTRE":
+            e.update(volume_demenagement_m3=None, type_reference="exception documentée", source_principale="", regle="exception",
+                     methode_demenagement="objet non classé : volume d'une sous-catégorie comparable choisie au cas par cas (règle volume_source = comparable du parcours), sinon fixé par le déménageur ; jamais de volume par défaut",
+                     fiabilite_demenagement="sans objet", statut_validation="non validé")
+            continue
+        pro, rejets = valeur_professionnelle(e, e["references_pro"], ordre)
+        e["rejets"] = rejets
+        e["pro_non_retenu"] = None
+        if pro and pro["choix"]["source"] not in DH_SRC and i in COMPARABLES:
+            conv = CONVENTIONS.get(pro["choix"]["domaine"], {}).get("convention", "")
+            if conv.startswith("différente"):
+                e["pro_non_retenu"] = pro
+                e["rejets"].append(f"{pro['valeur']} m³ ({pro['choix']['domaine']}) non retenue en priorité : convention {conv} (rapport médian {CONVENTIONS[pro['choix']['domaine']]['rapport_median']}) ; alignement sur Démén'House par la sous-catégorie comparable {COMPARABLES[i][0]}")
+                pro = None
+        if pro:
+            e["pro"] = pro
+            c = pro["choix"]
+            fiab = "moyenne" if pro["corroboration_attribuee"] else "provisoire"
+            e.update(volume_demenagement_m3=pro["valeur"], type_reference=type_reference(c),
+                     source_principale=f"{c['domaine']} — {SOURCES[c['source']][1]}" if c["attribution"] == "attribuée" else SOURCES[c["source"]][1],
+                     regle=pro["regle"], fiabilite_demenagement=fiab, statut_validation="non validé (estimation indicative publiée, pas une mesure Devis Scan)",
+                     methode_demenagement=f"règle {pro['regle']} : « {c['libelle']} »"
+                     + (f" ; corroborée par {', '.join(pro['corroboration_attribuee'])}" if pro["corroboration_attribuee"] else " ; aucune autre source attribuée à ± 35 %"))
+
+    # Étape 2 : rapports de classe (ancres = valeur retenue de Démén'House ; à défaut, toute valeur professionnelle retenue).
+    def ancres(filtre):
+        a = defaultdict(list)
+        for i, e in base.items():
+            if e.get("pro") and filtre(e) and e["statut_geo"] == "mesuré" and e["nb_produits_independants"] >= 3 and e["volume_geometrique_m3"]:
+                a[e["classe_manutention"]].append((i, e["volume_demenagement_m3"] / e["volume_geometrique_m3"]))
+        return a
+    a_dh = ancres(lambda e: e["pro"]["choix"]["source"] == "demenhouse")
+    a_pro = ancres(lambda e: True)
+    glob_dh = statistics.median(r for l in a_dh.values() for _, r in l)
+    ratios = {}
+    for c in sorted({e["classe_manutention"] for e in base.values()}):
+        if len(a_dh.get(c, [])) >= 3:
+            ratios[c] = {"ratio": statistics.median(r for _, r in a_dh[c]), "ancres": a_dh[c], "origine": "ancres Démén'House de la classe"}
+        elif len(a_pro.get(c, [])) >= 3:
+            ratios[c] = {"ratio": statistics.median(r for _, r in a_pro[c]), "ancres": a_pro[c], "origine": "moins de 3 ancres Démén'House : ancres de toutes sources professionnelles de la classe (conventions mélangées)"}
+        else:
+            ratios[c] = {"ratio": glob_dh, "ancres": a_dh.get(c, []), "origine": f"moins de 3 ancres dans la classe : médiane de toutes les ancres Démén'House ({sum(len(l) for l in a_dh.values())})"}
+
+    # Étape 3 : comparables puis ratios, pour les sous-catégories sans valeur professionnelle utilisable.
+    def comp_val(cid, mode, facteur, e):
         c = base[cid]
         if c.get("volume_demenagement_m3") is None:
             return None
         if mode == "proportion" and c["volume_geometrique_m3"] and e["volume_geometrique_m3"]:
             return c["volume_demenagement_m3"] * e["volume_geometrique_m3"] / c["volume_geometrique_m3"]
-        return c["volume_demenagement_m3"] * facteur
+        return c["volume_demenagement_m3"] * (facteur or 1.0)
 
-    # Deux passages : les sous-catégories sans comparable d'abord (elles servent de base aux autres).
-    ordre_calcul = sorted(base, key=lambda i: i in COMPARABLES)
-    for i in ordre_calcul:
-        e = base[i]
-        e.update(demenagement(e, releves.get(i, []), ratios, comparable_dem))
+    # Les comparables sont résolus par passes successives (une comparable peut dépendre d'une autre) ; le ratio
+    # géométrique n'intervient qu'à la dernière passe, quand aucune comparable n'a pu être résolue.
+    for passe in range(8):
+        derniere = passe == 7
+        for i, e in base.items():
+            if "volume_demenagement_m3" in e:
+                continue
+            seules_fourchettes = [x for x in e["references_pro"] if x["valeur_m3"] is None]
+            if i in COMPARABLES:
+                cid, mode, facteur, justif = COMPARABLES[i]
+                if "volume_demenagement_m3" not in base[cid] and not derniere:
+                    continue
+                v = comp_val(cid, mode, facteur, e) if "volume_demenagement_m3" in base[cid] else None
+                if v is not None:
+                    e.update(volume_demenagement_m3=r3(v), type_reference="estimation par analogie (sous-catégorie comparable)", source_principale=f"comparable {cid} ({base[cid].get('type_reference', '')})",
+                             regle="4 — sous-catégorie comparable" + (" (alignement sur la convention Démén'House)" if e.get("pro_non_retenu") else ""), fiabilite_demenagement="provisoire", statut_validation="non validé (estimation Devis Scan)",
+                             methode_demenagement=f"{cid} × {'(géométrique / géométrique du comparable)' if mode == 'proportion' else facteur} : {justif}")
+                    continue
+            if e.get("pro_non_retenu"):
+                pro = e["pro"] = e["pro_non_retenu"]
+                c = pro["choix"]
+                e.update(volume_demenagement_m3=pro["valeur"], type_reference=type_reference(c), source_principale=f"{c['domaine']} — {SOURCES[c['source']][1]}",
+                         regle=pro["regle"], fiabilite_demenagement="provisoire", statut_validation="non validé (estimation indicative publiée, pas une mesure Devis Scan)",
+                         methode_demenagement=f"règle {pro['regle']} : « {c['libelle']} » (convention différente de Démén'House, comparable indisponible)")
+                continue
+            base_vol = e["volume_transport_m3"] or e["volume_geometrique_m3"]
+            if base_vol is None:
+                e.update(volume_demenagement_m3=None, type_reference="manquant", source_principale="", regle="aucune", fiabilite_demenagement="provisoire", statut_validation="non validé", methode_demenagement="aucune base")
+                continue
+            rc = ratios[e["classe_manutention"]]
+            e.update(volume_demenagement_m3=r3(base_vol * rc["ratio"]), type_reference="estimation par ratio géométrique (classe de manutention)", source_principale=f"ratio de classe « {e['classe_manutention']} »",
+                     regle="5 — ratio géométrique de classe", fiabilite_demenagement="provisoire", statut_validation="non validé (estimation Devis Scan)",
+                     methode_demenagement=f"{'volume de transport (plié ou démonté)' if e['volume_transport_m3'] else 'volume géométrique ' + e['statut_geo']} {r3(base_vol)} m³ × {rc['ratio']:.2f} ({rc['origine']}) ; aucune valeur professionnelle unique pour cette sous-catégorie"
+                     + (f" ; fourchette(s) publiée(s) : {', '.join(texte_ref(x) for x in seules_fourchettes)}" if seules_fourchettes else ""))
+
+    # Étape 4 : champs de synthèse.
     for i, e in base.items():
-        r = base_refs[i]
-        e["volume_demenagement_v5_herite_m3"] = r.get("volume_demenagement_reference_m3")
-        e["origine_v5_herite"] = r.get("volume_demenagement_origine", "")
-        e["sources_mesures"] = ", ".join(f"{k} ({v})" for k, v in (r.get("nb_modeles_par_source") or {}).items())
-        e["sources_releves"] = sorted({x["source"] for x in releves.get(i, []) if not x["aberrant"]})
-        e["anomalies"] = anomalies(e, r, releves.get(i, []))
-        e["statut_global"] = ("exception documentée" if e["statut_demenagement"] == "exception documentée"
-                              else "vérifié" if False  # aucune valeur n'est validée par un déménageur pilote à ce jour
-                              else "estimé" if e["statut_demenagement"] == "estimé" and e["statut_geo"] == "mesuré"
-                              else "provisoire")
-        reserves = []
-        if e["statut_geo"] != "mesuré":
-            reserves.append("volume géométrique non mesuré")
-        if e["statut_demenagement"] == "provisoire":
-            reserves.append("volume de déménagement sans relevé suffisant")
-        if r.get("avertissement_volume"):
-            reserves.append(r["avertissement_volume"])
-        e["commentaires"] = " ; ".join(reserves)
-    # Variantes de taille : proportion de la sous-catégorie parente.
+        rp = e["references_pro"]
+        e["autres_references"] = " ; ".join(texte_ref(x) + (" [aberrant]" if x["aberrant"] else "") + (" [convention différente]" if x["convention_exclue"] else "")
+                                            for x in rp if not (e.get("pro") and x is e["pro"]["choix"]))
+        e["nb_references_pro"] = len(rp)
+        att = {x["domaine"] for x in rp if x["attribution"] == "attribuée" and not x["aberrant"]}
+        e["nb_sources_independantes_pro"] = len(att) + (1 if any(x["attribution"] == "non attribuée" and not x["aberrant"] for x in rp) else 0)
+        e["divergence"] = ""
+        if e.get("pro"):
+            d = e["pro"]["divergentes"]
+            if d:
+                vals = [x["valeur_m3"] for x in d]
+                e["divergence"] = f"valeurs publiées de {min(vals + [e['volume_demenagement_m3']])} à {max(vals + [e['volume_demenagement_m3']])} m³"
+        e["volume_v6_0_m3"] = None
+    hist = {}
+    if (HIST / "catalogue_volumes_v6.csv").exists():
+        with open(HIST / "catalogue_volumes_v6.csv", newline="") as f:
+            for l in csv.DictReader(f, delimiter=";"):
+                hist[l["identifiant"]] = float(l["volume_demenagement_m3"]) if l["volume_demenagement_m3"] else None
+    for i, e in base.items():
+        e["volume_v6_0_m3"] = hist.get(i)
+
     variantes = []
     for r in refs:
         if not r.get("variante_de"):
@@ -324,18 +428,113 @@ def construire():
         p = base[r["variante_de"]]
         g = r.get("volume_geometrique_median_m3")
         if p["volume_demenagement_m3"] and g and p["volume_geometrique_m3"] and p["statut_geo"] == "mesuré":
-            dem, meth = r3(p["volume_demenagement_m3"] * g / p["volume_geometrique_m3"]), "volume de déménagement de la sous-catégorie parente × (géométrique de la variante / géométrique de la parente)"
+            dem, meth = r3(p["volume_demenagement_m3"] * g / p["volume_geometrique_m3"]), "hérité : volume retenu de la parente × (géométrique de la variante / géométrique de la parente)"
         else:
-            dem, meth = p["volume_demenagement_m3"], "volume de déménagement de la sous-catégorie parente (pas de géométrique comparable)"
-        variantes.append({"identifiant": r["identifiant"], "nom": r["nom"], "variante_de": r["variante_de"],
-                          "volume_geometrique_m3": g, "geo_p25_m3": r.get("volume_geometrique_q1_m3"), "geo_p75_m3": r.get("volume_geometrique_q3_m3"),
-                          "nb_produits_independants": r.get("nb_modeles_independants", 0), "volume_demenagement_m3": dem,
-                          "statut_demenagement": "provisoire", "methode_demenagement": meth})
-    return cat, produits, base_refs, base, variantes, ratios, globale, releves
+            dem, meth = p["volume_demenagement_m3"], "hérité : volume retenu de la parente, sans ajustement (pas de géométrique comparable)"
+        variantes.append({"identifiant": r["identifiant"], "nom": r["nom"], "variante_de": r["variante_de"], "volume_geometrique_m3": g,
+                          "geo_p25_m3": r.get("volume_geometrique_q1_m3"), "geo_p75_m3": r.get("volume_geometrique_q3_m3"), "nb_produits_independants": r.get("nb_modeles_independants", 0),
+                          "volume_demenagement_m3": dem, "type_reference": "hérité de la sous-catégorie parente", "source_parente": p.get("type_reference", ""),
+                          "fiabilite_demenagement": "provisoire", "statut_validation": "non validé", "methode_demenagement": meth})
+    return cat, produits, base_refs, base, variantes, ratios, glob_dh, releves, ordre, couverture_src
 
 
-# ------------------------------------------------------------------ couverture des inventaires
-def couverture(base: dict):
+# ------------------------------------------------------------------ anomalies
+ANOMALIES_V61 = [
+    # (sous-catégories, type, description, priorité, état, action v6.1, décision proposée)
+    ("CAR-CARTON", "convention du carton", "valeurs publiées 0,05 / 0,1 / 0,2 m³ (Démén'House : carton « medium » 0,2 m³)", "élevée", "résolue",
+     "convention validée appliquée : 0,10 m³ ; les autres valeurs restent en références", "aucune (décision prise le 26/11/2026) ; à noter : Démén'House compte 0,2 m³ par carton « medium »"),
+    ("LIT-*, MAT-*, SOM-STD", "convention lit monté, démonté, avec ou sans literie", "les barèmes ne disent pas toujours si le matelas et le sommier sont compris ; la v6.0 ajoutait matelas et sommier à côté des lits dans les inventaires types (literie comptée deux fois)", "élevée", "contournée provisoirement",
+     "convention « lit complet » (cadre, sommier, matelas) ; valeur « cadre et sommier démontés, sans matelas » écartée pour LIT-QUEEN ; inventaires types corrigés", "faire valider la convention par le professionnel"),
+    ("LIT-QUEEN, LIT-KING, LIT-COFFRE, LIT-NC", "géométriques mesurés incohérents entre tailles de lit", "2,93 / 3,21 / 4,36 / 4,38 m³ contre 1,02 m³ pour LIT-DOUBLE : produits mesurés avec tête de lit, coffres ou ensembles", "élevée", "contournée provisoirement",
+     "volumes de déménagement par comparables (LIT-QUEEN, LIT-DOUBLE), jamais par le géométrique", "revoir le périmètre des produits mesurés"),
+    ("ARM-4P, ARM-5P+, ARM-NC", "armoires : monté ou démonté ?", "Démén'House 4,3 m³ (4 portes) et 2,3 m³ (armoire « standard »), d'autres sites 2,0 m³ ; mtn-demenagement.com 3 m³ pour une 3 portes « montée » ; une source indique un gain de 30 à 40 % au démontage", "élevée", "ouverte",
+     "valeurs Démén'House retenues, divergences conservées", "question au professionnel : volume retenu pour une armoire démontée par l'équipe"),
+    ("COM-NC, CHV-STD", "Démén'House incohérent avec lui-même", "liste : commode 1,5 m³, chevet 0,3 m³ ; article récent : commode 0,5 à 1 m³, chevet 0,15 à 0,25 m³", "élevée", "ouverte",
+     "valeur de la liste retenue (règle 1), incohérence signalée", "choisir entre les deux séries de Démén'House"),
+    ("RAN-MEUBLE-TV", "valeur Démén'House ne correspondant pas à l'objet", "meuble TV 3,2 m³ pour un géométrique médian de 0,32 m³ (10 fois plus)", "moyenne", "résolue",
+     "valeur Démén'House non retenue (règle de correspondance) ; autre valeur professionnelle retenue", "confirmer avec le professionnel"),
+    ("RAN-BIB-NC, RAN-BUFFET, TAB-BASSE, COM-NC", "valeurs professionnelles très supérieures au géométrique", "2,3 à 5,4 fois le géométrique médian mesuré : barèmes visant peut-être de plus grands modèles, ou comptant la protection et le calage", "moyenne", "ouverte",
+     "valeurs professionnelles retenues (le géométrique n'est jamais substitué)", "question au professionnel"),
+    ("ELM-REF-COMBI, ELM-REF-US, ELM-REF-1P, ELM-REF-TOP, ELM-CAVE", "dimensions du marché nord-américain", "largeurs médianes issues d'ENERGY STAR (combiné de 74,9 cm de large au lieu de 60 cm en France)", "moyenne", "ouverte",
+     "sans effet sur les volumes de déménagement retenus quand une valeur professionnelle existe (ELM-REF, ELM-REF-COMBI, ELM-REF-US) ; effet sur ELM-REF-1P et ELM-REF-TOP (comparables en proportion)", "EPREL (démarche à faire par le porteur du projet) ou mesures françaises"),
+    ("RES-DISTRIBUTEUR, PRO-COMPTOIR, PRO-PRESENTOIR, ENF-CHAISE-HAUTE", "produits mal classés", "petits distributeurs muraux, micro-ondes, vitrine à drapeau, rehausseur plié", "moyenne", "résolue",
+     "produits exclus en v6.1 (conservés dans mesures_individuelles.csv) ; géométrique recalculé ou estimé par l'IA", "aucune"),
+    ("INF-IMPRIMANTE, AUD-CHAINE", "produits peu représentatifs", "imprimante des années 1990, enceintes Bluetooth parmi les chaînes hi-fi", "faible", "ouverte",
+     "aucune", "compléter par des mesures"),
+    ("MUS-PIANO-CARRE", "volume hérité recopié", "5,0 m³ repris de l'ancien « piano à queue » pour un piano carré de 0,77 m³ géométrique", "faible", "ouverte", "aucune", "déménageur spécialisé"),
+    ("204 variantes de taille", "volumes hérités de la parente", "les variantes (petit, moyen, grand) reçoivent le volume de leur parente en proportion des volumes géométriques ; aucune donnée professionnelle propre", "moyenne", "ouverte",
+     "statut « hérité de la sous-catégorie parente » explicite dans variantes_v6.csv", "décider si les variantes sont exposées aux devis (recommandation : non, tant qu'elles ne sont pas validées)"),
+    ("JAR-ABRI, JAR-PISCINE", "sous-catégories hétérogènes", "coffre ou abri de jardin ; piscine tubulaire ou spa", "moyenne", "ouverte", "volumes de transport estimés", "scinder les sous-catégories"),
+    ("relevés non attribués", "sources anonymes", "95 valeurs sur 172 viennent de synthèses de recherche sans attribution ; elles comptent pour une seule source au total", "moyenne", "ouverte",
+     "comptage corrigé (une seule source pour toutes les synthèses) ; elles ne sont retenues qu'à défaut de valeur attribuée", "relire les pages d'origine avec un réseau qui les autorise"),
+]
+
+
+def anomalies_auto(e):
+    a = []
+    v5, v = e["volume_v5_m3"], e["volume_demenagement_m3"]
+    geo = e["volume_geometrique_m3"]
+    rigide = e["classe_manutention"] in ("appareils et objets rigides", "meubles et objets non démontables")
+    if v5 is not None and v and abs(v5 - v) / v > 0.5:
+        a.append(("écart important avec la v5", f"v5 {v5} m³, retenu v6.1 {v} m³ ({(v - v5) / v5:+.0%} par rapport à la v5)", "élevée" if e["prioritaire"] else "moyenne", "ouverte", "", "trancher avec le professionnel"))
+    if v5 is not None and geo and rigide and v5 < 0.8 * geo and e["statut_geo"] == "mesuré":
+        a.append(("v5 inférieure au volume du meuble", f"v5 {v5} m³ pour un objet rigide non démontable de {geo} m³", "élevée", "résolue" if v and v >= 0.8 * geo else "ouverte", "valeur v6.1 au moins égale au volume du meuble" if v and v >= 0.8 * geo else "", "aucune si la valeur retenue est validée"))
+    if e.get("divergence"):
+        a.append(("divergence entre sources", e["divergence"] + " : " + e["autres_references"][:300], "élevée" if e["prioritaire"] else "moyenne", "ouverte", "valeurs conservées, aucune moyenne", "question au professionnel"))
+    if e.get("pro") and e["pro"]["incoherence_dh"]:
+        x = e["pro"]["incoherence_dh"][0]
+        a.append(("Démén'House incohérent avec lui-même", f"liste {e['volume_demenagement_m3']} m³ hors de la fourchette de l'article récent ({x['bas']}–{x['haut']} m³)", "élevée", "ouverte", "valeur de la liste retenue", "choisir la série de référence"))
+    for r in e["rejets"]:
+        a.append(("valeur publiée non retenue", r, "moyenne", "résolue", "autre valeur retenue ; valeur écartée conservée en référence", "confirmer avec le professionnel"))
+    if e["statut_geo"] == "mesuré" and e["nb_produits_independants"] <= 2 and e["prioritaire"]:
+        a.append(("géométrique sur 1 ou 2 produits", f"{e['nb_produits_independants']} produit(s) mesuré(s)", "moyenne", "ouverte", "", "compléter par des mesures"))
+    if e["volume_transport_m3"]:
+        a.append(("géométrique déployé sans sens pour le déménagement", f"géométrique {geo} m³ ; transport estimé {e['volume_transport_m3']} m³", "moyenne", "contournée provisoirement", "volume de transport estimé par l'IA", "valider l'état de transport"))
+    if e["regle"].startswith("5") and e["prioritaire"]:
+        a.append(("aucune référence professionnelle", "volume obtenu par ratio géométrique de classe", "moyenne", "ouverte", "", "obtenir une valeur professionnelle"))
+    for x in e["references_pro"]:
+        if x["aberrant"]:
+            a.append(("valeur publiée aberrante écartée", f"{x['valeur_m3']} m³ ({x['libelle']})", "faible", "résolue", "écartée", "aucune"))
+    return a
+
+
+ORDRES_ATTENDUS = [("ARM-1P", "ARM-2P"), ("ARM-2P", "ARM-3P"), ("ARM-3P", "ARM-4P"), ("ARM-4P", "ARM-5P+"), ("ELM-REF-TOP", "ELM-REF"), ("ELM-REF", "ELM-REF-US"),
+                   ("CAN-2P", "CAN-3P"), ("CAN-3P", "CAN-ANG"), ("CAN-3P", "CAN-4P"), ("LIT-SIMPLE", "LIT-DOUBLE"), ("LIT-DOUBLE", "LIT-QUEEN"), ("LIT-QUEEN", "LIT-KING"),
+                   ("LIT-SIMPLE", "LIT-SUPERP"), ("TAB-4", "TAB-6"), ("TAB-6", "TAB-8+"), ("BUR-DROIT", "BUR-ANGLE"), ("INF-TV-43", "INF-TV-55"), ("INF-TV-55", "INF-TV-75"),
+                   ("COM-3T", "COM-5T"), ("RAN-BIB-BASSE", "RAN-BIB-HAUTE"), ("MAT-90", "MAT-140"), ("MAT-140", "MAT-160"), ("MAT-160", "MAT-180")]
+
+
+def anomalies_ordre(base):
+    a = []
+    for petit, grand in ORDRES_ATTENDUS:
+        vp, vg = base[petit]["volume_demenagement_m3"], base[grand]["volume_demenagement_m3"]
+        if vp is not None and vg is not None and vp >= vg:
+            a.append({"sous_categories": f"{petit}, {grand}", "niveau_pertinence": "", "type": "ordre incohérent entre variantes",
+                      "description": f"{petit} {vp} m³ ≥ {grand} {vg} m³ ({base[petit]['type_reference']} / {base[grand]['type_reference']}) : conventions de sources différentes",
+                      "priorite": "élevée", "etat_resolution": "ouverte", "action_v6_1": "aucune correction automatique (pas de valeur fabriquée)", "decision_proposee": "question au professionnel", "origine": "contrôle automatique v6.1"})
+    return a
+
+
+def scenario_sans_demenhouse(base, ordre):
+    """Sensibilité : volume de chaque sous-catégorie si l'on retenait les autres sources professionnelles au lieu de
+    Démén'House (même règle de choix, sans moyenne). Les comparables dont la parente change sont ajustés dans la même
+    proportion ; les ratios géométriques restent inchangés (ils sous-estiment donc l'effet)."""
+    alt = {}
+    for i, e in base.items():
+        if e.get("pro") and e["pro"]["choix"]["source"] in DH_SRC:
+            sans = [x for x in e["references_pro"] if x["source"] not in DH_SRC]
+            pro, _ = valeur_professionnelle(e, sans, ordre)
+            alt[i] = pro["valeur"] if pro else e["volume_demenagement_m3"]
+    for i, e in base.items():
+        if i in COMPARABLES and e["regle"].startswith("4"):
+            cid = COMPARABLES[i][0]
+            if cid in alt and base[cid]["volume_demenagement_m3"]:
+                alt[i] = e["volume_demenagement_m3"] * alt[cid] / base[cid]["volume_demenagement_m3"]
+    return {i: alt.get(i, e["volume_demenagement_m3"]) for i, e in base.items()}
+
+
+# ------------------------------------------------------------------ couverture et comparaison des versions
+def couverture(base, alt=None):
     corr = {}
     with open(V5 / "correspondance_catalogue_existant.csv", newline="") as f:
         for l in csv.DictReader(f, delimiter=";"):
@@ -345,31 +544,43 @@ def couverture(base: dict):
         d = json.loads((RACINE / "tests" / "ai-eval" / "dataset" / cas / "case.json").read_text())
         items = [(corr.get(x["key"]) or x["key"], x["quantity"]) for x in d["reference"]["items"] if not x.get("optional")]
         invs[f"pièce réelle « {cas} » (référence provisoire du banc)"] = {"nature": "pièce réelle du jeu de test, référence non validée", "objets": items}
-    res = []
+    res, decomp = [], []
     for nom, inv in invs.items():
         tot = defaultdict(float)
-        manquants = []
+        sans = []
+        v5_tot = v61_tot = v60_tot = 0.0
+        sans_dh = sum((alt[sc] or 0) * q for sc, q in inv["objets"] if sc in base and alt) if alt else None
         for sc, q in inv["objets"]:
             e = base.get(sc)
             if e is None or e["volume_demenagement_m3"] is None:
-                manquants.append(sc)
+                sans.append(sc)
                 continue
             v = e["volume_demenagement_m3"] * q
             tot["total"] += v
-            tot[e["statut_demenagement"]] += v
-            tot["fiab_" + e["fiabilite_demenagement"]] += v
+            tot[e["regle"][:1]] += v
+            if e["volume_v5_m3"] is not None:
+                v5_tot += e["volume_v5_m3"] * q
+                v61_tot += v
+                v60_tot += (e["volume_v6_0_m3"] or 0) * q
+                cause = ("v5 inférieure au volume du meuble" if (e["volume_v5_m3"] < 0.8 * (e["volume_geometrique_m3"] or 0) and e["statut_geo"] == "mesuré")
+                         else "valeur Démén'House" if e["regle"].startswith("1") else "autre valeur professionnelle" if e["regle"][:1] in "23"
+                         else "comparable" if e["regle"].startswith("4") else "ratio géométrique")
+                decomp.append({"inventaire": nom, "sous_categorie": sc, "quantite": q, "v5_m3": round(e["volume_v5_m3"] * q, 3), "v6_0_m3": round((e["volume_v6_0_m3"] or 0) * q, 3),
+                               "v6_1_m3": round(v, 3), "ecart_v6_1_v5_m3": round(v - e["volume_v5_m3"] * q, 3), "cause_principale": cause})
         t = tot["total"]
+        pc = lambda k: round(100 * tot[k] / t, 1) if t else 0.0  # noqa: E731
         res.append({"inventaire": nom, "nature": inv["nature"], "nb_lignes": len(inv["objets"]), "volume_total_m3": round(t, 2),
-                    "part_numerique_pct": 100.0 if not manquants else round(100 * t / (t + 1e-9), 1),
-                    "part_estimee_releves_pct": round(100 * tot["estimé"] / t, 1) if t else 0,
-                    "part_provisoire_pct": round(100 * tot["provisoire"] / t, 1) if t else 0,
-                    "part_fiabilite_moyenne_pct": round(100 * tot["fiab_moyenne"] / t, 1) if t else 0,
-                    "sans_reference": manquants})
-    return res
+                    "part_lignes_avec_reference_pct": round(100 * (len(inv["objets"]) - len(sans)) / len(inv["objets"]), 1),
+                    "part_valeur_demenhouse_pct": pc("1"), "part_autre_pro_attribuee_pct": pc("2"), "part_pro_non_attribuee_pct": pc("3"),
+                    "part_comparable_pct": pc("4"), "part_ratio_geometrique_pct": pc("5"), "part_convention_validee_pct": pc("c"),
+                    "comparable_v5_m3": round(v5_tot, 2), "comparable_v6_0_m3": round(v60_tot, 2), "comparable_v6_1_m3": round(v61_tot, 2),
+                    "ecart_v6_1_v5_pct": round(100 * (v61_tot - v5_tot) / v5_tot, 1) if v5_tot else None,
+                    "scenario_sans_demenhouse_m3": round(sans_dh, 2) if sans_dh is not None else None, "sans_reference": sans})
+    return res, decomp
 
 
 # ------------------------------------------------------------------ écriture
-def ecrire_csv(chemin: Path, lignes: list, colonnes: list):
+def ecrire_csv(chemin, lignes, colonnes):
     with open(chemin, "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=colonnes, delimiter=";", extrasaction="ignore")
         w.writeheader()
@@ -378,106 +589,185 @@ def ecrire_csv(chemin: Path, lignes: list, colonnes: list):
 
 
 COLONNES = ["identifiant", "nom", "famille_id", "niveau_pertinence", "prioritaire", "classe_manutention",
-            "nb_produits_independants", "nb_sources_distinctes", "nb_exclus_aberrants", "sources_mesures",
-            "volume_geometrique_m3", "geo_p25_m3", "geo_p75_m3", "geo_dispersion", "statut_geo", "fiabilite_geo", "methode_geo",
-            "volume_transport_m3", "volume_demenagement_m3", "dem_p25_m3", "dem_p75_m3", "statut_demenagement", "fiabilite_demenagement",
-            "methode_demenagement", "nb_releves", "nb_sources_releves", "sources_releves", "volume_demenagement_v5_herite_m3",
-            "statut_global", "commentaires"]
+            "volume_v5_m3", "volume_v6_0_m3", "volume_demenagement_m3", "type_reference", "regle", "source_principale", "autres_references",
+            "nb_references_pro", "nb_sources_independantes_pro", "divergence", "fiabilite_demenagement", "statut_validation", "methode_demenagement",
+            "volume_geometrique_m3", "geo_p25_m3", "geo_p75_m3", "geo_dispersion", "statut_geo", "fiabilite_geo", "nb_produits_independants",
+            "nb_sources_distinctes", "nb_exclus_aberrants", "methode_geo", "volume_transport_m3", "commentaires"]
+
+
+def observations_urls():
+    urls = defaultdict(set)
+    for f in sorted((V5 / "observations").glob("*.csv")):
+        with open(f, newline="") as h:
+            for o in csv.DictReader(h, delimiter=";"):
+                if o.get("id_produit") and o.get("url_source"):
+                    urls[o["id_produit"]].add(o["url_source"])
+    return urls
+
+
+def observations_partielles(ids):
+    res = []
+    for f in sorted((V5 / "observations").glob("*.csv")):
+        with open(f, newline="") as h:
+            for o in csv.DictReader(h, delimiter=";"):
+                if o["sous_categorie_id"] in ids and o.get("utilisable_dimensions_partielles") in ("oui", "True"):
+                    res.append(o)
+    return res
 
 
 def main():
-    cat, produits, base_refs, base, variantes, ratios, globale, releves = construire()
-    SORTIE.mkdir(parents=True, exist_ok=True)
+    cat, produits, base_refs, base, variantes, ratios, glob_dh, releves, ordre, couverture_src = construire()
+    for e in base.values():
+        res = []
+        if e["statut_geo"] != "mesuré":
+            res.append("volume géométrique non mesuré")
+        if e["regle"][:1] in "45":
+            res.append("aucune valeur professionnelle propre à la sous-catégorie")
+        if e.get("divergence"):
+            res.append("sources divergentes")
+        e["commentaires"] = " ; ".join(res)
     lignes = sorted(base.values(), key=lambda e: (e["niveau_pertinence"], e["famille_id"], e["identifiant"]))
     ecrire_csv(SORTIE / "catalogue_volumes_v6.csv", lignes, COLONNES)
+    pro_json = lambda e: [{k: x[k] for k in ("valeur_m3", "bas", "haut", "domaine", "attribution", "libelle", "convention", "aberrant")} for x in e["references_pro"]]  # noqa: E731
     (SORTIE / "catalogue_volumes_v6.json").write_text(json.dumps({
-        "version": "6.0-preparatoire", "genere_le": "2026-11-26",
-        "convention": "volume géométrique = boîte englobante du produit monté ; volume de déménagement = référence commerciale provisoire, jamais dérivée automatiquement d'une seule formule ; aucune valeur n'est « vérifiée » tant qu'un déménageur pilote ne l'a pas validée",
-        "sous_categories": lignes, "variantes": variantes,
+        "version": VERSION, "genere_le": "2026-11-26",
+        "regles": {"carton": CARTON, "priorite": "Démén'House (valeur unique) > autre source attribuée (barème le plus couvrant) > valeur non attribuée > comparable > ratio géométrique de classe",
+                   "dh_rapport_max": DH_RAPPORT_MAX, "corroboration": CORROBORATION, "divergence": DIVERGENCE, "conventions_exclues": CONVENTIONS_EXCLUES,
+                   "ordre_sources_attribuees": ordre, "convention_lit": "lit complet : cadre, sommier et matelas"},
+        "sous_categories": [{**{k: e.get(k) for k in COLONNES}, "references_pro": pro_json(e), "estimation_ia": e.get("estimation_ia"), "transport_ia": e.get("transport_ia"),
+                             "produits_exclus_v6_1": e.get("produits_exclus_v6_1")} for e in lignes],
+        "variantes": variantes,
         "ratios_classes": {c: {"ratio": round(v["ratio"], 3), "origine": v["origine"], "ancres": [[i, round(x, 3)] for i, x in v["ancres"]]} for c, v in ratios.items()},
-        "ratio_global": round(globale, 3)}, ensure_ascii=False, indent=1))
+        "ratio_global_demenhouse": round(glob_dh, 3)}, ensure_ascii=False, indent=1))
     ecrire_csv(SORTIE / "variantes_v6.csv", variantes, list(variantes[0].keys()))
-    # Mesures individuelles conservées (copie des produits utilisés en v5, rien n'est supprimé de la v5).
+
+    # Mesures individuelles : produits retenus, exclus (v5 et v6.1), mesures partielles, estimations de l'IA.
+    urls = observations_urls()
     mes = []
+
+    def ligne(sc, p, statut, rem=""):
+        return {"sous_categorie_id": sc, "id_produit": p["id_produit"], "statut_mesure": statut, "source_distincte": source_produit(p), "bases_documentaires": p["sources"],
+                "nom_commercial": p["nom_commercial"], "marque": p.get("marque", ""), "hauteur_cm": p["hauteur_cm"], "largeur_cm": p["largeur_cm"], "profondeur_cm": p["profondeur_cm"],
+                "volume_geometrique_m3": p["volume_geometrique_m3"], "url_sources": " ".join(sorted(urls.get(p["id_produit"], []))[:3]), "remarque": rem}
     for i, r in base_refs.items():
+        exclus61 = set(base[i]["produits_exclus_v6_1"])
         for pid in r.get("produits_utilises", []):
-            p = produits.get(pid)
-            if p:
-                mes.append({"sous_categorie_id": i, "id_produit": pid, "source_distincte": source_produit(p), "sources": p["sources"],
-                            "nom_commercial": p["nom_commercial"], "hauteur_cm": p["hauteur_cm"], "largeur_cm": p["largeur_cm"],
-                            "profondeur_cm": p["profondeur_cm"], "volume_geometrique_m3": p["volume_geometrique_m3"], "statut": "retenu"})
+            if pid in produits:
+                mes.append(ligne(i, produits[pid], "mesuré — exclu v6.1 (mal classé)" if pid in exclus61 else "mesuré — retenu", EXCLUSIONS_SC.get(i, (None, ""))[1] if pid in exclus61 else ""))
         for pid in r.get("produits_exclus", []):
-            p = produits.get(pid)
-            if p:
-                mes.append({"sous_categorie_id": i, "id_produit": pid, "source_distincte": source_produit(p), "sources": p["sources"],
-                            "nom_commercial": p["nom_commercial"], "hauteur_cm": p["hauteur_cm"], "largeur_cm": p["largeur_cm"],
-                            "profondeur_cm": p["profondeur_cm"], "volume_geometrique_m3": p["volume_geometrique_m3"], "statut": "exclu (aberrant)"})
-    ecrire_csv(SORTIE / "mesures_individuelles.csv", mes, list(mes[0].keys()))
-    rel = [{"sous_categorie_id": sc, "valeur_m3": v, "source": src, "reference_source": SOURCES[src], "attribution": attr,
-            "libelle_et_remarque": lib, "utilise": "non (aberrant)" if (sc, v) in ABERRANTS else "oui",
-            "collecte": "moteur de recherche, 26/11/2026 ; page non ouverte (réseau bloqué) : à relire"} for sc, v, src, attr, lib in RELEVES]
-    ecrire_csv(SORTIE / "releves_demenageurs.csv", rel, list(rel[0].keys()))
-    est = []
+            if pid in produits:
+                mes.append(ligne(i, produits[pid], "mesuré — exclu (valeur aberrante, v5)"))
+    partielles = [i for i, e in base.items() if e["statut_geo"] == "partiellement mesuré"]
+    for o in observations_partielles(set(partielles)):
+        mes.append({"sous_categorie_id": o["sous_categorie_id"], "id_produit": o.get("id_produit", ""), "statut_mesure": "mesure partielle (2 dimensions)",
+                    "source_distincte": f"marque:{(o.get('marque') or o.get('fabricant') or '').lower()}", "bases_documentaires": o["source"], "nom_commercial": o["nom_commercial"],
+                    "marque": o.get("marque", ""), "hauteur_cm": o["hauteur_cm"], "largeur_cm": o["largeur_cm"], "profondeur_cm": o["profondeur_cm"], "volume_geometrique_m3": "",
+                    "url_sources": o["url_source"], "remarque": f"dimension manquante : {o.get('dimensions_manquantes', '')}"})
     for i, e in base.items():
-        if e.get("estimation_ia"):
-            x = e["estimation_ia"]
-            est.append({"sous_categorie_id": i, "type": "géométrique (" + x["etat"] + ")", "hauteur_cm": x["hauteur_cm"], "largeur_cm": x["largeur_cm"],
-                        "profondeur_cm": x["profondeur_cm"], "dimensions_mesurees_v5": ", ".join(x["dimensions_mesurees"]) or "aucune",
-                        "volume_modele_type_m3": e["volume_geometrique_m3"], "fourchette_m3": f"{x['fourchette_m3'][0]} – {x['fourchette_m3'][1]}",
-                        "justification": x["note"], "statut": "estimation IA, non mesurée"})
-        if e.get("transport_ia"):
-            x = e["transport_ia"]
-            est.append({"sous_categorie_id": i, "type": "transport (plié ou démonté)", "hauteur_cm": x["hauteur_cm"], "largeur_cm": x["largeur_cm"],
-                        "profondeur_cm": x["profondeur_cm"], "dimensions_mesurees_v5": "aucune", "volume_modele_type_m3": e["volume_transport_m3"],
-                        "fourchette_m3": f"{x['fourchette_m3'][0]} – {x['fourchette_m3'][1]}", "justification": x["note"], "statut": "estimation IA, non mesurée"})
+        for cle, typ in (("estimation_ia", "estimation IA — modèle type (pas une mesure)"), ("transport_ia", "estimation IA — état de transport (pas une mesure)")):
+            x = e.get(cle)
+            if x:
+                mes.append({"sous_categorie_id": i, "id_produit": "", "statut_mesure": typ, "source_distincte": "", "bases_documentaires": "",
+                            "nom_commercial": "", "marque": "", "hauteur_cm": x["hauteur_cm"], "largeur_cm": x["largeur_cm"], "profondeur_cm": x["profondeur_cm"],
+                            "volume_geometrique_m3": r3(x["hauteur_cm"] * x["largeur_cm"] * x["profondeur_cm"] / 1e6), "url_sources": "",
+                            "remarque": f"{x['note']} ; fourchette {x['fourchette_m3'][0]}–{x['fourchette_m3'][1]} m³" + (f" ; mesurées : {', '.join(x['dimensions_mesurees'])}" if x.get("dimensions_mesurees") else "")})
+    ecrire_csv(SORTIE / "mesures_individuelles.csv", mes, list(mes[0].keys()))
+
+    rel = [{"sous_categorie_id": sc, "valeur_m3": "" if v is None else v, "fourchette_bas_m3": "" if b is None else b, "fourchette_haut_m3": "" if h is None else h,
+            "domaine": SOURCES[src][0], "nature_source": SOURCES[src][2], "reference_source": SOURCES[src][1], "attribution": attr, "libelle_et_remarque": lib,
+            "convention": conv, "utilisable": "non (aberrant)" if (sc, v) in ABERRANTS else ("non (" + CONVENTIONS_EXCLUES[conv] + ")") if conv in CONVENTIONS_EXCLUES else "oui",
+            "retenu": "oui" if base[sc].get("pro") and base[sc]["pro"]["choix"]["source"] == src and base[sc]["pro"]["choix"]["valeur_m3"] == v and base[sc]["pro"]["choix"]["libelle"] == lib else "non",
+            "collecte": "moteur de recherche, 26/11/2026 ; page non ouverte (réseau bloqué) : à relire"} for sc, v, b, h, src, attr, lib, conv in RELEVES]
+    ecrire_csv(SORTIE / "releves_demenageurs.csv", rel, list(rel[0].keys()))
+    est = [m for m in mes if m["statut_mesure"].startswith("estimation")]
     ecrire_csv(SORTIE / "estimations_ia.csv", est, list(est[0].keys()))
-    rat = [{"classe_manutention": c, "ratio_releves_sur_geometrique": round(v["ratio"], 3), "origine": v["origine"], "nb_ancres": len(v["ancres"]),
+    rat = [{"classe_manutention": c, "ratio_reference_sur_geometrique": round(v["ratio"], 3), "origine": v["origine"], "nb_ancres": len(v["ancres"]),
             "ancres": ", ".join(f"{i} ({x:.2f})" for i, x in v["ancres"])} for c, v in ratios.items()]
     ecrire_csv(SORTIE / "ratios_classes.csv", rat, list(rat[0].keys()))
+
+    conv = [{"domaine": k, "rapport_median_sur_demenhouse": v["rapport_median"], "nb_sous_categories_communes": v["nb_communes"], "convention": v["convention"],
+             "detail": ", ".join(f"{sc} ({r:.2f})" for sc, r in v["communes"])} for k, v in sorted(CONVENTIONS.items())]
+    ecrire_csv(SORTIE / "conventions_sources.csv", conv, list(conv[0].keys()))
     ano = []
+    for sc, typ, desc, prio, etat, action, dec in ANOMALIES_V61:
+        ano.append({"sous_categories": sc, "niveau_pertinence": "", "type": typ, "description": desc, "priorite": prio, "etat_resolution": etat, "action_v6_1": action, "decision_proposee": dec, "origine": "revue v6.1"})
     for e in lignes:
-        for typ, detail, decision, prio in e["anomalies"]:
-            ano.append({"sous_categories": e["identifiant"], "niveau_pertinence": e["niveau_pertinence"], "type": typ, "detail": detail, "decision_proposee": decision, "priorite": prio})
-    for sc, typ, detail, decision, prio in ANOMALIES_MANUELLES:
-        ano.append({"sous_categories": sc, "niveau_pertinence": "", "type": typ, "detail": detail, "decision_proposee": decision, "priorite": prio})
-    ordre = {"élevée": 0, "moyenne": 1, "faible": 2}
-    ano.sort(key=lambda a: (ordre[a["priorite"]], str(a["niveau_pertinence"]), a["sous_categories"]))
-    ecrire_csv(SORTIE / "anomalies.csv", ano, list(ano[0].keys()))
-    cov = couverture(base)
+        for typ, desc, prio, etat, action, dec in anomalies_auto(e):
+            ano.append({"sous_categories": e["identifiant"], "niveau_pertinence": e["niveau_pertinence"], "type": typ, "description": desc, "priorite": prio,
+                        "etat_resolution": etat, "action_v6_1": action, "decision_proposee": dec, "origine": "contrôle automatique v6.1"})
+    ano.extend(anomalies_ordre(base))
+    ordre_p = {"élevée": 0, "moyenne": 1, "faible": 2}
+    ordre_e = {"ouverte": 0, "contournée provisoirement": 1, "résolue": 2}
+    ano.sort(key=lambda a: (ordre_e[a["etat_resolution"]], ordre_p[a["priorite"]], str(a["niveau_pertinence"]), a["sous_categories"]))
+    for k, a in enumerate(ano, 1):
+        a["id"] = f"ANO-{k:03d}"
+    ecrire_csv(SORTIE / "anomalies.csv", ano, ["id", "sous_categories", "niveau_pertinence", "type", "description", "priorite", "etat_resolution", "action_v6_1", "decision_proposee", "origine"])
+
+    # Suivi des anomalies de la v6.0.
+    suivi = []
+    if (HIST / "anomalies.csv").exists():
+        nouvelles = {(a["sous_categories"], a["type"]) for a in ano if a["etat_resolution"] != "résolue"}
+        with open(HIST / "anomalies.csv", newline="") as f:
+            for a in csv.DictReader(f, delimiter=";"):
+                cle = (a["sous_categories"], a["type"])
+                typ = a["type"]
+                if a["sous_categories"] == "CAR-CARTON" or typ == "convention du carton":
+                    etat, note = "résolue", "convention de 0,10 m³ validée"
+                elif typ == "volumes géométriques mesurés invraisemblables":
+                    etat, note = "résolue", "produits mal classés exclus (sauf INF-IMPRIMANTE, laissée ouverte)"
+                elif typ in ("volume de déménagement inférieur au volume du meuble",):
+                    v = base.get(a["sous_categories"], {}).get("volume_demenagement_m3")
+                    g = base.get(a["sous_categories"], {}).get("volume_geometrique_m3")
+                    etat, note = ("résolue", f"valeur v6.1 {v} m³ ≥ 80 % du géométrique {g} m³") if v and g and v >= 0.8 * g else ("ouverte", "")
+                elif typ == "relevé public aberrant écarté":
+                    etat, note = "résolue", "écarté"
+                elif typ == "incohérence entre tailles de lit":
+                    etat, note = "contournée provisoirement", "comparables ; produits à revoir"
+                elif typ in ("volume hérité très différent", "relevés publics très dispersés", "relevés publics sous le volume géométrique", "relevés publics très supérieurs au volume géométrique"):
+                    etat, note = "remplacée", "remplacée par les contrôles v6.1 (écart avec la v5, divergence entre sources), voir anomalies.csv"
+                elif cle in nouvelles or any(n[0] == a["sous_categories"] and n[1] == typ for n in nouvelles):
+                    etat, note = "ouverte", "toujours présente en v6.1"
+                else:
+                    etat, note = "ouverte", "reprise sous une autre forme ou à revoir"
+                suivi.append({**a, "etat_v6_1": etat, "note_v6_1": note})
+        ecrire_csv(SORTIE / "suivi_anomalies_v6_0.csv", suivi, list(suivi[0].keys()))
+
+    alt = scenario_sans_demenhouse(base, ordre)
+    cov, decomp = couverture(base, alt)
     ecrire_csv(SORTIE / "couverture_inventaires.csv", cov, list(cov[0].keys()))
+    ecrire_csv(SORTIE / "decomposition_ecart_v5.csv", decomp, list(decomp[0].keys()))
+    comp = [{"identifiant": e["identifiant"], "nom": e["nom"], "niveau_pertinence": e["niveau_pertinence"], "volume_v5_m3": e["volume_v5_m3"], "volume_v6_0_m3": e["volume_v6_0_m3"],
+             "volume_v6_1_m3": e["volume_demenagement_m3"], "ecart_v6_1_v6_0_m3": r3(e["volume_demenagement_m3"] - e["volume_v6_0_m3"]) if e["volume_demenagement_m3"] is not None and e["volume_v6_0_m3"] is not None else "",
+             "type_reference_v6_1": e["type_reference"], "scenario_sans_demenhouse_m3": r3(alt[e["identifiant"]]) if alt[e["identifiant"]] is not None else ""} for e in lignes]
+    ecrire_csv(SORTIE / "comparatif_versions.csv", comp, list(comp[0].keys()))
 
-    # ------------------------------------------------ synthèse chiffrée
-    tous, prio = list(base.values()), [e for e in base.values() if e["prioritaire"]]
-
-    def compte(l, f):
-        return sum(1 for e in l if f(e))
-    num = lambda e: e["volume_demenagement_m3"] is not None  # noqa: E731
-    doc = lambda e: e["statut_geo"] in ("mesuré", "partiellement mesuré") or e["statut_demenagement"] == "estimé"  # noqa: E731
-    syn = {
-        "sous_categories": len(tous), "prioritaires": len(prio),
-        "volume_deménagement_numerique": compte(tous, num), "exceptions_documentees": compte(tous, lambda e: e["statut_demenagement"] == "exception documentée"),
-        "prioritaires_volume_numerique": compte(prio, num),
-        "prioritaires_reference_documentee": compte(prio, doc),
-        "geo": dict(Counter(e["statut_geo"] for e in tous)), "geo_prioritaires": dict(Counter(e["statut_geo"] for e in prio)),
-        "fiabilite_geo_mesures": dict(Counter(e["fiabilite_geo"] for e in tous if e["statut_geo"] == "mesuré")),
-        "fiabilite_geo_mesures_prioritaires": dict(Counter(e["fiabilite_geo"] for e in prio if e["statut_geo"] == "mesuré")),
-        "demenagement": dict(Counter(e["statut_demenagement"] for e in tous)), "demenagement_prioritaires": dict(Counter(e["statut_demenagement"] for e in prio)),
-        "fiabilite_demenagement": dict(Counter(e["fiabilite_demenagement"] for e in tous)),
-        "statut_global": dict(Counter(e["statut_global"] for e in tous)), "statut_global_prioritaires": dict(Counter(e["statut_global"] for e in prio)),
-        "v5_volume_demenagement": compte(tous, lambda e: e["volume_demenagement_v5_herite_m3"] is not None),
-        "v5_prioritaires_volume_demenagement": compte(prio, lambda e: e["volume_demenagement_v5_herite_m3"] is not None),
-        "v5_geo": compte(tous, lambda e: base_refs[e["identifiant"]].get("volume_geometrique_median_m3") is not None),
-        "releves_publics": len(RELEVES), "sous_categories_avec_releves": len({sc for sc, *_ in RELEVES}),
-        "sources_releves": len(SOURCES), "estimations_ia": len(est), "anomalies": len(ano),
-        "anomalies_par_priorite": dict(Counter(a["priorite"] for a in ano)),
-        "variantes": len(variantes), "variantes_avec_volume_demenagement": sum(1 for v in variantes if v["volume_demenagement_m3"] is not None),
-        "mesures_individuelles": len(mes), "couverture_inventaires": cov,
-        "ratios_classes": {c: round(v["ratio"], 2) for c, v in ratios.items()}, "ratio_global": round(globale, 2),
-    }
+    # Synthèse.
+    tous, prio = lignes, [e for e in lignes if e["prioritaire"]]
+    c = lambda l, f: sum(1 for e in l if f(e))  # noqa: E731
+    syn = {"version": VERSION, "sous_categories": len(tous), "prioritaires": len(prio),
+           "avec_volume": c(tous, lambda e: e["volume_demenagement_m3"] is not None), "exceptions": c(tous, lambda e: e["type_reference"] == "exception documentée"),
+           "regle": dict(Counter(e["regle"][:1] for e in tous)), "regle_prioritaires": dict(Counter(e["regle"][:1] for e in prio)),
+           "type_reference": dict(Counter(e["type_reference"].split(" — ")[0] if e["type_reference"].startswith("attribuée") else e["type_reference"] for e in tous)),
+           "type_reference_prioritaires": dict(Counter(e["type_reference"].split(" — ")[0] if e["type_reference"].startswith("attribuée") else e["type_reference"] for e in prio)),
+           "fiabilite_demenagement": dict(Counter(e["fiabilite_demenagement"] for e in tous)), "fiabilite_demenagement_prioritaires": dict(Counter(e["fiabilite_demenagement"] for e in prio)),
+           "valides_par_professionnel": 0, "conventions_validees": c(tous, lambda e: e["type_reference"] == "convention validée par Devis Scan"),
+           "geo": dict(Counter(e["statut_geo"] for e in tous)), "fiabilite_geo_mesures": dict(Counter(e["fiabilite_geo"] for e in tous if e["statut_geo"] == "mesuré")),
+           "prioritaires_reference_documentee": c(prio, lambda e: e["statut_geo"] in ("mesuré", "partiellement mesuré") or e["regle"][:1] in "123"),
+           "prioritaires_valeur_pro": c(prio, lambda e: e["regle"][:1] in "123"), "divergences": c(tous, lambda e: bool(e.get("divergence"))),
+           "references_pro": len(RELEVES), "references_valeur_unique": sum(1 for r in RELEVES if r[1] is not None), "references_fourchette": sum(1 for r in RELEVES if r[1] is None),
+           "references_attribuees": sum(1 for r in RELEVES if r[5] == "attribuée"), "references_demenhouse": sum(1 for r in RELEVES if r[4] in DH_SRC),
+           "domaines_attribues": sorted({SOURCES[r[4]][0] for r in RELEVES if r[5] == "attribuée"}),
+           "sous_categories_avec_reference_pro": len({r[0] for r in RELEVES}), "ordre_sources_attribuees": ordre, "couverture_sources": dict(couverture_src),
+           "anomalies": len(ano), "anomalies_par_etat": dict(Counter(a["etat_resolution"] for a in ano)), "anomalies_par_priorite": dict(Counter(a["priorite"] for a in ano)),
+           "anomalies_ouvertes_elevees": c(ano, lambda a: a["etat_resolution"] == "ouverte" and a["priorite"] == "élevée"),
+           "mesures_individuelles": len(mes), "mesures_par_statut": dict(Counter(m["statut_mesure"] for m in mes)),
+           "variantes": len(variantes), "ratios_classes": {k: round(v["ratio"], 2) for k, v in ratios.items()}, "ratio_global_demenhouse": round(glob_dh, 2),
+           "couverture_inventaires": cov}
     (SORTIE / "synthese.json").write_text(json.dumps(syn, ensure_ascii=False, indent=1))
     print(json.dumps({k: v for k, v in syn.items() if k != "couverture_inventaires"}, ensure_ascii=False, indent=1))
-    for c in cov:
-        print(c)
+    for x in cov:
+        print(x)
+    return base, ano
 
 
 if __name__ == "__main__":

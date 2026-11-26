@@ -1,0 +1,129 @@
+sous_categories;niveau_pertinence;type;detail;decision_proposee;priorite
+CAR-CARTON;;convention du carton;"relevés publics 0,05 et 0,1 m³ ; l'ancien catalogue retient 0,1 m³ ; le carton standard de 50 × 40 × 30 cm fait 0,06 m³";décision commerciale : volume d'un carton dans le parcours (cartons déclarés par le client);élevée
+LIT-QUEEN, LIT-KING, LIT-COFFRE, LIT-NC;;incohérence entre tailles de lit;"géométriques 2,93 / 3,21 / 4,36 / 4,38 m³ contre 1,02 m³ pour LIT-DOUBLE : les grands lits mesurés semblent inclure tête de lit, coffres ou ensembles ; LIT-DOUBLE et LIT-SIMPLE non";revoir le périmètre des produits (lit seul / lit avec tête / ensemble);élevée
+CAR-BAC;1;volume hérité très différent;ancien catalogue 0.04 m³ contre 0.093 m³ proposé (-57%);choisir la valeur de référence avec un déménageur pilote;élevée
+CAR-BAC;1;volume de déménagement inférieur au volume du meuble;ancien catalogue 0.04 m³ pour un objet rigide non démontable de 0.055 m³ (géométrique médian);impossible physiquement sauf emboîtement : à corriger;élevée
+CHA-BAR;1;volume hérité très différent;ancien catalogue 0.18 m³ contre 0.372 m³ proposé (-52%);choisir la valeur de référence avec un déménageur pilote;élevée
+CHV-STD;1;volume hérité très différent;ancien catalogue 0.1 m³ contre 0.225 m³ proposé (-56%);choisir la valeur de référence avec un déménageur pilote;élevée
+COM-3T;1;volume hérité très différent;ancien catalogue 0.5 m³ contre 0.306 m³ proposé (+63%);choisir la valeur de référence avec un déménageur pilote;élevée
+COM-4T;1;volume hérité très différent;ancien catalogue 0.5 m³ contre 0.271 m³ proposé (+85%);choisir la valeur de référence avec un déménageur pilote;élevée
+DEC-MIROIR-GRAND;1;volume hérité très différent;ancien catalogue 0.03 m³ contre 0.166 m³ proposé (-82%);choisir la valeur de référence avec un déménageur pilote;élevée
+DEC-TABLEAU;1;volume hérité très différent;ancien catalogue 0.03 m³ contre 0.01 m³ proposé (+200%);choisir la valeur de référence avec un déménageur pilote;élevée
+ELM-CONG;1;volume hérité très différent;ancien catalogue 0.4 m³ contre 1.05 m³ proposé (-62%);choisir la valeur de référence avec un déménageur pilote;élevée
+ELM-LL;1;volume de déménagement inférieur au volume du meuble;ancien catalogue 0.3 m³ pour un objet rigide non démontable de 0.526 m³ (géométrique médian);impossible physiquement sauf emboîtement : à corriger;élevée
+ELM-REF;1;volume hérité très différent;ancien catalogue 0.4 m³ contre 0.928 m³ proposé (-57%);choisir la valeur de référence avec un déménageur pilote;élevée
+ELM-REF;1;volume de déménagement inférieur au volume du meuble;ancien catalogue 0.4 m³ pour un objet rigide non démontable de 0.901 m³ (géométrique médian);impossible physiquement sauf emboîtement : à corriger;élevée
+ELM-REF-COMBI;1;volume hérité très différent;ancien catalogue 0.4 m³ contre 1.166 m³ proposé (-66%);choisir la valeur de référence avec un déménageur pilote;élevée
+ELM-SL;1;volume de déménagement inférieur au volume du meuble;ancien catalogue 0.3 m³ pour un objet rigide non démontable de 0.521 m³ (géométrique médian);impossible physiquement sauf emboîtement : à corriger;élevée
+ETA-METAL;1;volume hérité très différent;ancien catalogue 0.22 m³ contre 0.656 m³ proposé (-66%);choisir la valeur de référence avec un déménageur pilote;élevée
+ETA-NC;1;volume hérité très différent;ancien catalogue 0.3 m³ contre 0.659 m³ proposé (-54%);choisir la valeur de référence avec un déménageur pilote;élevée
+FAU-BUR;1;volume de déménagement inférieur au volume du meuble;ancien catalogue 0.3 m³ pour un objet rigide non démontable de 0.446 m³ (géométrique médian);impossible physiquement sauf emboîtement : à corriger;élevée
+INF-TV-32;1;volume hérité très différent;ancien catalogue 0.2 m³ contre 0.051 m³ proposé (+292%);choisir la valeur de référence avec un déménageur pilote;élevée
+JAR-CHAISE;1;volume hérité très différent;ancien catalogue 0.38 m³ contre 0.907 m³ proposé (-58%);choisir la valeur de référence avec un déménageur pilote;élevée
+JAR-CHAISE;1;volume de déménagement inférieur au volume du meuble;ancien catalogue 0.38 m³ pour un objet rigide non démontable de 0.538 m³ (géométrique médian);impossible physiquement sauf emboîtement : à corriger;élevée
+JAR-TABLE;1;volume hérité très différent;ancien catalogue 0.33 m³ contre 1.323 m³ proposé (-75%);choisir la valeur de référence avec un déménageur pilote;élevée
+LIT-COFFRE;1;volume hérité très différent;ancien catalogue 0.91 m³ contre 1.885 m³ proposé (-52%);choisir la valeur de référence avec un déménageur pilote;élevée
+MAT-180;1;volume hérité très différent;ancien catalogue 0.5 m³ contre 1.124 m³ proposé (-56%);choisir la valeur de référence avec un déménageur pilote;élevée
+PEM-AUTRE;1;volume hérité très différent;ancien catalogue 0.05 m³ contre 0.012 m³ proposé (+317%);choisir la valeur de référence avec un déménageur pilote;élevée
+RAN-BUFFET;1;volume hérité très différent;ancien catalogue 0.56 m³ contre 1.425 m³ proposé (-61%);choisir la valeur de référence avec un déménageur pilote;élevée
+SOM-STD;1;volume hérité très différent;ancien catalogue 0.3 m³ contre 0.963 m³ proposé (-69%);choisir la valeur de référence avec un déménageur pilote;élevée
+VEL-ADULTE;1;volume de déménagement inférieur au volume du meuble;ancien catalogue 0.5 m³ pour un objet rigide non démontable de 0.767 m³ (géométrique médian);impossible physiquement sauf emboîtement : à corriger;élevée
+ANC-ARMOIRE;2;volume hérité très différent;ancien catalogue 0.8 m³ contre 2.967 m³ proposé (-73%);choisir la valeur de référence avec un déménageur pilote;élevée
+ANC-ARMOIRE;2;volume de déménagement inférieur au volume du meuble;ancien catalogue 0.8 m³ pour un objet rigide non démontable de 1.759 m³ (géométrique médian);impossible physiquement sauf emboîtement : à corriger;élevée
+ANC-BUFFET;2;volume hérité très différent;ancien catalogue 0.56 m³ contre 1.402 m³ proposé (-60%);choisir la valeur de référence avec un déménageur pilote;élevée
+ANC-BUFFET;2;volume de déménagement inférieur au volume du meuble;ancien catalogue 0.56 m³ pour un objet rigide non démontable de 0.831 m³ (géométrique médian);impossible physiquement sauf emboîtement : à corriger;élevée
+ANC-CHAISE;2;volume hérité très différent;ancien catalogue 0.15 m³ contre 0.316 m³ proposé (-53%);choisir la valeur de référence avec un déménageur pilote;élevée
+ANC-COMMODE;2;volume hérité très différent;ancien catalogue 0.5 m³ contre 1.007 m³ proposé (-50%);choisir la valeur de référence avec un déménageur pilote;élevée
+ARM-4P;2;volume hérité très différent;ancien catalogue 1.2 m³ contre 4.0 m³ proposé (-70%);choisir la valeur de référence avec un déménageur pilote;élevée
+ARM-BAS;2;volume hérité très différent;ancien catalogue 0.35 m³ contre 0.759 m³ proposé (-54%);choisir la valeur de référence avec un déménageur pilote;élevée
+ARM-PORT;2;volume hérité très différent;ancien catalogue 0.23 m³ contre 0.958 m³ proposé (-76%);choisir la valeur de référence avec un déménageur pilote;élevée
+BAG-VALISE;2;volume hérité très différent;ancien catalogue 0.04 m³ contre 0.106 m³ proposé (-62%);choisir la valeur de référence avec un déménageur pilote;élevée
+BAG-VALISE;2;volume de déménagement inférieur au volume du meuble;ancien catalogue 0.04 m³ pour un objet rigide non démontable de 0.063 m³ (géométrique médian);impossible physiquement sauf emboîtement : à corriger;élevée
+BAG-VALISE-GRANDE;2;volume hérité très différent;ancien catalogue 0.04 m³ contre 0.201 m³ proposé (-80%);choisir la valeur de référence avec un déménageur pilote;élevée
+BAG-VALISE-GRANDE;2;volume de déménagement inférieur au volume du meuble;ancien catalogue 0.04 m³ pour un objet rigide non démontable de 0.119 m³ (géométrique médian);impossible physiquement sauf emboîtement : à corriger;élevée
+BRI-ECHELLE;2;volume hérité très différent;ancien catalogue 0.19 m³ contre 0.59 m³ proposé (-68%);choisir la valeur de référence avec un déménageur pilote;élevée
+BRI-ECHELLE;2;volume de déménagement inférieur au volume du meuble;ancien catalogue 0.19 m³ pour un objet rigide non démontable de 0.35 m³ (géométrique médian);impossible physiquement sauf emboîtement : à corriger;élevée
+BUR-ENFANT;2;volume hérité très différent;ancien catalogue 0.19 m³ contre 0.847 m³ proposé (-78%);choisir la valeur de référence avec un déménageur pilote;élevée
+CHA-BANC;2;volume hérité très différent;ancien catalogue 0.66 m³ contre 0.256 m³ proposé (+158%);choisir la valeur de référence avec un déménageur pilote;élevée
+CHA-TABOURET;2;volume hérité très différent;ancien catalogue 0.07 m³ contre 0.147 m³ proposé (-52%);choisir la valeur de référence avec un déménageur pilote;élevée
+DIV-COFFRE-FORT;2;volume hérité très différent;ancien catalogue 0.8 m³ contre 0.083 m³ proposé (+864%);choisir la valeur de référence avec un déménageur pilote;élevée
+JAR-JARDINIERE;2;volume hérité très différent;ancien catalogue 0.14 m³ contre 0.032 m³ proposé (+338%);choisir la valeur de référence avec un déménageur pilote;élevée
+JAR-SALON;2;volume hérité très différent;ancien catalogue 0.66 m³ contre 1.75 m³ proposé (-62%);choisir la valeur de référence avec un déménageur pilote;élevée
+MUS-PIANO-DROIT;2;volume hérité très différent;ancien catalogue 2.5 m³ contre 1.5 m³ proposé (+67%);choisir la valeur de référence avec un déménageur pilote;élevée
+RAN-VITRINE;2;volume hérité très différent;ancien catalogue 0.48 m³ contre 1.344 m³ proposé (-64%);choisir la valeur de référence avec un déménageur pilote;élevée
+SDB-PANIER;2;volume hérité très différent;ancien catalogue 0.05 m³ contre 0.147 m³ proposé (-66%);choisir la valeur de référence avec un déménageur pilote;élevée
+SDB-PANIER;2;volume de déménagement inférieur au volume du meuble;ancien catalogue 0.05 m³ pour un objet rigide non démontable de 0.087 m³ (géométrique médian);impossible physiquement sauf emboîtement : à corriger;élevée
+ANC-BIBLIOTHEQUE;3;volume de déménagement inférieur au volume du meuble;ancien catalogue 0.6 m³ pour un objet rigide non démontable de 1.465 m³ (géométrique médian);impossible physiquement sauf emboîtement : à corriger;élevée
+ANC-CHIFFONNIER;3;volume de déménagement inférieur au volume du meuble;ancien catalogue 0.5 m³ pour un objet rigide non démontable de 1.168 m³ (géométrique médian);impossible physiquement sauf emboîtement : à corriger;élevée
+ANC-CONSOLE;3;volume de déménagement inférieur au volume du meuble;ancien catalogue 0.41 m³ pour un objet rigide non démontable de 0.548 m³ (géométrique médian);impossible physiquement sauf emboîtement : à corriger;élevée
+ANC-GUERIDON;3;volume de déménagement inférieur au volume du meuble;ancien catalogue 0.14 m³ pour un objet rigide non démontable de 0.185 m³ (géométrique médian);impossible physiquement sauf emboîtement : à corriger;élevée
+ANC-SECRETAIRE;3;volume de déménagement inférieur au volume du meuble;ancien catalogue 0.6 m³ pour un objet rigide non démontable de 1.271 m³ (géométrique médian);impossible physiquement sauf emboîtement : à corriger;élevée
+VEL-ANCIEN;4;volume de déménagement inférieur au volume du meuble;ancien catalogue 0.5 m³ pour un objet rigide non démontable de 1.112 m³ (géométrique médian);impossible physiquement sauf emboîtement : à corriger;élevée
+ELM-REF-COMBI, ELM-REF-US, ELM-REF-1P, ELM-REF-TOP, ELM-CAVE;;biais de marché;largeurs médianes issues d'ENERGY STAR (marché nord-américain) : combiné de 74,9 cm de large au lieu de 60 cm courant en France;compléter par EPREL (démarche en attente) ou par des mesures françaises;moyenne
+RES-DISTRIBUTEUR, PRO-COMPTOIR, PRO-PRESENTOIR, INF-IMPRIMANTE;;volumes géométriques mesurés invraisemblables;0,022 / 0,068 / 0,028 / 0,013 m³ pour un distributeur automatique, un comptoir, une gondole, une imprimante : produits mal classés (petits accessoires);"revoir le classement des produits ; le volume de déménagement proposé reste provisoire";moyenne
+ARM-NC;1;relevés publics très supérieurs au volume géométrique;relevés 1.65 m³ = 2.9 × le géométrique médian 0.567 m³;"vérifier si les barèmes visent de plus grands modèles ou incluent le contenu ; fixer la convention";moyenne
+CAR-CARTON;1;géométrique sur 1 ou 2 produits;1 produit(s) mesuré(s);compléter par des mesures;moyenne
+COM-NC;1;relevés publics très dispersés;de 0.4 à 1.5 m³;fixer une convention avec les déménageurs pilotes;moyenne
+DEC-TAPIS-NC;1;relevés publics très supérieurs au volume géométrique;relevés 0.35 m³ = 9.2 × le géométrique médian 0.038 m³;"vérifier si les barèmes visent de plus grands modèles ou incluent le contenu ; fixer la convention";moyenne
+ELM-FOUR;1;géométrique sur 1 ou 2 produits;1 produit(s) mesuré(s);compléter par des mesures;moyenne
+ELM-REF;1;géométrique sur 1 ou 2 produits;2 produit(s) mesuré(s);compléter par des mesures;moyenne
+INF-ORDI;1;géométrique sur 1 ou 2 produits;2 produit(s) mesuré(s);compléter par des mesures;moyenne
+INF-TV-32;1;géométrique sur 1 ou 2 produits;1 produit(s) mesuré(s);compléter par des mesures;moyenne
+JAR-TABLE;1;géométrique sur 1 ou 2 produits;1 produit(s) mesuré(s);compléter par des mesures;moyenne
+LIT-DOUBLE;1;relevés publics très dispersés;de 0.8 à 2.6 m³;fixer une convention avec les déménageurs pilotes;moyenne
+RAN-BIB-NC;1;relevés publics très supérieurs au volume géométrique;relevés 1.2 m³ = 3.2 × le géométrique médian 0.373 m³;"vérifier si les barèmes visent de plus grands modèles ou incluent le contenu ; fixer la convention";moyenne
+RAN-BUFFET;1;relevés publics très supérieurs au volume géométrique;relevés 1.425 m³ = 2.8 × le géométrique médian 0.513 m³;"vérifier si les barèmes visent de plus grands modèles ou incluent le contenu ; fixer la convention";moyenne
+RAN-BUFFET-HAUT;1;géométrique sur 1 ou 2 produits;1 produit(s) mesuré(s);compléter par des mesures;moyenne
+SDB-VASQUE;1;géométrique sur 1 ou 2 produits;2 produit(s) mesuré(s);compléter par des mesures;moyenne
+TAB-4;1;géométrique sur 1 ou 2 produits;2 produit(s) mesuré(s);compléter par des mesures;moyenne
+TAB-6;1;géométrique sur 1 ou 2 produits;1 produit(s) mesuré(s);compléter par des mesures;moyenne
+ANI-NICHE;2;géométrique sur 1 ou 2 produits;2 produit(s) mesuré(s);compléter par des mesures;moyenne
+ARM-ANG;2;géométrique sur 1 ou 2 produits;2 produit(s) mesuré(s);compléter par des mesures;moyenne
+BAG-SET;2;géométrique sur 1 ou 2 produits;1 produit(s) mesuré(s);compléter par des mesures;moyenne
+BRI-COMPRESSEUR;2;géométrique sur 1 ou 2 produits;1 produit(s) mesuré(s);compléter par des mesures;moyenne
+BUR-ASSIS;2;géométrique sur 1 ou 2 produits;2 produit(s) mesuré(s);compléter par des mesures;moyenne
+CAN-RELAX;2;géométrique sur 1 ou 2 produits;2 produit(s) mesuré(s);compléter par des mesures;moyenne
+CAR-CAISSE-BOIS;2;géométrique sur 1 ou 2 produits;1 produit(s) mesuré(s);compléter par des mesures;moyenne
+COM-COIFF;2;géométrique sur 1 ou 2 produits;2 produit(s) mesuré(s);compléter par des mesures;moyenne
+CUI-ILOT;2;géométrique sur 1 ou 2 produits;1 produit(s) mesuré(s);compléter par des mesures;moyenne
+ENF-CHAISE-HAUTE;2;géométrique sur 1 ou 2 produits;1 produit(s) mesuré(s);compléter par des mesures;moyenne
+ENF-CHAISE-HAUTE;2;relevés publics très supérieurs au volume géométrique;relevés 0.35 m³ = 87.5 × le géométrique médian 0.004 m³;"vérifier si les barèmes visent de plus grands modèles ou incluent le contenu ; fixer la convention";moyenne
+FAU-POIRE;2;géométrique sur 1 ou 2 produits;2 produit(s) mesuré(s);compléter par des mesures;moyenne
+INF-IMPRIMANTE;2;géométrique sur 1 ou 2 produits;1 produit(s) mesuré(s);compléter par des mesures;moyenne
+JAR-ABRI;2;volume géométrique déployé sans sens pour le déménagement;"géométrique 27.325 m³ ; volume de transport estimé 0.72 m³";valider l'état de transport (plié, démonté);moyenne
+JAR-ABRI;2;sous-catégorie hétérogène;"objets de volumes très différents réunis (coffre ou abri ; piscine tubulaire ou spa)";scinder la sous-catégorie;moyenne
+JAR-BALANCELLE;2;volume géométrique déployé sans sens pour le déménagement;"géométrique 2.861 m³ ; volume de transport estimé 0.576 m³";valider l'état de transport (plié, démonté);moyenne
+JAR-PARASOL;2;volume géométrique déployé sans sens pour le déménagement;"géométrique 15.023 m³ ; volume de transport estimé 0.156 m³";valider l'état de transport (plié, démonté);moyenne
+JAR-SALON;2;relevés publics très dispersés;de 0.75 à 3.0 m³;fixer une convention avec les déménageurs pilotes;moyenne
+JAR-TONDEUSE;2;volume géométrique déployé sans sens pour le déménagement;"géométrique 0.825 m³ ; volume de transport estimé 0.234 m³";valider l'état de transport (plié, démonté);moyenne
+LIT-GIGOGNE;2;géométrique sur 1 ou 2 produits;1 produit(s) mesuré(s);compléter par des mesures;moyenne
+MED-RELEVEUR;2;géométrique sur 1 ou 2 produits;1 produit(s) mesuré(s);compléter par des mesures;moyenne
+MOT-SCOOTER;2;géométrique sur 1 ou 2 produits;2 produit(s) mesuré(s);compléter par des mesures;moyenne
+MUS-BATTERIE;2;géométrique sur 1 ou 2 produits;2 produit(s) mesuré(s);compléter par des mesures;moyenne
+MUS-PIANO-DROIT;2;géométrique sur 1 ou 2 produits;2 produit(s) mesuré(s);compléter par des mesures;moyenne
+RAN-BIB-FERMEE;2;géométrique sur 1 ou 2 produits;1 produit(s) mesuré(s);compléter par des mesures;moyenne
+RAN-SECRETAIRE;2;géométrique sur 1 ou 2 produits;1 produit(s) mesuré(s);compléter par des mesures;moyenne
+SPO-BABYFOOT;2;géométrique sur 1 ou 2 produits;1 produit(s) mesuré(s);compléter par des mesures;moyenne
+SPO-GOLF;2;géométrique sur 1 ou 2 produits;1 produit(s) mesuré(s);compléter par des mesures;moyenne
+SPO-PINGPONG;2;volume géométrique déployé sans sens pour le déménagement;"géométrique 3.165 m³ ; volume de transport estimé 1.485 m³";valider l'état de transport (plié, démonté);moyenne
+SPO-TENTE;2;volume géométrique déployé sans sens pour le déménagement;"géométrique 2.735 m³ ; volume de transport estimé 0.063 m³";valider l'état de transport (plié, démonté);moyenne
+SPO-TRAMPOLINE;2;volume géométrique déployé sans sens pour le déménagement;"géométrique 0.27 m³ ; volume de transport estimé 0.27 m³";valider l'état de transport (plié, démonté);moyenne
+TEL-PROJECTEUR;2;géométrique sur 1 ou 2 produits;1 produit(s) mesuré(s);compléter par des mesures;moyenne
+VEL-ENFANT;2;géométrique sur 1 ou 2 produits;1 produit(s) mesuré(s);compléter par des mesures;moyenne
+ANC-BIBLIOTHEQUE;3;volume hérité très différent;ancien catalogue 0.6 m³ contre 2.471 m³ proposé (-76%);choisir la valeur de référence avec un déménageur pilote;moyenne
+ANC-CHIFFONNIER;3;volume hérité très différent;ancien catalogue 0.5 m³ contre 1.97 m³ proposé (-75%);choisir la valeur de référence avec un déménageur pilote;moyenne
+ANC-CONSOLE;3;volume hérité très différent;ancien catalogue 0.41 m³ contre 0.924 m³ proposé (-56%);choisir la valeur de référence avec un déménageur pilote;moyenne
+ANC-GUERIDON;3;volume hérité très différent;ancien catalogue 0.14 m³ contre 0.312 m³ proposé (-55%);choisir la valeur de référence avec un déménageur pilote;moyenne
+ANC-LIT;3;volume hérité très différent;ancien catalogue 1.2 m³ contre 3.522 m³ proposé (-66%);choisir la valeur de référence avec un déménageur pilote;moyenne
+ANC-SECRETAIRE;3;volume hérité très différent;ancien catalogue 0.6 m³ contre 2.144 m³ proposé (-72%);choisir la valeur de référence avec un déménageur pilote;moyenne
+JAR-PISCINE;3;volume géométrique déployé sans sens pour le déménagement;"géométrique 0.384 m³ ; volume de transport estimé 0.384 m³";valider l'état de transport (plié, démonté);moyenne
+JAR-PISCINE;3;sous-catégorie hétérogène;"objets de volumes très différents réunis (coffre ou abri ; piscine tubulaire ou spa)";scinder la sous-catégorie;moyenne
+LIT-BALDAQUIN;3;volume géométrique déployé sans sens pour le déménagement;"géométrique 9.346 m³ ; volume de transport estimé 1.584 m³";valider l'état de transport (plié, démonté);moyenne
+MUS-PIANO-CARRE;3;volume hérité très différent;ancien catalogue 5.0 m³ contre 0.734 m³ proposé (+581%);choisir la valeur de référence avec un déménageur pilote;moyenne
+SPO-BUT;3;volume géométrique déployé sans sens pour le déménagement;"géométrique 4.034 m³ ; volume de transport estimé 0.2 m³";valider l'état de transport (plié, démonté);moyenne
+SPO-PANIER-BASKET;3;volume géométrique déployé sans sens pour le déménagement;"géométrique 0.288 m³ ; volume de transport estimé 0.288 m³";valider l'état de transport (plié, démonté);moyenne
+TEL-CRT;3;volume hérité très différent;ancien catalogue 0.2 m³ contre 0.074 m³ proposé (+170%);choisir la valeur de référence avec un déménageur pilote;moyenne
+VEL-ANCIEN;4;volume hérité très différent;ancien catalogue 0.5 m³ contre 1.876 m³ proposé (-73%);choisir la valeur de référence avec un déménageur pilote;moyenne
+COM-3T, COM-4T;;ordre inversé;commode 4 tiroirs 0,286 m³ < commode 3 tiroirs 0,323 m³ (petits échantillons, 13 et 17 produits);accepter (les tiroirs ne font pas la taille) ou regrouper;faible
+MUS-PIANO-CARRE;;volume hérité recopié;5,0 m³ repris de l'ancien « piano à queue », pour un piano carré de 0,77 m³ géométrique;fixer avec un déménageur spécialisé;faible
+ELM-MO;1;relevé public aberrant écarté;0.5 m³ (four à micro-ondes 0,5 m³ : ABERRANT, environ 10 fois le volume de l'appareil);aucune (écarté);faible

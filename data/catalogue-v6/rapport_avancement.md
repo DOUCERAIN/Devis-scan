@@ -1,3 +1,5 @@
+> **Rapport de la v6.0, remplacé par `rapport_final_v6_1.md`.** Plusieurs chiffres ci-dessous ne sont plus à jour (carton, sources, volumes). Conservé pour l'historique.
+
 # Catalogue v6 — rapport d'avancement chiffré
 
 **Date** : 26/11/2026.

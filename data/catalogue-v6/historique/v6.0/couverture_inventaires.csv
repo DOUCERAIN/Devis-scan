@@ -1,0 +1,7 @@
+inventaire;nature;nb_lignes;volume_total_m3;part_numerique_pct;part_estimee_releves_pct;part_provisoire_pct;part_fiabilite_moyenne_pct;sans_reference
+studio / T1 meublé simplement;inventaire type construit par l'IA (non réel);21;12.71;100.0;84.4;15.6;13.6;[]
+T3 familial (2 chambres);inventaire type construit par l'IA (non réel);38;27.94;100.0;71.6;28.4;18.7;[]
+maison 5 pièces avec garage et jardin;inventaire type construit par l'IA (non réel);62;67.61;100.0;53.1;46.9;12.5;[]
+pièce réelle « chambre-encombree » (référence provisoire du banc);pièce réelle du jeu de test, référence non validée;3;3.86;100.0;95.2;4.8;0.0;[]
+pièce réelle « chambre-lits-simples » (référence provisoire du banc);pièce réelle du jeu de test, référence non validée;3;3.0;100.0;100.0;0.0;60.0;[]
+pièce réelle « salon-canape-jaune » (référence provisoire du banc);pièce réelle du jeu de test, référence non validée;2;2.12;100.0;100.0;0.0;0.0;[]

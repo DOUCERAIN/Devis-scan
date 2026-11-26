@@ -1,0 +1,8 @@
+classe_manutention;ratio_releves_sur_geometrique;origine;nb_ancres;ancres
+appareils et objets rigides;0.951;médiane de la classe;3;ELM-LL (0.95), ELM-SL (1.01), ELM-CUISINIERE (0.84)
+chaises et tabourets;1.409;moins de 3 ancres dans la classe : médiane globale (26 ancres);1;CHA-REPAS (0.82)
+décoration, objets plats ou souples;1.409;moins de 3 ancres dans la classe : médiane globale (26 ancres);2;DEC-LAMPADAIRE (1.05), DEC-TAPIS-NC (9.21)
+meubles démontables;1.432;médiane de la classe;8;ARM-4P (1.84), ARM-3P (1.49), ARM-2P (1.40), ARM-NC (2.91), LIT-QUEEN (0.49), LIT-DOUBLE (1.47), LIT-SIMPLE (1.06), BUR-DROIT (1.31)
+meubles et objets non démontables;1.687;médiane de la classe;8;CHV-STD (2.23), COM-NC (0.95), TAB-BASSE (1.65), RAN-BUFFET (2.78), RAN-MEUBLE-TV (1.72), RAN-BIB-NC (3.22), JAR-BARBECUE (1.11), VEL-ADULTE (0.75)
+objets transportés pliés ou démontés;1.409;moins de 3 ancres dans la classe : médiane globale (26 ancres);0;
+sièges rembourrés;1.474;médiane de la classe;4;CAN-ANG (1.53), CAN-CONV (1.72), CAN-3P (1.13), FAU-STD (1.42)
