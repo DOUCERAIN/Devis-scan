@@ -1,0 +1,91 @@
+sous_categorie_id;type;hauteur_cm;largeur_cm;profondeur_cm;dimensions_mesurees_v5;volume_modele_type_m3;fourchette_m3;justification;statut
+ENF-CHEVAL;géométrique (monté);70;100;40;aucune;0.28;0.15 – 0.4;cheval à bascule;estimation IA, non mesurée
+ENF-JOUET-GRAND;géométrique (monté);100;90;40;aucune;0.36;0.15 – 1.0;maison de poupée ou cuisine d'enfant;estimation IA, non mesurée
+LIT-BALDAQUIN;transport (plié ou démonté);60;220;120;aucune;1.584;1.0 – 2.5;lit à baldaquin démonté (montants, cadre, ciel de lit);estimation IA, non mesurée
+LIT-ENFANT;géométrique (monté);70;168;78;aucune;0.917;0.6 – 1.2;lit junior 70 × 160 avec barrières;estimation IA, non mesurée
+RAN-ANGLE;géométrique (monté);180;60;60;aucune;0.648;0.2 – 0.7;encoignure haute;estimation IA, non mesurée
+SDB-BAIGNOIRE;géométrique (monté);60;170;80;aucune;0.816;0.6 – 1.1;baignoire îlot;estimation IA, non mesurée
+ELM-REF-MULTI;géométrique (monté);180;83;70;aucune;1.046;0.9 – 1.3;réfrigérateur multiportes (« French door ») 80 à 90 cm de large;estimation IA, non mesurée
+ELM-REF-1P;géométrique (monté);170.4;59.9;63;hauteur, largeur;0.643;0.35 – 0.8;profondeur type 60 à 66 cm (encastrement 60 cm et portes);estimation IA, non mesurée
+ELM-CONG-COFFRE;géométrique (monté);85;110;65;aucune;0.608;0.3 – 1.0;"congélateur coffre de 200 à 300 L ; la seule mesure du v5 (54,6 cm de large) est un modèle compact";estimation IA, non mesurée
+MIR-PSYCHE;géométrique (monté);175.3;87.6;45;hauteur, largeur;0.691;0.2 – 0.8;"profondeur du piétement 35 à 55 cm ; hauteur et largeur : une seule mesure v5";estimation IA, non mesurée
+PLA-ARBRE;géométrique (monté);180;60;60;aucune;0.648;0.3 – 1.2;arbre ou grande plante de 1,5 à 2 m en bac;estimation IA, non mesurée
+PRO-ARMOIRE-RIDEAU;géométrique (monté);198;120;45;aucune;1.069;0.5 – 1.2;armoire de bureau à rideaux;estimation IA, non mesurée
+RES-VITRINE-REFRIG;géométrique (monté);200;60;65;aucune;0.78;0.6 – 1.6;vitrine réfrigérée 1 porte;estimation IA, non mesurée
+RES-TABLE-INOX;géométrique (monté);90;140;70;aucune;0.882;0.5 – 1.2;table inox de cuisine professionnelle;estimation IA, non mesurée
+RES-FRIGO-PRO;géométrique (monté);200;70;80;aucune;1.12;0.9 – 2.0;armoire réfrigérée professionnelle 600 L;estimation IA, non mesurée
+MED-LIT;géométrique (monté);70;100;215;aucune;1.505;1.2 – 1.8;lit médicalisé 90 × 200;estimation IA, non mesurée
+MED-DEAMBULATEUR;géométrique (monté);85;60;65;aucune;0.332;0.1 – 0.4;"rollator déplié ; plié environ 0,1 m³";estimation IA, non mesurée
+MED-CHAISE-PERCEE;géométrique (monté);90;55;55;aucune;0.272;0.2 – 0.35;chaise percée;estimation IA, non mesurée
+MED-TABLE-EXAMEN;géométrique (monté);70;190;65;aucune;0.865;0.15 – 1.0;"table de massage dépliée ; pliée environ 0,15 m³";estimation IA, non mesurée
+MED-SCOOTER;géométrique (monté);95;120;55;aucune;0.627;0.4 – 0.9;scooter de mobilité 4 roues;estimation IA, non mesurée
+COU-MEUBLE;géométrique (monté);77;100;50;aucune;0.385;0.25 – 0.5;table ou meuble de couture;estimation IA, non mesurée
+COU-MANNEQUIN;géométrique (monté);160;40;40;aucune;0.256;0.15 – 0.3;mannequin sur pied;estimation IA, non mesurée
+MAC-PHOTOCOPIEUR;géométrique (monté);115;60;65;aucune;0.449;0.2 – 0.8;photocopieur multifonction sur socle;estimation IA, non mesurée
+JEU-FLIPPER;géométrique (monté);190;75;135;aucune;1.924;1.5 – 2.1;"flipper sur pieds ; pieds et fronton démontés environ 0,8 m³";estimation IA, non mesurée
+JEU-ARCADE;géométrique (monté);180;70;80;aucune;1.008;0.7 – 1.2;borne d'arcade;estimation IA, non mesurée
+JEU-TABLE-MULTI;géométrique (monté);80;200;110;aucune;1.76;1.2 – 2.2;table de jeux combinée;estimation IA, non mesurée
+MOT-TONDEUSE-AUTO;géométrique (monté);110;180;100;aucune;1.98;1.5 – 2.5;tondeuse autoportée;estimation IA, non mesurée
+MOT-QUAD;géométrique (monté);115;190;110;aucune;2.404;1.8 – 3.0;quad;estimation IA, non mesurée
+VEL-CARGO;géométrique (monté);110;250;65;aucune;1.788;1.4 – 2.2;vélo cargo biporteur;estimation IA, non mesurée
+JAR-BROUETTE;géométrique (monté);60;140;65;aucune;0.546;0.35 – 0.7;brouette;estimation IA, non mesurée
+JAR-BANC;géométrique (monté);80;150;60;aucune;0.72;0.45 – 0.9;banc de jardin 2 ou 3 places;estimation IA, non mesurée
+JAR-PISCINE;géométrique (transport);40;120;80;aucune;0.384;0.2 – 3.2;"piscine tubulaire démontée ; un spa rigide fait environ 3 m³ (sous-catégorie à scinder)";estimation IA, non mesurée
+JAR-BAC-SABLE;géométrique (monté);30;120;120;aucune;0.432;0.2 – 0.8;"bac à sable en plastique ; une aire de jeux se démonte";estimation IA, non mesurée
+SPO-ELLIPTIQUE;géométrique (monté);165;160;65;aucune;1.716;1.2 – 2.0;vélo elliptique;estimation IA, non mesurée
+SPO-PANIER-BASKET;géométrique (transport);30;120;80;aucune;0.288;0.15 – 0.6;panier sur pied démonté;estimation IA, non mesurée
+SPO-SAC-FRAPPE;géométrique (monté);120;35;35;aucune;0.147;0.08 – 0.25;sac de frappe sans support;estimation IA, non mesurée
+SPO-BUT;transport (plié ou démonté);20;200;50;aucune;0.2;0.1 – 0.4;but de football démonté;estimation IA, non mesurée
+ARM-TISSU;géométrique (monté);170;90;45;aucune;0.689;0.4 – 0.9;"penderie en tissu montée ; se démonte en un petit colis";estimation IA, non mesurée
+ARM-BAS;géométrique (monté);100;90;50;aucune;0.45;0.3 – 0.6;armoire basse;estimation IA, non mesurée
+ARM-DRESS;géométrique (monté);200;100;50;aucune;1.0;0.5 – 2.0;"un module de dressing de 1 m ; un ensemble se compte en modules";estimation IA, non mesurée
+CAN-PANO;géométrique (monté);85;330;180;aucune;5.049;3.5 – 7.0;"canapé en U (boîte englobante) ; se transporte en modules";estimation IA, non mesurée
+CAN-MOD;géométrique (monté);85;250;95;aucune;2.019;1.2 – 4.0;canapé modulable de 3 modules;estimation IA, non mesurée
+CAN-5P;géométrique (monté);85;280;100;aucune;2.38;2.0 – 3.0;canapé 5 places;estimation IA, non mesurée
+CAN-4P;géométrique (monté);85;240;95;aucune;1.938;1.7 – 2.3;canapé 4 places;estimation IA, non mesurée
+LIT-ESCAM;géométrique (monté);220;160;45;aucune;1.584;1.2 – 2.2;lit escamotable 140 dans son armoire;estimation IA, non mesurée
+LIT-BEBE;géométrique (monté);90;126;66;aucune;0.748;0.55 – 0.9;lit à barreaux 60 × 120 cm, cadre compris;estimation IA, non mesurée
+COM-SEMAINIER;géométrique (monté);130;50;40;aucune;0.26;0.18 – 0.35;semainier 7 tiroirs;estimation IA, non mesurée
+ETA-ECHELLE;géométrique (monté);180;60;35;aucune;0.378;0.2 – 0.45;étagère échelle;estimation IA, non mesurée
+ENT-MEUBLE;géométrique (monté);90;100;40;aucune;0.36;0.2 – 0.5;meuble d'entrée;estimation IA, non mesurée
+CUI-ETAGERE;géométrique (monté);150;60;40;aucune;0.36;0.15 – 0.5;étagère de cuisine ou meuble micro-ondes;estimation IA, non mesurée
+ELM-REF-US;géométrique (monté);177.5;90.9;72;hauteur, largeur;1.162;0.95 – 1.35;profondeur type 65 à 75 cm sans les poignées;estimation IA, non mesurée
+ELM-REF-COMBI;géométrique (monté);177.0;74.9;66;hauteur, largeur;0.875;0.55 – 0.95;"profondeur type 63 à 68 cm ; la largeur mesurée (74,9 cm) vient du marché nord-américain (ENERGY STAR), le combiné européen fait souvent 60 cm de large";estimation IA, non mesurée
+ELM-REF-TOP;géométrique (monté);83.8;47.5;55;hauteur, largeur;0.219;0.08 – 0.25;profondeur type 50 à 60 cm;estimation IA, non mesurée
+ELM-CONG;géométrique (monté);145;60;63;aucune;0.548;0.2 – 0.75;"congélateur armoire type ; la seule mesure du v5 (87 cm) est un modèle top";estimation IA, non mesurée
+ELM-CAVE;géométrique (monté);86.6;60.5;57;hauteur, largeur;0.299;0.1 – 0.8;"profondeur type 55 à 60 cm ; la hauteur médiane (86,6 cm) correspond aux caves sous plan, une armoire à vin fait 0,6 à 0,8 m³";estimation IA, non mesurée
+ELM-LV;géométrique (monté);85;60.5;57.4;largeur, profondeur;0.295;0.24 – 0.33;hauteur standard d'encastrement 82 à 87 cm;estimation IA, non mesurée
+BUR-ENFANT;géométrique (monté);75;100;55;aucune;0.412;0.25 – 0.55;bureau enfant;estimation IA, non mesurée
+BUR-REUNION;géométrique (monté);75;240;110;aucune;1.98;1.2 – 3.0;table de réunion 8 à 10 personnes;estimation IA, non mesurée
+BUR-CAISSON;géométrique (monté);60;40;55;aucune;0.132;0.1 – 0.18;caisson à tiroirs sur roulettes;estimation IA, non mesurée
+INF-TV-75;géométrique (monté);100;170;10;aucune;0.17;0.15 – 0.22;écran 75 pouces sans pied;estimation IA, non mesurée
+INF-TV-55;géométrique (monté);75;125;10;aucune;0.094;0.08 – 0.12;écran 55 pouces sans pied;estimation IA, non mesurée
+SDB-COLONNE;géométrique (monté);170;35;30;aucune;0.178;0.1 – 0.3;colonne de salle de bain;estimation IA, non mesurée
+SDB-ETAGERE;géométrique (monté);170;60;30;aucune;0.306;0.05 – 0.35;étagère de salle de bain;estimation IA, non mesurée
+ENF-COFFRE;géométrique (monté);50;70;40;aucune;0.14;0.08 – 0.2;coffre à jouets;estimation IA, non mesurée
+ENF-POUSSETTE;géométrique (monté);105;60;85;aucune;0.535;0.35 – 0.65;"poussette dépliée ; pliée environ 0,15 à 0,25 m³";estimation IA, non mesurée
+ENF-PARC;géométrique (monté);76;124;64;aucune;0.603;0.4 – 0.7;"lit parapluie déplié ; plié environ 0,04 m³";estimation IA, non mesurée
+ENF-TABLE-LANGER;géométrique (monté);95;80;50;aucune;0.38;0.25 – 0.5;table à langer;estimation IA, non mesurée
+JAR-SALON;géométrique (monté);75;150;90;aucune;1.012;1.5 – 4.5;"table de jardin de 1 m³ plus 4 chaises de 0,5 m³ (somme de 5 boîtes) ; un ensemble n'a pas de boîte unique";estimation IA, non mesurée
+JAR-BALANCELLE;transport (plié ou démonté);40;180;80;aucune;0.576;0.3 – 1.2;balancelle démontée (structure et assise);estimation IA, non mesurée
+JAR-PARASOL;transport (plié ou démonté);25;250;25;aucune;0.156;0.08 – 0.3;parasol fermé, sans le pied (pied lesté : 0,03 à 0,1 m³ en plus);estimation IA, non mesurée
+JAR-ABRI;transport (plié ou démonté);30;200;120;aucune;0.72;0.4 – 3.0;"abri de jardin démonté en panneaux (un coffre de jardin : 0,4 à 1 m³) ; sous-catégorie hétérogène à scinder";estimation IA, non mesurée
+JAR-TONDEUSE;géométrique (monté);100;55;150;aucune;0.825;0.15 – 0.9;"tondeuse poussée, guidon déplié ; guidon replié environ 0,25 m³";estimation IA, non mesurée
+JAR-TONDEUSE;transport (plié ou démonté);50;55;85;aucune;0.234;0.15 – 0.35;tondeuse poussée, guidon replié;estimation IA, non mesurée
+SPO-TAPIS-COURSE;géométrique (monté);135;180;80;aucune;1.944;1.0 – 2.2;"tapis de course déplié ; replié environ 0,9 m³";estimation IA, non mesurée
+SPO-RAMEUR;géométrique (monté);55;210;55;aucune;0.635;0.4 – 1.0;rameur;estimation IA, non mesurée
+SPO-PINGPONG;géométrique (monté);76;274;152;aucune;3.165;1.2 – 3.2;"table réglementaire dépliée ; repliée environ 1,5 m³";estimation IA, non mesurée
+SPO-PINGPONG;transport (plié ou démonté);165;150;60;aucune;1.485;1.2 – 1.8;table de ping-pong repliée sur ses roulettes;estimation IA, non mesurée
+SPO-BILLARD;géométrique (monté);80;250;140;aucune;2.8;2.0 – 3.6;billard 8 pieds;estimation IA, non mesurée
+SPO-TRAMPOLINE;géométrique (transport);30;150;60;aucune;0.27;0.15 – 0.6;trampoline démonté (tubes, toile, filet);estimation IA, non mesurée
+SPO-SURF;géométrique (monté);20;270;70;aucune;0.378;0.15 – 0.5;paddle rigide ou planche de surf longue;estimation IA, non mesurée
+SPO-SKI;géométrique (monté);20;180;30;aucune;0.108;0.05 – 0.2;housse de skis et chaussures;estimation IA, non mesurée
+SPO-TENTE;transport (plié ou démonté);30;70;30;aucune;0.063;0.03 – 0.3;tente pliée dans sa housse;estimation IA, non mesurée
+VEL-TROTTINETTE;géométrique (monté);115;110;45;aucune;0.569;0.15 – 0.6;"trottinette électrique dépliée ; pliée environ 0,2 m³";estimation IA, non mesurée
+MUS-PIANO-NUM;géométrique (monté);80;135;40;aucune;0.432;0.05 – 0.6;"piano numérique meuble ; un clavier seul fait environ 0,05 m³";estimation IA, non mesurée
+DEC-PLANTE;géométrique (monté);120;50;50;aucune;0.3;0.1 – 0.6;grande plante en pot;estimation IA, non mesurée
+BRI-ETABLI;géométrique (monté);90;150;65;aucune;0.877;0.5 – 1.2;établi;estimation IA, non mesurée
+BRI-SERVANTE;géométrique (monté);90;70;45;aucune;0.283;0.15 – 0.45;servante d'atelier;estimation IA, non mesurée
+BRI-ARMOIRE-GARAGE;géométrique (monté);180;90;45;aucune;0.729;0.4 – 1.0;armoire métallique de garage;estimation IA, non mesurée
+DIV-AQUARIUM;géométrique (monté);60;100;40;aucune;0.24;0.05 – 0.8;aquarium de 200 L sans son meuble;estimation IA, non mesurée
+CAR-SAC;géométrique (monté);60;50;40;aucune;0.12;0.06 – 0.2;sac de 100 L ou ballot rempli;estimation IA, non mesurée
