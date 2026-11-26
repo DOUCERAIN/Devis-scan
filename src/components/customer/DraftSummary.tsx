@@ -31,6 +31,25 @@ function dwellingLines(d?: DraftDwelling) {
   return [address, facts.join(" · "), d.access_notes && `Accès : ${d.access_notes}`, d.parking_notes && `Contraintes : ${d.parking_notes}`].filter(Boolean) as string[];
 }
 
+/** Parcours v3 : vidéos et photos du logement, sans pièce. */
+function MediaSection({ draft, edit }: { draft: Draft; edit?: string }) {
+  const media = draft.rooms.flatMap((r) => r.videos);
+  const videos = media.filter((m) => m.kind !== "photo");
+  const photos = media.filter((m) => m.kind === "photo");
+  const frames = videos.reduce((n, v) => n + v.frames, 0) + photos.length;
+  return (
+    <Section title="Vidéos et photos" edit={edit}>
+      <p className="flex items-start gap-3 rounded-md bg-canvas px-3 py-2.5 text-sm">
+        {media.length > 0 ? <CheckCircle2 aria-hidden className="mt-0.5 size-[18px] shrink-0 text-success" /> : <AlertTriangle aria-hidden className="mt-0.5 size-[18px] shrink-0 text-warning" />}
+        <span>
+          {media.length === 0 ? "Aucune vidéo ni photo" : `${videos.length} vidéo${videos.length > 1 ? "s" : ""} · ${photos.length} photo${photos.length > 1 ? "s" : ""}`}
+          {media.length > 0 ? <span className="block text-ink-muted">{frames} image{frames > 1 ? "s" : ""} pour l&apos;analyse · {formatBytes(media.reduce((n, m) => n + (m.size_bytes ?? 0), 0))}</span> : null}
+        </span>
+      </p>
+    </Section>
+  );
+}
+
 /** Récapitulatif complet de la demande (utilisé avant l'envoi et après). */
 export function DraftSummary({ slug, draft, editable, inventory }: { slug: string; draft: Draft; editable: boolean; inventory?: PublicInventoryItem[] }) {
   const edit = (key: Parameters<typeof stepHref>[1]) => (editable ? stepHref(slug, key, draft.inventory_method) : undefined);
@@ -80,8 +99,10 @@ export function DraftSummary({ slug, draft, editable, inventory }: { slug: strin
             </div>
           ))}
         </Section>
+      ) : draft.rooms.every((r) => r.room_type === "logement") ? (
+        <MediaSection draft={draft} edit={edit("medias")} />
       ) : (
-      <Section title={`Pièces et vidéos (${draft.rooms.length})`} edit={edit("videos")}>
+      <Section title={`Pièces et vidéos (${draft.rooms.length})`} edit={edit("medias")}>
         <ul className="flex flex-col gap-2">
           {draft.rooms.map((room) => {
             const video = room.videos[0];

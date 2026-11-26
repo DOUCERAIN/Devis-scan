@@ -46,6 +46,19 @@ export const SIMULATED_ROOMS: Record<string, DetectedObject[]> = {
   ],
 };
 
+/**
+ * Logement entier (parcours v3) : le lot 1 « voit » le salon, le lot 2 la chambre et de nouveau le canapé,
+ * jamais sur une même image que le premier : le post-traitement doit le signaler comme doublon possible.
+ */
+export const SIMULATED_HOME_PARTS: DetectedObject[][] = [
+  [...SIMULATED_ROOMS.salon, ...SIMULATED_ROOMS.cuisine.map((o) => ({ ...o, image_indexes: [1] }))],
+  [
+    ...SIMULATED_ROOMS.chambre,
+    base({ label: "Canapé trois places", catalog_id: "canape-3-places", confidence: 0.9, image_indexes: [0], location_in_room: "vu depuis le couloir" }),
+    base({ label: "Cartons", catalog_id: "carton-standard", quantity: 6, confidence: 0.9, image_indexes: [1] }),
+  ],
+];
+
 export class SimulationProvider implements VisionProvider {
   readonly id = "simulation" as const;
   readonly model = "simulation";
@@ -53,6 +66,12 @@ export class SimulationProvider implements VisionProvider {
 
   async analyzeRoom(input: RoomInput): Promise<RoomResult> {
     const name = input.roomName.toLowerCase();
+    if (input.wholeHome) {
+      // Une seule partie (peu d'images) : tout le logement simulé dans le même lot.
+      const parts = input.wholeHome.parts === 1 ? [SIMULATED_HOME_PARTS.flat()] : SIMULATED_HOME_PARTS;
+      const objects = (parts[input.wholeHome.part - 1] ?? []).map((o) => ({ ...o, image_indexes: o.image_indexes.filter((i) => i < input.images.length) }));
+      return { ok: true, analysis: { objects, room_notes: "Résultat simulé (test)." }, usage: emptyUsage(), model: this.model };
+    }
     const key = Object.keys(SIMULATED_ROOMS).find((k) => name.includes(k));
     if (name.includes("échec simulé")) {
       return { ok: false, code: "provider_error", message: "Échec simulé.", usage: emptyUsage(), model: this.model };

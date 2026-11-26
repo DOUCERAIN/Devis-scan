@@ -165,10 +165,10 @@ export function QuoteDocument({ quote, audience }: { quote: PublicQuote; audienc
       </section>
 
       <section className="flex flex-col gap-2">
-        <h3 className="font-semibold">Détail du prix</h3>
+        <h3 className="font-semibold">{quote.prices_hidden ? "Prestations comprises" : "Détail du prix"}</h3>
         <table className="w-full text-sm">
           <thead className="sr-only">
-            <tr><th>Prestation</th><th>Montant HT</th></tr>
+            <tr><th>Prestation</th><th>{quote.prices_hidden ? "" : "Montant HT"}</th></tr>
           </thead>
           <tbody className="divide-y divide-border">
             {quote.lines.map((l, i) => (
@@ -177,7 +177,7 @@ export function QuoteDocument({ quote, audience }: { quote: PublicQuote; audienc
                   <span className="block">{l.label}</span>
                   <span className="block text-xs text-ink-muted">{l.detail}</span>
                 </td>
-                <td className="py-2 text-right tabular-nums whitespace-nowrap">{formatEuros(l.amount_cents)}</td>
+                <td className="py-2 text-right tabular-nums whitespace-nowrap">{l.amount_cents === undefined ? <span className="text-ink-muted">Inclus</span> : formatEuros(l.amount_cents)}</td>
               </tr>
             ))}
           </tbody>

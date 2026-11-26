@@ -23,8 +23,8 @@ test("progression : chaque étape exige la précédente", () => {
   assert.equal(reachableStep({ ...withContact, inventory_method: "video", rooms: [{ videos: [{}] }] }), 4);
 });
 
-test("l'étape inventaire mène aux pièces à filmer pour la méthode vidéo", () => {
-  assert.equal(stepHref("demo", "inventaire", "video"), "/d/demo/demande/pieces");
+test("l'étape inventaire mène à l'écran des médias (vidéos et photos) pour la méthode vidéo", () => {
+  assert.equal(stepHref("demo", "inventaire", "video"), "/d/demo/demande/medias");
   assert.equal(stepHref("demo", "inventaire", "manual"), "/d/demo/demande/inventaire");
   assert.equal(stepHref("demo", "coordonnees"), "/d/demo/demande/coordonnees");
 });

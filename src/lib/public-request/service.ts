@@ -35,7 +35,7 @@ export type DraftDwelling = {
   housing_type: string | null; surface_m2: number | null; room_count: number | null; floor: number | null; elevator: string | null;
   carrying_distance_m: number | null; parking_notes: string | null; access_notes: string | null;
 };
-export type DraftVideo = { id: string; status: string; size_bytes: number | null; duration_seconds: number | null; processing: string | null; original_size_bytes: number | null; frames: number };
+export type DraftVideo = { id: string; kind?: "video" | "photo"; status: string; size_bytes: number | null; duration_seconds: number | null; processing: string | null; original_size_bytes: number | null; frames: number };
 export type DraftRoom = { id: string; name: string; room_type: string | null; description: string | null; videos: DraftVideo[] };
 export type DraftCustomer = {
   full_name: string; email: string | null; phone: string | null; type: "individual" | "company";
@@ -46,6 +46,8 @@ export type Draft = {
   id: string; status: string; submitted_at: string | null;
   moving_date: string | null; alternative_moving_date: string | null; alternative_moving_dates: string[]; moving_date_flexible: boolean; customer_notes: string | null;
   inventory_method: "video" | "manual" | null;
+  /** Cartons supplémentaires déclarés par le client (null : étape non remplie ; 0 accepté). */
+  extra_boxes: number | null;
   customer: DraftCustomer | null;
   dwellings: Partial<Record<"origin" | "destination", DraftDwelling>>;
   /** Pièces filmées (les catégories de l'inventaire manuel n'en font pas partie). */
@@ -101,6 +103,13 @@ export async function removeRoom(token: string, room: DraftRoom) {
   if (error) throw error;
 }
 
+/** Pièce technique « Mon logement » qui reçoit toutes les vidéos et photos (le client ne déclare aucune pièce). */
+export async function ensureMediaRoom(token: string): Promise<string> {
+  const { data, error } = await anonClient().rpc("public_media_room", { access_token: token });
+  if (error) throw error;
+  return data;
+}
+
 export type VideoMeta = {
   capture_source: "camera" | "native_camera" | "gallery";
   processing: "compressed" | "original";
@@ -113,7 +122,7 @@ export type VideoMeta = {
 };
 
 /** Réserve l'emplacement et délivre l'autorisation d'envoi (liée à ce seul chemin). */
-export async function prepareVideoUpload(token: string, roomId: string, mimeType: string, sizeBytes: number, meta: VideoMeta) {
+export async function prepareVideoUpload(token: string, roomId: string, mimeType: string, sizeBytes: number, meta: VideoMeta & { media_kind?: "video" | "photo" }) {
   const { data, error } = await anonClient().rpc("register_public_video", {
     access_token: token, room_id: roomId, mime_type: mimeType, size_bytes: sizeBytes, meta: meta as unknown as Json,
   });
@@ -131,7 +140,7 @@ export async function videoForDraft(token: string, videoId: string) {
   const draft = await getDraft(token);
   const { data, error } = await adminClient()
     .from("room_videos")
-    .select("id, storage_path, mime_type, status")
+    .select("id, storage_path, mime_type, status, media_kind")
     .eq("id", videoId)
     .eq("request_id", draft.id)
     .maybeSingle();
@@ -157,6 +166,30 @@ export async function confirmVideoUpload(
     duration_seconds: video.durationSeconds, width: video.width, height: video.height,
   });
   if (error) throw error;
+  return size;
+}
+
+export const MAX_PHOTO_BYTES = 10 * 1024 * 1024;
+
+/**
+ * Vérifie une photo réellement reçue (présence, taille, format JPEG d'après les premiers octets), la déclare
+ * envoyée et en fait sa propre image d'analyse. Fichier non conforme : effacé et refusé.
+ */
+export async function confirmPhotoUpload(token: string, photo: { id: string; path: string; width?: number; height?: number }) {
+  const size = await storedObjectSize(photo.path);
+  if (size === null) throw new InvalidUploadError("La photo n'a pas été reçue. Relancez l'envoi.");
+  const head = await readObjectHead(photo.path, 4);
+  const jpeg = head.length >= 3 && head[0] === 0xff && head[1] === 0xd8 && head[2] === 0xff;
+  if (size > MAX_PHOTO_BYTES || !jpeg) {
+    await removeObjects([photo.path]);
+    await anonClient().rpc("discard_public_video", { access_token: token, video_id: photo.id });
+    throw new InvalidUploadError(size > MAX_PHOTO_BYTES ? "Cette photo est trop lourde (10 Mo maximum)." : "Ce fichier n'est pas une photo valide.");
+  }
+  const admin = adminClient();
+  const { error } = await admin.rpc("mark_video_uploaded", { access_token: token, video_id: photo.id, actual_size: size, width: photo.width, height: photo.height });
+  if (error) throw error;
+  const { error: frameError } = await admin.rpc("add_public_photo_frame", { access_token: token, video_id: photo.id, width: photo.width, height: photo.height });
+  if (frameError) throw frameError;
   return size;
 }
 
@@ -206,10 +239,14 @@ export async function submitDraft(token: string): Promise<string> {
   return data;
 }
 
-export type QuoteLineView = { code: string; label: string; detail: string; quantity: number; unit: string; unit_price_cents: number; amount_cents: number };
+/**
+ * Ligne de devis vue par le CLIENT : prestation et description, sans prix (les montants ligne à ligne ne
+ * quittent pas la base, get_public_quote_view). Le déménageur lit les lignes complètes dans son espace.
+ */
+export type QuoteLineView = { code: string; label: string; detail: string; quantity?: number; unit?: string; unit_price_cents?: number; amount_cents?: number };
 export type PublicQuote = {
   id: string; version: number; status: string; kind: "formal" | "estimate"; origin: string; created_at: string; valid_until: string | null;
-  lines: QuoteLineView[]; total_ht_cents: number; vat_cents: number; total_ttc_cents: number; vat_rate: number;
+  lines: QuoteLineView[]; prices_hidden?: boolean; total_ht_cents: number; vat_cents: number; total_ttc_cents: number; vat_rate: number;
   distance_km: number | null; distance_method: "route" | "estimate" | null;
   volume: { confirmedM3: number; toVerifyM3: number; potentialM3: number; estimatedM3: number; maxM3: number; billable_m3: number; needsHumanReview: boolean; upper_total_ttc_cents: number | null; rooms: { name: string; estimatedM3: number; potentialM3: number }[] };
   company: Record<string, string | number | boolean | null>;
@@ -270,6 +307,8 @@ export type PublicInventoryItem = {
 };
 export type PublicInventory = {
   status: string; inventory_method: "video" | "manual" | null; customer_validated_at: string | null;
+  /** Cartons supplémentaires déclarés (null : étape non remplie). */
+  extra_boxes: number | null;
   rooms: { id: string; name: string; category: string | null }[]; items: PublicInventoryItem[];
 };
 
@@ -322,6 +361,19 @@ export async function setInventoryQuantity(token: string, itemId: string, quanti
 export async function removeInventoryItem(token: string, itemId: string) {
   const { error } = await anonClient().rpc("public_inventory_remove", { token, item_id: itemId });
   if (error) throw error;
+}
+
+/** Étape des cartons : nombre de cartons supplémentaires (0 accepté), reporté dans l'inventaire en base. */
+export async function setExtraBoxes(token: string, boxes: number) {
+  const { error } = await anonClient().rpc("public_set_extra_boxes", { token, boxes });
+  if (error) throw error;
+}
+
+/** Pièce supplémentaire de l'inventaire (Chambre 2, buanderie…). */
+export async function addInventoryRoom(token: string, baseCategory: string, name: string): Promise<string> {
+  const { data, error } = await anonClient().rpc("public_inventory_add_room", { token, base_category: baseCategory, room_name: name });
+  if (error) throw error;
+  return data;
 }
 
 /** Inventaire (sans images) lu avec le jeton d'accès du brouillon ou le jeton de consultation. */

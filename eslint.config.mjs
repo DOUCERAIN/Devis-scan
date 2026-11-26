@@ -15,6 +15,8 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "supabase/.temp/**",
+    // Caches locaux de pages web téléchargées pour le catalogue (non versionnés, code de tiers).
+    "data/**/cache/**",
   ]),
 ]);
 

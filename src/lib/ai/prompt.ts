@@ -31,7 +31,13 @@ export function catalogPrompt(catalog: CatalogRef[]): string {
   return `Catalogue (identifiant : nom) :\n${lines.join("\n")}`;
 }
 
-export function roomPrompt(room: { name: string; description: string | null }, imageCount: number): string {
+export function roomPrompt(room: { name: string; description: string | null }, imageCount: number, wholeHome?: { part: number; parts: number }): string {
+  if (wholeHome) {
+    // Parcours v3 : le client a filmé ou photographié son logement comme il le souhaitait (une ou plusieurs
+    // vidéos, des photos), sans découpage par pièce. Les consignes générales (système) restent inchangées.
+    return `Ensemble du logement : vidéos et photos du client, sans découpage par pièce${wholeHome.parts > 1 ? ` (lot ${wholeHome.part} sur ${wholeHome.parts}, dans l'ordre de prise de vue)` : ""}.
+${imageCount} image${imageCount > 1 ? "s" : ""} ci-dessus (indices 0 à ${imageCount - 1}), qui peuvent montrer plusieurs pièces. Un même meuble filmé dans plusieurs vidéos ou photographié plusieurs fois ne doit apparaître qu'une seule fois (regroupez ses vues). Établissez l'inventaire de tous les meubles et objets visibles ; indiquez la pièce dans location_in_room.`;
+  }
   return `Pièce : « ${room.name} »${room.description ? `. Précision du client : « ${room.description} »` : ""}.
 ${imageCount} image${imageCount > 1 ? "s" : ""} de cette pièce ci-dessus (indices 0 à ${imageCount - 1}). Établissez l'inventaire de la pièce.`;
 }

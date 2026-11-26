@@ -3,10 +3,10 @@ import { notFound } from "next/navigation";
 import { Link2 } from "lucide-react";
 import { Alert } from "@/components/ui/Alert";
 import { getCustomerCatalog, getPublicInventory, getQuoteView, type PublicInventoryItem } from "@/lib/public-request/service";
-import { InventoryBuilder } from "@/components/customer/InventoryBuilder";
 import { ResumeManualForm } from "./ResumeManualForm";
 import { customerDuplicateExplanation } from "@/lib/inventory/duplicates";
-import { InventoryReview, type ReviewDuplicate } from "./InventoryReview";
+import type { ReviewDuplicate } from "./InventoryReview";
+import { ReviewInventory } from "./ReviewInventory";
 import { FollowUp, analysisPending } from "@/components/quote/FollowUp";
 import { loadContext } from "../../load";
 import { AutoRefresh } from "./AutoRefresh";
@@ -27,13 +27,15 @@ export default async function QuotePage({ params }: PageProps<"/d/[slug]/devis/[
   const hasQuote = view.quotes.some((q) => q.status !== "superseded");
 
   // Inventaire à valider par le client avant son devis final.
-  let review: { items: PublicInventoryItem[]; duplicates: ReviewDuplicate[] } | null = null;
+  let review: { items: PublicInventoryItem[]; rooms: { id: string; name: string; category: string | null }[]; extraBoxes: number | null; duplicates: ReviewDuplicate[] } | null = null;
   if (view.status === "awaiting_customer" && !pending) {
     const data = await getPublicInventory(token);
     if (data) {
       const { inventory, imageUrls } = data;
       review = {
         items: inventory.items,
+        rooms: inventory.rooms,
+        extraBoxes: inventory.extra_boxes,
         duplicates: inventory.items
           .filter((i) => i.possible_duplicate)
           .map((i) => ({
@@ -63,11 +65,11 @@ export default async function QuotePage({ params }: PageProps<"/d/[slug]/devis/[
         <>
           <p className="text-sm text-ink-secondary">
             {review.items.some((i) => i.source === "ai")
-              ? "Voici les meubles et objets repérés dans vos vidéos. Corrigez les quantités, retirez ce qui ne déménage pas et ajoutez ce qui manque, puis validez pour recevoir votre devis."
-              : "Ajoutez vos meubles et objets pièce par pièce, puis validez pour recevoir votre devis."}
+              ? "Voici les meubles et objets repérés dans vos vidéos et photos, rangés par pièce. Indiquez d'abord vos cartons supplémentaires, puis corrigez les quantités, retirez ce qui ne déménage pas et ajoutez ce qui manque. Validez ensuite pour recevoir votre devis."
+              : "Indiquez vos cartons, puis ajoutez vos meubles et objets pièce par pièce, et validez pour recevoir votre devis."}
           </p>
-          <InventoryBuilder slug={slug} viewToken={token} catalog={await getCustomerCatalog()} items={review.items} />
-          <InventoryReview slug={slug} token={token} duplicates={review.duplicates} empty={review.items.length === 0} />
+          <ReviewInventory slug={slug} token={token} catalog={await getCustomerCatalog()} duplicates={review.duplicates}
+            initial={{ rooms: review.rooms, items: review.items, extra_boxes: review.extraBoxes }} />
         </>
       ) : (
       <FollowUp

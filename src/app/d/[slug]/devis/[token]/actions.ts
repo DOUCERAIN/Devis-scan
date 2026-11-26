@@ -57,6 +57,9 @@ export async function validateCustomerInventory(_prev: ActionState, formData: Fo
     await validateInventory(token, decisions, CUSTOMER_INVENTORY_WARNING);
   } catch (error) {
     console.error("[inventaire] validation", error);
+    if (/number of boxes is required/i.test(String((error as { message?: string })?.message))) {
+      return failure("Indiquez d'abord le nombre de cartons supplémentaires (0 si aucun), en haut de l'inventaire.");
+    }
     return failure("Votre inventaire n'a pas pu être validé : il a peut-être déjà été validé, ou des éléments restent sans réponse. Rechargez la page.");
   }
   const requestId = await requestIdForViewToken(token);

@@ -1,6 +1,9 @@
 import { z } from "zod";
 import { checkbox, emailField, integerField, optionalInteger, optionalText, postalCodeField, requiredText } from "./common.ts";
-import { MANUAL_CATEGORY_KEYS, SIZE_CLASS_VALUES } from "../inventory/manual.ts";
+import { SIZE_CLASS_VALUES } from "../inventory/manual.ts";
+import { ROOM_TAB_KEYS } from "../inventory/rooms.ts";
+
+const roomIdField = z.string().regex(/^[0-9a-f-]{36}$/, { error: "Pièce inconnue." }).optional();
 import { ELEVATOR_TYPES, HOUSING_TYPES } from "./request.ts";
 
 /** Validation des formulaires du parcours particulier (côté serveur). */
@@ -148,7 +151,8 @@ const dimension = (label: string) => optionalInteger(label, 1, 2000);
 export const customItemSchema = z
   .object({
     label: requiredText(2, 120, "La description de l'objet"),
-    category: z.enum(MANUAL_CATEGORY_KEYS, { error: "Choisissez une catégorie." }),
+    category: z.enum(ROOM_TAB_KEYS, { error: "Choisissez une catégorie." }),
+    room_id: roomIdField,
     quantity: integerField("La quantité", 1, 999),
     width_cm: dimension("La largeur"),
     depth_cm: dimension("La profondeur"),
@@ -174,7 +178,8 @@ export const customItemSchema = z
 
 export const catalogItemSchema = z.object({
   catalog_key: z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, { error: "Objet inconnu." }),
-  category: z.enum(MANUAL_CATEGORY_KEYS, { error: "Choisissez une catégorie." }),
+  category: z.enum(ROOM_TAB_KEYS, { error: "Choisissez une catégorie." }),
+  room_id: roomIdField,
   quantity: integerField("La quantité", 1, 999),
   size: z.enum(SIZE_CLASS_VALUES, { error: "Choisissez une taille." }).optional(),
 });

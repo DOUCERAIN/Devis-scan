@@ -119,3 +119,46 @@
     animation: none !important;
   }
 }
+
+/* Inventaire visuel : objets cliquables des illustrations (src/components/customer/illustrations). */
+.ds-scene-object {
+  --obj-fill: var(--ds-surface);
+  --obj-accent: var(--ds-surface-subtle);
+  --obj-stroke: var(--ds-ink-muted);
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.ds-scene-object .ds-scene-hit {
+  fill: transparent;
+  stroke: transparent;
+  stroke-width: 2;
+  transition: fill 120ms ease, stroke 120ms ease;
+}
+.ds-scene-object:hover {
+  --obj-stroke: var(--ds-brand);
+}
+.ds-scene-object:hover .ds-scene-hit {
+  fill: var(--ds-brand-soft);
+}
+.ds-scene-object[data-selected="true"] {
+  --obj-fill: var(--ds-brand-soft);
+  --obj-accent: var(--ds-brand-soft-strong);
+  --obj-stroke: var(--ds-brand);
+}
+.ds-scene-object:focus-visible .ds-scene-hit {
+  stroke: var(--ds-brand);
+  stroke-width: 3;
+  stroke-dasharray: 6 4;
+}
+.ds-scene-object:active .ds-scene-hit {
+  fill: var(--ds-brand-soft-strong);
+}
+@keyframes ds-scene-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+.ds-scene-pop {
+  animation: ds-scene-pop 260ms ease-out;
+}

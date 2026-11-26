@@ -17,6 +17,7 @@
     "test:integration": "node tests/integration/stockage.int.mjs",
     "test:media": "bash tests/e2e/generate-media.sh",
     "test:e2e:client": "node tests/e2e/parcours-client.e2e.cjs",
+    "test:e2e:photos": "node tests/e2e/parcours-photos.e2e.cjs",
     "test:e2e:verification": "node tests/e2e/verification.e2e.cjs",
     "test:e2e:manuel": "node tests/e2e/parcours-manuel.e2e.cjs"
   },

@@ -53,7 +53,9 @@ export function toPdfQuote(q: PublicQuote): PdfQuote {
       ...(q.distance_km !== null ? ([["Distance", `${q.distance_km.toLocaleString("fr-FR")} km${q.distance_method === "estimate" ? " (estimation)" : ""}`]] as [string, string][]) : []),
     ],
     inventory: [...rooms.entries()].map(([room, items]) => ({ room, items })),
-    lines: q.lines.map((l) => ({ label: l.label, detail: l.detail, amount: formatEuros(l.amount_cents) })),
+    // Devis du client : prestations sans montant par ligne (get_public_quote_view ne les transmet plus).
+    lines: q.lines.map((l) => ({ label: l.label, detail: l.detail, amount: l.amount_cents === undefined ? "Inclus" : formatEuros(l.amount_cents) })),
+    pricesHidden: q.prices_hidden === true || q.lines.every((l) => l.amount_cents === undefined),
     totals: [
       ["Total HT", formatEuros(q.total_ht_cents)],
       [`TVA (${q.vat_rate.toLocaleString("fr-FR")} %)`, formatEuros(q.vat_cents)],

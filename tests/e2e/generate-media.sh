@@ -10,4 +10,9 @@ ffmpeg -loglevel error -y -f lavfi -i "nullsrc=size=1920x1080:rate=30:duration=1
   -c:v libx264 -preset ultrafast -b:v 52M -maxrate 52M -bufsize 10M -pix_fmt yuv420p trop-lourde.mp4
 printf 'ceci n est pas une video' > faux.mp4
 ffmpeg -loglevel error -y -f lavfi -i "mandelbrot=size=2400x480:rate=30" -t 5 -vf "crop=640:480:x='t*340':y=0" -pix_fmt yuv420p camera.y4m
+# Photos de test (parcours photos) : deux JPEG 4000×3000 (réduits dans le navigateur), un PNG, un faux fichier image.
+ffmpeg -loglevel error -y -f lavfi -i "mandelbrot=size=4000x3000:rate=1" -frames:v 1 -q:v 3 photo-salon.jpg
+ffmpeg -loglevel error -y -f lavfi -i "testsrc2=size=3000x4000:rate=1" -frames:v 1 -q:v 3 photo-chambre.jpg
+ffmpeg -loglevel error -y -f lavfi -i "testsrc=size=1600x1200:rate=1" -frames:v 1 photo-cuisine.png
+printf 'pas une image' > faux.jpg
 echo "Vidéos de test générées dans $(pwd)"

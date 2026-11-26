@@ -10,13 +10,13 @@ import { cn } from "@/components/ui/cn";
 
 const METHODS = [
   {
-    value: "video", icon: Video, title: "Filmer mon logement",
-    text: "Une courte vidéo par pièce avec votre téléphone. L'inventaire est préparé automatiquement, puis vous le vérifiez.",
-    hint: "Environ 1 minute par pièce",
+    value: "video", icon: Video, title: "Filmer ou photographier mon logement",
+    text: "Filmez, importez vos vidéos ou vos photos, comme vous le souhaitez. L'inventaire est préparé automatiquement, puis vous le vérifiez.",
+    hint: "Vidéos et photos, sans découpage par pièce",
   },
   {
     value: "manual", icon: ClipboardList, title: "Faire mon inventaire manuellement",
-    text: "Choisissez vos meubles par pièce dans une liste, avec les quantités. Ajoutez librement les objets qui n'y sont pas.",
+    text: "Cliquez sur vos meubles dans l'illustration de chaque pièce, ou cherchez-les dans la liste. Ajoutez librement les objets qui n'y sont pas.",
     hint: "Sans vidéo",
   },
 ] as const;

@@ -9,11 +9,11 @@ import { formToObject, nestDotted } from "@/lib/form-data";
 import { isExpiredSession, publicErrorMessage } from "@/lib/public-request/errors";
 import { clearDraftToken, readDraftToken, saveDraftToken } from "@/lib/public-request/session";
 import {
-  addRoom, createDraft, getDraft, getPublicCompany, removeRoom, requestIdForViewToken, setDraftOptions, submitDraft, submitManualDraft, updateDraft, updateRoom,
+  createDraft, getDraft, getPublicCompany, requestIdForViewToken, setDraftOptions, submitDraft, submitManualDraft, updateDraft,
 } from "@/lib/public-request/service";
 import { stepHref } from "@/lib/public-request/steps";
 import {
-  checkAlternativeDates, contactPayload, contactSchema, finalNotesSchema, methodSchema, roomSchema, tripPayload, tripSchema,
+  checkAlternativeDates, contactPayload, contactSchema, finalNotesSchema, methodSchema, tripPayload, tripSchema,
 } from "@/lib/validation/public-request";
 import { geocodeAddress } from "@/lib/address/api";
 import { MANUAL_INVENTORY_WARNING } from "@/lib/inventory/manual";
@@ -116,47 +116,6 @@ export async function continueToSummary(formData: FormData) {
   const { slug, token } = await context(formData);
   if (!token) expired(slug);
   redirect(stepHref(slug, "recapitulatif"));
-}
-
-export async function saveRoom(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  const { slug, token } = await context(formData);
-  if (!token) expired(slug);
-  const raw = formToObject(formData);
-  const parsed = roomSchema.safeParse(raw);
-  if (!parsed.success) return validationFailure(parsed.error, raw);
-  try {
-    const { name, kind, description } = parsed.data;
-    if (raw.room_id) await updateRoom(token, raw.room_id, name, kind ?? null, description ?? null);
-    else await addRoom(token, name, kind ?? null, description ?? null);
-  } catch (error) {
-    if (isExpiredSession(error)) expired(slug);
-    return failure(publicErrorMessage(error, "saveRoom"), undefined, raw);
-  }
-  refresh(slug);
-  return { status: "success", message: raw.room_id ? "Pièce modifiée." : `« ${parsed.data.name} » ajoutée.` };
-}
-
-export async function deleteRoom(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  const { slug, token } = await context(formData);
-  if (!token) expired(slug);
-  const roomId = String(formData.get("room_id") ?? "");
-  try {
-    const draft = await getDraft(token);
-    const room = draft.rooms.find((r) => r.id === roomId);
-    if (!room) return failure("Cette pièce n'existe plus.");
-    await removeRoom(token, room);
-  } catch (error) {
-    if (isExpiredSession(error)) expired(slug);
-    return failure(publicErrorMessage(error, "deleteRoom"));
-  }
-  refresh(slug);
-  return { status: "success", message: "Pièce supprimée." };
-}
-
-export async function continueToVideos(formData: FormData) {
-  const { slug, token } = await context(formData);
-  if (!token) expired(slug);
-  redirect(stepHref(slug, "videos"));
 }
 
 export async function submitRequest(_prev: ActionState, formData: FormData): Promise<ActionState> {

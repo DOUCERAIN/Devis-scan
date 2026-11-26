@@ -8,6 +8,7 @@ import { addUsage, emptyUsage, estimateCostUsd } from "@/lib/ai/cost";
 import type { RoomImage } from "@/lib/ai/provider";
 import { generateQuote } from "@/lib/quotes/generate";
 import type { Json } from "@/lib/supabase/database.types";
+import { mergeBatchDetections, planHomeBatches } from "./batches";
 
 /** Nombre maximal d'images envoyées par pièce (maîtrise du coût). */
 export const MAX_IMAGES_PER_ROOM = 8;
@@ -72,10 +73,10 @@ export async function runRequestAnalysis(requestId: string): Promise<AnalysisOut
 
     // Pièces et images extraites
     const [{ data: rooms }, { data: frames }, { data: catalogRows }] = await Promise.all([
-      admin.from("rooms").select("id, name, description, position").eq("request_id", requestId).order("position"),
+      admin.from("rooms").select("id, name, description, position, room_type").eq("request_id", requestId).order("position"),
       admin
         .from("video_frames")
-        .select("id, storage_path, captured_at_ms, room_videos!inner(room_id, status, created_at)")
+        .select("id, storage_path, captured_at_ms, room_videos!inner(room_id, status, created_at, media_kind)")
         .eq("request_id", requestId)
         .in("room_videos.status", ["uploaded", "ready"])
         .order("captured_at_ms"),
@@ -89,14 +90,24 @@ export async function runRequestAnalysis(requestId: string): Promise<AnalysisOut
       geometric_volume_avg: r.geometric_volume_avg === null ? null : Number(r.geometric_volume_avg),
     }));
     const catalogText = catalogPrompt(catalog);
+    // Pièces filmées une à une (ancien parcours) : 8 images au plus par pièce. « Mon logement » (parcours v3 :
+    // vidéos et photos sans pièce imposée) : toutes les images en lots, réunies ensuite comme une seule pièce.
+    type FrameRow = NonNullable<typeof frames>[number];
     const roomsWithFrames = (rooms ?? [])
-      .map((room) => ({ room, frames: spread((frames ?? []).filter((f) => f.room_videos.room_id === room.id), MAX_IMAGES_PER_ROOM) }))
-      .filter((r) => r.frames.length > 0);
+      .map((room) => {
+        const own = (frames ?? []).filter((f) => f.room_videos.room_id === room.id);
+        const batches: FrameRow[][] = room.room_type === "logement"
+          ? planHomeBatches(own.map((f) => ({ ...f, videoCreatedAt: f.room_videos.created_at })))
+          : [spread(own, MAX_IMAGES_PER_ROOM)].filter((b) => b.length > 0);
+        return { room, batches, wholeHome: room.room_type === "logement" };
+      })
+      .filter((r) => r.batches.length > 0);
     if (roomsWithFrames.length === 0) return await fail("no_images", "Aucune image exploitable.");
+    const callsTotal = roomsWithFrames.reduce((n, r) => n + r.batches.length, 0);
 
     await admin
       .from("analysis_runs")
-      .update({ stage: "recognition", rooms_total: roomsWithFrames.length, rooms_done: 0, images_count: roomsWithFrames.reduce((n, r) => n + r.frames.length, 0) })
+      .update({ stage: "recognition", rooms_total: callsTotal, rooms_done: 0, images_count: roomsWithFrames.reduce((n, r) => n + r.batches.flat().length, 0) })
       .eq("id", run.id);
 
     let usage = emptyUsage();
@@ -105,30 +116,40 @@ export async function runRequestAnalysis(requestId: string): Promise<AnalysisOut
     const failures: string[] = [];
     let modelUsed = provider.model;
 
-    for (const [index, { room, frames: roomFrames }] of roomsWithFrames.entries()) {
-      const images: RoomImage[] = [];
-      const frameIds: string[] = [];
-      for (const frame of roomFrames) {
-        const { data: blob } = await admin.storage.from(MEDIA_BUCKET).download(frame.storage_path);
-        if (!blob) continue;
-        images.push({ mediaType: "image/jpeg", base64: Buffer.from(await blob.arrayBuffer()).toString("base64") });
-        frameIds.push(frame.id);
-      }
-      if (images.length > 0) {
-        const result = await provider.analyzeRoom({ roomName: room.name, roomDescription: room.description, images, catalogText });
-        usage = addUsage(usage, result.usage);
-        modelUsed = result.model;
-        if (result.ok) {
-          detections.push({ roomId: room.id, objects: result.analysis.objects, frameIds });
-          raw[room.id] = result.analysis;
-        } else {
-          failures.push(`${room.name} : ${result.message}`);
-          raw[room.id] = { error: result.code };
+    let callsDone = 0;
+    for (const { room, batches, wholeHome } of roomsWithFrames) {
+      const done: { objects: RoomDetections["objects"]; frameIds: string[] }[] = [];
+      for (const [b, batch] of batches.entries()) {
+        const images: RoomImage[] = [];
+        const frameIds: string[] = [];
+        for (const frame of batch) {
+          const { data: blob } = await admin.storage.from(MEDIA_BUCKET).download(frame.storage_path);
+          if (!blob) continue;
+          images.push({ mediaType: "image/jpeg", base64: Buffer.from(await blob.arrayBuffer()).toString("base64") });
+          frameIds.push(frame.id);
         }
-      } else {
-        failures.push(`${room.name} : images illisibles`);
+        const label = batches.length > 1 ? `${room.name} (lot ${b + 1}/${batches.length})` : room.name;
+        if (images.length > 0) {
+          const result = await provider.analyzeRoom({
+            roomName: room.name, roomDescription: room.description, images, catalogText,
+            ...(wholeHome ? { wholeHome: { part: b + 1, parts: batches.length } } : {}),
+          });
+          usage = addUsage(usage, result.usage);
+          modelUsed = result.model;
+          if (result.ok) {
+            done.push({ objects: result.analysis.objects, frameIds });
+            raw[batches.length > 1 ? `${room.id}:${b + 1}` : room.id] = result.analysis;
+          } else {
+            failures.push(`${label} : ${result.message}`);
+            raw[batches.length > 1 ? `${room.id}:${b + 1}` : room.id] = { error: result.code };
+          }
+        } else {
+          failures.push(`${label} : images illisibles`);
+        }
+        callsDone += 1;
+        await admin.from("analysis_runs").update({ rooms_done: callsDone }).eq("id", run.id);
       }
-      await admin.from("analysis_runs").update({ rooms_done: index + 1 }).eq("id", run.id);
+      if (done.length > 0) detections.push({ roomId: room.id, ...mergeBatchDetections(done) });
     }
 
     const costUsd = provider.simulated ? 0 : estimateCostUsd(modelUsed, usage);

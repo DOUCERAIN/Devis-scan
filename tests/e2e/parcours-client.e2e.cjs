@@ -188,8 +188,8 @@ async function requestRow(email) {
   await shot(page, "c02c-methode");
   await page.getByTestId("method-video").click();
   await page.getByRole("button", { name: "Continuer" }).click();
-  await page.waitForURL(/\/demande\/pieces$/);
-  log("Choix de la méthode : « Filmer mon logement »");
+  await page.waitForURL(/\/demande\/medias$/);
+  log("Choix de la méthode : « Filmer ou photographier mon logement » → écran des médias, sans étape « pièces »");
 
   // Retour en arrière : les informations sont conservées
   await page.goto(`${APP}/d/${slug}/demande/trajet`);
@@ -205,110 +205,85 @@ async function requestRow(email) {
   assert.deepEqual(saved.quote_requests[0].alternative_moving_dates, [day(37), day(51)]);
   assert.equal(saved.quote_requests[0].inventory_method, "video");
   assert.deepEqual(saved.quote_requests[0].dwellings.map((w) => [w.kind, w.floor]).sort(), [["destination", 0], ["origin", 4]]);
+  // Anciennes adresses des étapes « pièces » et « vidéos » : redirigées vers l'écran des médias.
   await page.goto(`${APP}/d/${slug}/demande/pieces`);
-  log("Retour aux étapes précédentes sans perte de données ; base : profil, consentements, dates, étages, méthode");
+  await page.waitForURL(/\/demande\/medias$/);
+  await page.goto(`${APP}/d/${slug}/demande/videos`);
+  await page.waitForURL(/\/demande\/medias$/);
+  for (const id of ["media-film", "media-videos", "media-photos"]) assert.ok(await page.getByTestId(id).isVisible(), id);
+  await shot(page, "c03-choix-medias");
+  log("Retour aux étapes précédentes sans perte de données ; écran des médias : Filmer, Importer des vidéos, Importer des photos");
 
-  // 4. Pièces : ajout, modification, suppression
-  for (const name of ["Salon", "Cuisine", "Chambre principale"]) {
-    await page.getByRole("button", { name, exact: true }).click();
-    await page.getByRole("button", { name: "Ajouter la pièce" }).click();
-    await text(page, `« ${name} » ajoutée`);
-  }
-  await page.getByRole("button", { name: "Cave", exact: true }).click();
-  await page.locator("#new-room-desc").fill("Vélos et cartons");
-  await page.getByRole("button", { name: "Ajouter la pièce" }).click();
-  await text(page, "« Cave » ajoutée");
-  await page.getByRole("button", { name: "Modifier Salon" }).click();
-  await page.getByLabel("Nom de la pièce").first().fill("Grand salon");
-  await page.getByRole("button", { name: "Enregistrer" }).click();
-  await text(page, "Grand salon");
-  await page.getByRole("button", { name: "Supprimer Chambre principale" }).click();
-  await page.getByRole("button", { name: "Supprimer Chambre principale" }).waitFor({ state: "detached" });
-  assert.equal(await page.getByRole("list", { name: "Vos pièces" }).locator(":scope > li").count(), 3);
-  await shot(page, "c03-pieces");
-  log("Pièces ajoutées, renommée et supprimée");
+  const uploadedMedia = async () => (await admin.from("room_videos").select("id, status, processing, width, height, size_bytes, original_size_bytes, original_width, mime_type, media_kind, capture_source, rooms(name, room_type), video_frames(id)")
+    .eq("company_id", pro.company.id).eq("status", "uploaded").order("created_at")).data;
+  const sentItems = page.getByTestId("media-sent-item");
 
-  await page.getByRole("button", { name: "Continuer vers les vidéos" }).click();
-  await page.waitForURL(/\/demande\/videos$/);
-
-  // 5. Vidéo par la caméra (caméra simulée) : tournage, revue, compression, images, envoi
-  await page.getByRole("button", { name: "Filmer cette pièce" }).click();
+  // 5. Test A — une vidéo filmée avec la caméra (caméra simulée) : consignes, plusieurs séquences possibles
+  await page.getByTestId("media-film").click();
+  for (const tip of ["Filmez lentement.", "Montrez l'ensemble des meubles.", "Faites un tour complet de chaque pièce.", "Évitez les mouvements trop rapides."]) await text(page, tip);
+  await page.getByRole("button", { name: "Ouvrir la caméra" }).click();
   await page.getByRole("button", { name: "Commencer à filmer" }).click();
   await text(page, "/ 2:00");
   await page.waitForTimeout(3500);
   await page.getByRole("button", { name: "Terminer le tournage" }).click();
-  await text(page, "Vérifiez la vidéo");
-  log("Caméra ouverte, consignes affichées, tournage terminé et vidéo revue");
-  await page.getByRole("button", { name: "Utiliser cette vidéo" }).click();
-  const salonCard = page.locator("li", { hasText: "Salon" }).last();
-  await salonCard.getByText("Vidéo envoyée").waitFor({ timeout: 90000 });
-  await salonCard.getByText(/image.? extraite/).waitFor();
+  await page.getByTestId("media-pending").first().waitFor();
+  assert.ok(await page.getByTestId("media-pending").first().locator("video").count() === 1, "aperçu de la séquence avant validation");
+  await page.getByTestId("media-send").click();
+  await sentItems.first().waitFor({ timeout: 90000 });
+  await page.getByRole("button", { name: "Filmer une autre séquence" }).waitFor();
+  let sent = await uploadedMedia();
+  assert.equal(sent.length, 1);
+  assert.deepEqual([sent[0].media_kind, sent[0].capture_source, sent[0].rooms.room_type], ["video", "camera", "logement"], "aucune pièce imposée");
+  assert.ok(sent[0].video_frames.length >= 1);
   await shot(page, "c04-video-camera");
-  log("Vidéo de la caméra traitée, envoyée et images extraites");
+  log(`Test A : une vidéo filmée (consignes affichées), revue, compressée et envoyée dans « Mon logement » (${sent[0].video_frames.length} images extraites) ; « Filmer une autre séquence » proposé`);
 
-  // 6. Galerie : vidéo 1080p WebM (compression réelle) avec coupure réseau pendant l'envoi
-  await page.getByRole("button", { name: /Cuisine/ }).click();
+  // 6. Test B — plusieurs vidéos importées en une fois, retrait avant validation, coupure réseau, ajout ultérieur
+  await page.getByRole("button", { name: "Autres options" }).click().catch(() => undefined);
   let cut = 1;
   await page.route("**/storage/v1/upload/resumable/sign/**", (route) => {
     if (route.request().method() === "PATCH" && cut > 0) { cut--; return route.abort("connectionreset"); }
     return route.continue();
   });
-  await page.locator('input[data-input="gallery"]').setInputFiles(media("salon-1080p.webm"));
-  await page.getByRole("button", { name: "Utiliser cette vidéo" }).click();
-  const cuisineCard = page.locator("li", { hasText: "Cuisine" }).last();
-  await cuisineCard.getByText("Compression de la vidéo").waitFor({ timeout: 20000 });
-  await cuisineCard.getByText("Vidéo envoyée").waitFor({ timeout: 180000 });
-  await cuisineCard.getByText("(compressée").waitFor();
+  await page.locator('input[data-input="videos"]').setInputFiles([media("salon-1080p.webm"), media("cuisine-h264.mp4"), media("faux.mp4")]);
+  await text(page, "n'est pas pris en charge");
+  assert.equal(await page.getByTestId("media-pending").count(), 2, "faux fichier vidéo écarté, deux vidéos sélectionnées");
+  await page.getByTestId("media-pending").filter({ hasText: "cuisine-h264" }).getByRole("button", { name: /Retirer/ }).click();
+  assert.equal(await page.getByTestId("media-pending").count(), 1, "vidéo retirée avant validation");
+  await page.getByTestId("media-send").click();
+  await page.waitForFunction(() => document.querySelectorAll("[data-testid=media-sent-item]").length === 2, null, { timeout: 180000 });
   assert.equal(cut, 0, "la coupure réseau a bien été simulée");
   await page.unroute("**/storage/v1/upload/resumable/sign/**");
-  log("Vidéo 1080p de la galerie compressée ; envoi repris automatiquement après une coupure réseau");
-
-  const { data: videos } = await admin.from("room_videos").select("status, processing, width, height, size_bytes, original_size_bytes, original_width, mime_type, capture_source, video_frames(id)")
-    .eq("company_id", pro.company.id).eq("status", "uploaded").order("created_at");
-  assert.equal(videos.length, 2);
-  const gallery = videos.find((v) => v.capture_source === "gallery");
+  // Ajout ultérieur d'une autre vidéo
+  await page.locator('input[data-input="videos"]').setInputFiles(media("cuisine-h264.mp4"));
+  await page.getByTestId("media-send").click();
+  await page.waitForFunction(() => document.querySelectorAll("[data-testid=media-sent-item]").length === 3, null, { timeout: 90000 });
+  sent = await uploadedMedia();
+  const gallery = sent.find((v) => v.original_width === 1920);
   assert.equal(gallery.processing, "compressed");
-  assert.equal(gallery.original_width, 1920);
   assert.ok(gallery.height <= 720 && gallery.size_bytes < gallery.original_size_bytes, JSON.stringify(gallery));
-  assert.ok(gallery.video_frames.length >= 3, `images extraites : ${gallery.video_frames.length}`);
-  log(`Base : vidéo 1920×1080 ramenée à ${gallery.width}×${gallery.height} (${(gallery.original_size_bytes / 1e6).toFixed(1)} → ${(gallery.size_bytes / 1e6).toFixed(1)} Mo), ${gallery.video_frames.length} images`);
+  assert.ok(sent.every((v) => v.rooms.room_type === "logement" && v.media_kind === "video"));
+  log(`Test B : plusieurs vidéos sélectionnées d'un coup (faux fichier écarté, une retirée avant validation), 1080p ramenée à ${gallery.width}×${gallery.height}, envoi repris après coupure réseau, vidéo ajoutée ensuite ; 3 vidéos dans « Mon logement »`);
 
-  // 7. Fichiers refusés : faux fichier vidéo, vidéo trop lourde non compressible
-  await page.getByRole("button", { name: /Cave/ }).click();
-  await page.locator('input[data-input="gallery"]').setInputFiles(media("faux.mp4"));
-  await text(page, "n'est pas une vidéo prise en charge");
-  log("Faux fichier vidéo refusé");
-  // Appareil sans encodeur vidéo (ex. ancien iPhone) : une vidéo de 57 Mo ne peut pas être réduite.
+  // Vidéo trop lourde sur un appareil sans encodeur : refusée avant tout envoi
   await page.evaluate(() => { window.__VideoEncoder = window.VideoEncoder; window.VideoEncoder = undefined; });
-  await page.locator('input[data-input="gallery"]').setInputFiles(media("trop-lourde.mp4"));
-  await page.getByRole("button", { name: "Utiliser cette vidéo" }).click();
-  await page.locator("li", { hasText: "Cave" }).last().getByText(/trop lourde \(50 Mo maximum\)/).waitFor({ timeout: 60000 })
-    .catch(async () => { await shot(page, "erreur-trop-lourde"); throw new Error("message « trop lourde » absent"); });
+  await page.locator('input[data-input="videos"]').setInputFiles(media("trop-lourde.mp4"));
+  await page.getByTestId("media-send").click();
+  await page.getByTestId("media-pending").getByText(/trop lourde \(50 Mo maximum\)/).waitFor({ timeout: 60000 });
   await page.evaluate(() => { window.VideoEncoder = window.__VideoEncoder; });
-  const { data: caveVideos } = await admin.from("room_videos").select("id, rooms!inner(name)").eq("company_id", pro.company.id).eq("rooms.name", "Cave").neq("status", "deleted");
-  assert.equal(caveVideos.length, 0, "rien n'est envoyé");
-  log("Vidéo trop lourde (57 Mo) sur un appareil sans compression : refusée avant tout envoi, message clair");
+  await page.getByTestId("media-pending").getByRole("button", { name: /Retirer/ }).click();
+  assert.equal((await uploadedMedia()).length, 3, "rien n'est envoyé");
+  log("Vidéo trop lourde (57 Mo) sur un appareil sans compression : refusée avant tout envoi, message clair, retirée");
 
-  // Supprimer puis refaire une vidéo
-  await page.getByRole("button", { name: /Cuisine/ }).click();
-  const before = (await admin.from("room_videos").select("id").eq("company_id", pro.company.id).eq("status", "uploaded")).data.length;
-  await page.getByRole("button", { name: "Supprimer" }).last().click();
-  await page.getByRole("button", { name: "Choisir une vidéo existante" }).waitFor();
-  let after = before;
-  for (let i = 0; i < 20 && after !== before - 1; i++) {
-    await page.waitForTimeout(500);
-    after = (await admin.from("room_videos").select("id").eq("company_id", pro.company.id).eq("status", "uploaded")).data.length;
-  }
-  assert.equal(after, before - 1);
-  await page.locator('input[data-input="gallery"]').setInputFiles(media("cuisine-h264.mp4"));
-  await page.getByRole("button", { name: "Utiliser cette vidéo" }).click();
-  await cuisineCard.getByText("Vidéo envoyée").waitFor({ timeout: 90000 });
-  log("Vidéo supprimée (fichier effacé) puis remplacée par une vidéo MP4");
+  // Supprimer une vidéo envoyée (fichier effacé)
+  await sentItems.last().getByRole("button", { name: /Supprimer/ }).click();
+  await page.waitForFunction(() => document.querySelectorAll("[data-testid=media-sent-item]").length === 2, null, { timeout: 15000 });
+  assert.equal((await uploadedMedia()).length, 2);
+  log("Vidéo envoyée supprimée (fichier effacé)");
 
   // 8. Récapitulatif, envoi, double envoi
-  await page.getByRole("link", { name: /au récapitulatif/i }).click();
+  await page.getByRole("link", { name: /vers le récapitulatif/i }).click();
   await page.waitForURL(/recapitulatif$/);
-  await text(page, "1 pièce sans vidéo");
   await text(page, "Dates alternatives");
   await page.getByLabel("Protection renforcée des meubles").check();
   await page.getByRole("button", { name: "Enregistrer mes options" }).click();
@@ -317,7 +292,6 @@ async function requestRow(email) {
   await shot(page, "c05-recapitulatif");
   const submit = page.getByRole("button", { name: /Envoyer ma demande/ });
   await submit.click();
-  // Second clic immédiat : le bouton est désactivé pendant l'envoi.
   assert.equal(await submit.isDisabled().catch(() => true), true, "bouton désactivé pendant l'envoi");
   await submit.click({ timeout: 1500 }).catch(() => undefined);
   await page.waitForURL(/\/devis\/[0-9a-f]{64}$/, { timeout: 30000 });
@@ -330,7 +304,6 @@ async function requestRow(email) {
   assert.ok(row.submitted_at);
   const { data: events } = await admin.from("request_events").select("id").eq("request_id", row.id).eq("to_status", "submitted");
   assert.equal(events.length, 1, "un seul envoi enregistré");
-  // Renvoi du formulaire depuis l'historique du navigateur : la demande reste unique.
   await page.goBack();
   await page.waitForURL(/(envoyee|recapitulatif|devis\/[0-9a-f]{64})$/);
   await page.goto(`${APP}/d/${slug}/demande/recapitulatif`);
@@ -339,57 +312,60 @@ async function requestRow(email) {
   assert.equal(events2.length, 1);
   log("Demande envoyée une seule fois (bouton bloqué, retour arrière sans effet) ; statut et date d'envoi enregistrés");
 
-  await page.goto(`${APP}/d/${slug}/demande/pieces`);
+  await page.goto(`${APP}/d/${slug}/demande/medias`);
   await page.waitForURL(/envoyee$/);
   log("Après l'envoi, le particulier ne peut plus modifier sa demande");
 
-  // Phase 4 : analyse (simulateur de test), inventaire à valider par le client, devis final immédiat
+  // Analyse globale (simulateur de test) puis inventaire visuel à valider par le client, devis final immédiat
   await page.goto(quoteUrl);
-  await text(page, "Éléments à vérifier", 90000);
+  await text(page, "Commençons par estimer vos cartons", 90000);
   await text(page, "Environnement de test");
-  await text(page, "Votre inventaire");
   const { data: run } = await admin.from("analysis_runs").select("status, simulated, provider, rooms_total, rooms_done").eq("request_id", row.id).single();
-  assert.deepEqual(run, { status: "succeeded", simulated: true, provider: "simulation", rooms_total: 2, rooms_done: 2 });
+  assert.equal(run.status, "succeeded");
+  assert.equal(run.simulated, true);
+  assert.equal(run.rooms_done, run.rooms_total);
   assert.equal((await requestRow(`lina-${stamp}@example.com`)).status, "awaiting_customer");
   assert.equal((await admin.from("quotes").select("id").eq("request_id", row.id)).data.length, 0, "aucun devis avant la validation du client");
+  await page.getByTestId("boxes-detected").getByText("6 cartons").waitFor();
+  log(`Analyse de l'ensemble des vidéos en ${run.rooms_total} appel(s), sans découpage par pièce ; étape des cartons : « 6 cartons » repérés par l'analyse annoncés comme déjà comptés`);
+  await page.locator("#extra-boxes").fill("5");
+  await page.getByTestId("boxes-continue").click();
+  await page.getByTestId("room-scene").waitFor();
+  // Les objets de l'analyse sont rangés par pièce selon leur catégorie du catalogue
+  await page.getByTestId("room-list").getByText("Canapé 3 places").first().waitFor();
+  await page.getByTestId("room-tab").filter({ hasText: "Cuisine" }).click();
+  await page.getByTestId("room-list").getByText(/Réfrigérateur/i).first().waitFor();
   const toCheck = page.getByTestId("to-check");
-  assert.equal(await toCheck.count(), 1, "les deux chaises jamais vues ensemble : un élément à vérifier");
-  await text(page, "apparaît à un autre moment de votre vidéo");
+  assert.ok(await toCheck.count() >= 1, "meuble revu dans un autre passage : élément à vérifier");
   await text(page, "Merci de vérifier attentivement votre inventaire et de répondre avec honnêteté.");
-  assert.equal(await toCheck.locator("input[type=radio][required]").count(), 2, "réponse obligatoire");
-  assert.equal(await page.locator("input[name=acknowledged][required]").count(), 1, "avertissement à confirmer");
-  await shot(page, "c06a-elements-a-verifier");
   // L'inventaire de l'analyse est modifiable : objet oublié ajouté, quantité corrigée (modifications tracées).
-  await page.getByPlaceholder(/Rechercher/).fill("vélo");
-  await page.getByRole("button", { name: /^Ajouter un Vélo/ }).first().click();
-  await text(page, "ajouté.");
+  await page.getByTestId("room-tab").filter({ hasText: "Garage / cave" }).click();
+  await page.locator('[data-testid=scene-object][data-catalog-key="velo"]').click();
   await page.getByRole("button", { name: /^Augmenter la quantité : Vélo/ }).click();
-  await page.waitForFunction(() => [...document.querySelectorAll("[data-testid=inventory-item]")].some((li) => /Vélo/.test(li.textContent) && /\b2\b/.test(li.textContent)));
+  await page.locator("[data-testid=sync-status][data-status=idle]").waitFor({ timeout: 15000 });
   const { data: added } = await admin.from("inventory_item_changes").select("action, actor").eq("request_id", row.id).eq("actor", "customer").order("changed_at");
-  assert.deepEqual(added.map((a) => a.action), ["add", "update"], "ajout et modification du client tracés");
-  log("Après l'analyse, le client ajoute un objet oublié et corrige une quantité (modifications tracées)");
-  await toCheck.getByLabel("C'est le même meuble : ne le compter qu'une fois").check();
+  assert.ok(added.some((a) => a.action === "add") && added.some((a) => a.action === "update"), JSON.stringify(added));
+  await shot(page, "c06a-inventaire-visuel");
+  log("Inventaire visuel après analyse : objets rangés par pièce (canapé au salon, réfrigérateur en cuisine), vélo ajouté sur l'illustration du garage puis quantité corrigée (modifications tracées)");
+  for (let i = 0; i < await toCheck.count(); i++) await toCheck.nth(i).getByLabel("C'est le même meuble : ne le compter qu'une fois").check();
   await page.getByLabel("J'ai pris connaissance de cet avertissement.").check();
   await page.getByRole("button", { name: "Valider mon inventaire et recevoir mon devis" }).click();
-  await text(page, "Détail du prix", 30000);
+  await text(page, "Prestations comprises", 30000);
   await text(page, "Devis transmis par votre déménageur");
-  await text(page, "à partir de l'inventaire que vous avez validé");
   await text(page, "Protection renforcée des meubles");
   const { data: q1 } = await admin.from("quotes").select("version, status, kind, origin, total_ttc_cents, pricing_snapshot, volume_snapshot").eq("request_id", row.id).order("version");
   assert.deepEqual(q1.map((q) => [q.version, q.status, q.kind, q.origin]), [[1, "sent", "formal", "customer_validation"]], "devis final transmis immédiatement");
   assert.equal(q1[0].pricing_snapshot.settings.price_per_m3, 80);
-  const { data: chairs } = await admin.from("inventory_items").select("customer_duplicate_decision, possible_duplicate").eq("request_id", row.id).eq("ai_label", "Chaise en bois");
-  assert.deepEqual(chairs.map((c) => [c.possible_duplicate, c.customer_duplicate_decision]).sort(), [[false, null], [true, "same"]], "réponse du client enregistrée");
-  const { data: validatedReq } = await admin.from("quote_requests").select("status, verification_status, customer_validated_at, customer_acknowledgement").eq("id", row.id).single();
+  const { data: validatedReq } = await admin.from("quote_requests").select("status, verification_status, customer_validated_at, customer_acknowledgement, extra_boxes").eq("id", row.id).single();
   assert.equal(validatedReq.status, "quote_sent");
   assert.equal(validatedReq.verification_status, "pending");
-  assert.match(validatedReq.customer_acknowledgement, /^Merci de vérifier attentivement/);
+  assert.equal(validatedReq.extra_boxes, 5);
   const pdf = await page.request.get(`${quoteUrl}/pdf`);
   assert.equal(pdf.status(), 200);
   assert.equal((await pdf.body()).subarray(0, 5).toString(), "%PDF-");
   assert.equal((await page.request.get(`${APP}/d/${slug}/devis/${"0".repeat(64)}`)).status(), 404);
   await shot(page, "c06b-devis-final");
-  log(`Inventaire validé par le client (élément à vérifier traité, avertissement accepté) ; devis final V1 transmis aussitôt : ${(q1[0].total_ttc_cents / 100).toFixed(2)} € TTC ; PDF ; faux lien refusé`);
+  log(`Inventaire validé (éléments à vérifier traités, 5 cartons supplémentaires, avertissement accepté) ; devis final V1 transmis aussitôt : ${(q1[0].total_ttc_cents / 100).toFixed(2)} € TTC ; PDF ; faux lien refusé`);
 
   await page.getByRole("button", { name: "Accepter le devis" }).click();
   await text(page, "Vous avez accepté ce devis");
@@ -421,10 +397,9 @@ async function requestRow(email) {
     await Promise.all(vids.map((v) => (v.readyState >= 1 ? null : new Promise((r) => { v.onloadedmetadata = r; v.onerror = r; setTimeout(r, 15000); }))));
     return vids.map((v) => ({ ready: v.readyState, duration: v.duration, error: v.error?.code ?? null }));
   });
-  // Salon (caméra) et Cuisine (vidéo remplacée) ; la cave n'a pas de vidéo.
+  // Vidéo de la caméra et vidéo 1080p compressée (la troisième a été supprimée par le client).
   assert.equal(playable.length, 2, JSON.stringify(playable));
   assert.ok(playable.every((v) => v.ready >= 1 && v.duration > 0 && v.error === null), JSON.stringify(playable));
-  await text(p, "Pas de vidéo");
   // Images chargées en différé (loading="lazy") : chargement forcé avant le contrôle, la fiche étant longue.
   const images = await p.evaluate(async () => {
     const imgs = [...document.querySelectorAll("img[alt^='Image ']")];
@@ -501,7 +476,11 @@ async function requestRow(email) {
   await p.reload();
   await text(p, "Nouvelle version refusée");
   const { data: history } = await admin.from("inventory_item_changes").select("actor, action").eq("request_id", row.id).order("changed_at");
-  assert.deepEqual(history.map((h) => [h.actor, h.action]), [["customer", "add"], ["customer", "update"], ["customer", "customer_decision"], ["mover", "update"]], "historique complet : ajouts et réponse du client puis correction du déménageur");
+  // Client : cartons supplémentaires et vélo ajoutés, quantité corrigée, réponses aux éléments à vérifier ; puis correction du déménageur.
+  const actions = history.map((h) => `${h.actor}:${h.action}`);
+  const lastCustomer = actions.lastIndexOf("customer:customer_decision");
+  assert.ok(actions.filter((a) => a === "customer:add").length >= 2 && actions.includes("customer:update") && lastCustomer >= 0, actions.join());
+  assert.deepEqual(actions.slice(lastCustomer + 1), ["mover:update"], `historique complet : ${actions.join()}`);
   log("Le client voit l'avenant et les différences, le refuse : V1 acceptée reste en vigueur ; historique complet");
 
   // 10. Autre entreprise : aucun accès
@@ -529,20 +508,17 @@ async function requestRow(email) {
   await d.waitForURL(/methode$/);
   await d.getByTestId("method-video").click();
   await d.getByRole("button", { name: "Continuer" }).click();
-  await d.waitForURL(/pieces$/);
-  await d.getByRole("button", { name: "Salon", exact: true }).click();
-  await d.getByRole("button", { name: "Ajouter la pièce" }).click();
-  await text(d, "« Salon » ajoutée");
-  await d.goto(`${APP}/d/${slug}/demande/videos`);
+  await d.waitForURL(/medias$/);
   const deniedBrowser = await chromium.launch(); // sans autorisation automatique de la caméra
   const dc = await deniedBrowser.newContext({ ...devices["Pixel 7"], storageState: await denied.storageState() });
   const dp = await dc.newPage();
-  await dp.goto(`${APP}/d/${slug}/demande/videos`);
-  await dp.getByRole("button", { name: "Filmer cette pièce" }).click();
+  await dp.goto(`${APP}/d/${slug}/demande/medias`);
+  await dp.getByTestId("media-film").click();
+  await dp.getByRole("button", { name: "Ouvrir la caméra" }).click();
   await text(dp, "Aucune caméra disponible");
   assert.ok(await dp.getByRole("button", { name: "Utiliser l'appareil photo du téléphone" }).isVisible());
-  assert.ok(await dp.getByRole("button", { name: "Choisir une vidéo existante" }).isVisible());
-  log("Appareil sans caméra : message clair et repli (appareil photo du téléphone, galerie)");
+  assert.ok(await dp.getByRole("button", { name: "Autres options" }).isVisible());
+  log("Appareil sans caméra : message clair et repli (appareil photo du téléphone, import de vidéos ou de photos)");
 
   // Autorisation refusée par l'utilisateur. Chromium sans interface ne sait pas afficher la demande
   // d'autorisation : on reproduit l'erreur exacte renvoyée par les navigateurs mobiles (NotAllowedError).
@@ -552,10 +528,11 @@ async function requestRow(email) {
     navigator.mediaDevices.getUserMedia = () => Promise.reject(new DOMException("Permission denied", "NotAllowedError"));
   });
   const rp = await rc.newPage();
-  await rp.goto(`${APP}/d/${slug}/demande/videos`);
-  await rp.getByRole("button", { name: "Filmer cette pièce" }).click();
+  await rp.goto(`${APP}/d/${slug}/demande/medias`);
+  await rp.getByTestId("media-film").click();
+  await rp.getByRole("button", { name: "Ouvrir la caméra" }).click();
   await text(rp, "Accès à la caméra refusé");
-  assert.ok(await rp.getByRole("button", { name: "Filmer cette pièce" }).isVisible(), "on peut réessayer après avoir autorisé");
+  assert.ok(await rp.getByRole("button", { name: "Ouvrir la caméra" }).isVisible(), "on peut réessayer après avoir autorisé");
   assert.ok(await rp.getByRole("button", { name: "Utiliser l'appareil photo du téléphone" }).isVisible());
   await shot(rp, "c08-camera-refusee");
   await refusingBrowser.close();
@@ -563,13 +540,14 @@ async function requestRow(email) {
 
   // 12. Envoi interrompu durablement puis repris à la main
   await dp.route("**/storage/v1/upload/resumable/sign/**", (route) => (route.request().method() === "PATCH" ? route.abort("internetdisconnected") : route.continue()));
-  await dp.locator('input[data-input="gallery"]').setInputFiles(media("cuisine-h264.mp4"));
-  await dp.getByRole("button", { name: "Utiliser cette vidéo" }).click();
-  await dp.getByRole("button", { name: "Reprendre l'envoi" }).waitFor({ timeout: 90000 });
+  await dp.getByRole("button", { name: "Autres options" }).click();
+  await dp.locator('input[data-input="videos"]').setInputFiles(media("cuisine-h264.mp4"));
+  await dp.getByTestId("media-send").click();
+  await dp.getByRole("button", { name: "Réessayer l'envoi" }).waitFor({ timeout: 90000 });
   await shot(dp, "c09-envoi-interrompu");
   await dp.unroute("**/storage/v1/upload/resumable/sign/**");
-  await dp.getByRole("button", { name: "Reprendre l'envoi" }).click();
-  await dp.locator("li", { hasText: "Salon" }).last().getByText("Vidéo envoyée").waitFor({ timeout: 90000 });
+  await dp.getByRole("button", { name: "Réessayer l'envoi" }).click();
+  await dp.getByTestId("media-sent-item").first().waitFor({ timeout: 90000 });
   log("Coupure prolongée : erreur affichée, puis envoi repris à la main avec succès");
 
   // 13. Session expirée

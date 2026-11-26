@@ -60,7 +60,7 @@ export class AnthropicVisionProvider implements VisionProvider {
       type: "image",
       source: { type: "base64", media_type: image.mediaType, data: image.base64 },
     }));
-    content.push({ type: "text", text: roomPrompt({ name: input.roomName, description: input.roomDescription }, input.images.length) });
+    content.push({ type: "text", text: roomPrompt({ name: input.roomName, description: input.roomDescription }, input.images.length, input.wholeHome) });
 
     let usage: TokenUsage = emptyUsage();
     try {

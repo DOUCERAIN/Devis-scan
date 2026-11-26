@@ -76,12 +76,16 @@ const text = (page, t, timeout = 20000) => page.getByText(t, { exact: false }).f
 
 async function validate(page, url, answer) {
   await page.goto(url);
+  // Étape des cartons (parcours v3) : aucun carton supplémentaire.
+  await page.locator("#extra-boxes").fill("0");
+  await page.getByTestId("boxes-continue").click();
+  await page.getByTestId("room-scene").waitFor();
   await text(page, "Éléments à vérifier");
   await text(page, "apparaît à un autre moment de votre vidéo");
   await page.getByTestId("to-check").getByLabel(answer).check();
   await page.getByLabel("J'ai pris connaissance de cet avertissement.").check();
   await page.getByRole("button", { name: "Valider mon inventaire et recevoir mon devis" }).click();
-  await text(page, "Détail du prix");
+  await text(page, "Prestations comprises");
 }
 
 const quotesOf = async (requestId) => (await admin.from("quotes").select("id, version, status, origin, total_ttc_cents, amends_quote_id, volume_snapshot").eq("request_id", requestId).order("version")).data;

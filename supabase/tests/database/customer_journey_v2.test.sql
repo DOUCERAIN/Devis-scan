@@ -118,6 +118,8 @@ select throws_ok($$ select public.public_inventory_update((select access_token f
 select throws_ok($$ select public.public_inventory_add(repeat('0', 64), '{"label":"x","size":"small"}') $$, '42501', null, 'Faux jeton refusé');
 
 -- Envoi : validation immédiate ----------------------------------------------------------------
+-- v3 : l'étape des cartons supplémentaires est obligatoire (zéro accepté).
+do $$ begin perform public.public_set_extra_boxes((select access_token from t), 0); end $$;
 select throws_ok($$ select public.submit_public_manual_request((select access_token from t), '') $$, '22023', null, 'Avertissement obligatoire');
 create temp table v as select public.submit_public_manual_request((select access_token from t), 'Merci de vérifier attentivement votre inventaire…') as view_token;
 select pg_temp.reset();
@@ -166,6 +168,7 @@ insert into public.analysis_runs (request_id, company_id, status) select request
 update public.quote_requests set status = 'to_review' where id = (select request_id from t2);
 select pg_temp.anon();
 select is(public.public_resume_manual((select view_token from v2)), 'awaiting_customer', 'Analyse échouée : le client complète son inventaire');
+do $$ begin perform public.public_set_extra_boxes((select view_token from v2), 0); end $$;
 select throws_ok($$ select public.validate_public_inventory((select view_token from v2), '{}', 'Merci de vérifier attentivement votre inventaire…') $$, '22023', null, 'Inventaire vide : validation refusée');
 select lives_ok($$ select public.public_inventory_add((select view_token from v2), '{"catalog_key":"canape-3-places","category":"salon"}') $$, 'Objet ajouté après l''échec de l''analyse');
 select is(public.validate_public_inventory((select view_token from v2), '{}', 'Merci de vérifier attentivement votre inventaire…'), 'validated', 'Inventaire validé : devis final possible');

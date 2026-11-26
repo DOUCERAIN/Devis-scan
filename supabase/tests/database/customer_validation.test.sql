@@ -68,6 +68,7 @@ select is((select count(*)::int from jsonb_array_elements(public.get_public_inve
 select throws_ok($$ select public.get_public_inventory(repeat('0', 64)) $$, '42501', null, 'Faux lien refusé');
 
 -- Validation : avertissement et toutes les réponses obligatoires --------------------------
+do $$ begin perform public.public_set_extra_boxes((select view_token from v), 0); end $$;
 select throws_ok(format($$ select public.validate_public_inventory((select view_token from v), '{"%s":"same","%s":"distinct"}', '') $$, (select bed2 from items), (select wardrobe from items)),
   '22023', null, 'Avertissement non accepté : validation refusée');
 select throws_ok(format($$ select public.validate_public_inventory((select view_token from v), '{"%s":"same"}', 'Merci de vérifier attentivement votre inventaire…') $$, (select bed2 from items)),

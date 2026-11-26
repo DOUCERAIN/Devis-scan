@@ -2,22 +2,43 @@
 
 Le particulier ouvre le lien de son déménageur, `/d/<identifiant-de-l-entreprise>`, sans créer de compte.
 
-## Étapes (parcours v2, 01/12/2026)
+## Étapes (parcours v3, 02/12/2026 — migration `20261202090000_parcours_medias_inventaire_visuel.sql`)
 
 | Étape | Page | Contenu |
 | --- | --- | --- |
 | Accueil | `/d/[slug]` | Présentation aux couleurs de l'entreprise, reprise ou nouvelle demande |
 | 1 Déménagement | `/demande/trajet` | Pour chaque logement : adresse (suggestions API Adresse, coordonnées recherchées côté serveur si aucune suggestion n'est choisie), type de logement, **étage obligatoire** (liste avec « Rez-de-chaussée », sous-sols, 1er à 30e), ascenseur, précisions facultatives repliées (surface, pièces, portage, accès, contraintes). Date souhaitée, **dates alternatives en nombre libre** (bouton « Ajouter une date alternative », retrait possible, 30 au plus : futures, distinctes entre elles et de la date souhaitée), dates flexibles. Crée le brouillon (sans coordonnées) |
 | 2 Coordonnées | `/demande/coordonnees` | Profil **Particulier** (prénom, nom, e-mail, téléphone obligatoires) ou **Entreprise** (nom de l'entreprise obligatoire, SIRET facultatif à 14 chiffres, puis la personne à contacter). Information sur les données personnelles, accord obligatoire au traitement pour établir le devis (date enregistrée), accord facultatif aux offres commerciales (jamais coché par défaut) |
-| 3 Méthode | `/demande/methode` | « Filmer mon logement » ou « Faire mon inventaire manuellement » (changement possible tant que la demande n'est pas envoyée) |
-| 4a Vidéo | `/demande/pieces` puis `/demande/videos` | Pièces puis une vidéo par pièce (tournage, revue, compression 720p, images, envoi reprenable) — inchangé |
-| 4b Manuel | `/demande/inventaire` | Sept catégories (Salon, Chambres, Cuisine, Salle de bain, Bureau, Garage et cave, Autres espaces) alimentées par le catalogue, recherche (nom et synonymes, sans accents), quantités (+ / −), retrait. « Vous ne trouvez pas votre meuble ? Ajouter un objet personnalisé. » : description obligatoire, quantité, taille approximative ou dimensions, commentaire facultatif. Chaque modification est enregistrée immédiatement |
+| 3 Méthode | `/demande/methode` | « Filmer ou photographier mon logement » ou « Faire mon inventaire manuellement » (changement possible tant que la demande n'est pas envoyée) |
+| 4a Médias | `/demande/medias` | **Aucune pièce à créer.** Trois choix : **Filmer** (consignes : filmer lentement, montrer l'ensemble des meubles, tour complet de chaque pièce, pas de mouvements rapides ; plusieurs séquences possibles), **Importer une ou plusieurs vidéos**, **Importer des photos** (sélection multiple). Les médias choisis s'affichent avec un aperçu et peuvent être retirés avant « Valider et envoyer » ; on peut en ajouter ensuite, revoir et supprimer les médias envoyés. Tout est rangé dans une pièce technique « Mon logement » (`rooms.room_type = 'logement'`). Les anciennes adresses `/demande/pieces` et `/demande/videos` redirigent ici |
+| 4b Manuel | `/demande/inventaire` | **Inventaire visuel** (voir ci-dessous). Chaque modification est affichée tout de suite et enregistrée en arrière-plan |
 | 5 Récapitulatif | `/demande/recapitulatif` | Tout le dossier avec liens « Modifier », options de l'entreprise, message. Méthode manuelle : avertissement à confirmer, puis « Valider mon inventaire et recevoir mon devis » |
 | — | `/devis/<jeton>` | Lien secret de suivi. Vidéo : progression réelle de l'analyse, puis **inventaire modifiable** (quantités, retraits, objets oubliés, mêmes outils que l'inventaire manuel), « Éléments à vérifier » avec réponse obligatoire, avertissement, validation → devis final immédiat. Analyse impossible : bouton « Compléter mon inventaire moi-même ». Manuel : devis final dès l'envoi. Puis PDF, acceptation ou refus, nouvelles versions et avenants. Voir `docs/devis.md` |
 | — | `/demande/envoyee` | Confirmation ; le dossier n'est plus modifiable |
 | — | `/demande/logements` | Ancienne étape : redirige vers l'étape 1 |
 
 Chaque étape exige les précédentes (`reachableStep`, `src/lib/public-request/steps.ts`) : un lien direct vers une étape non accessible renvoie vers la première étape à compléter. Rien n'est perdu en revenant en arrière.
+
+## Inventaire visuel (parcours v3)
+
+Utilisé pour l'inventaire manuel et pour corriger l'inventaire de l'analyse (`/devis/<jeton>`) : `src/components/customer/VisualInventory.tsx`.
+
+1. **Cartons d'abord** : « Commençons par estimer vos cartons », nombre de cartons **supplémentaires** obligatoire (0 accepté, champ vide au départ, exemple « 10 » en gris). Les cartons déjà repérés par l'analyse sont annoncés comme déjà comptés. Le nombre est enregistré dans `quote_requests.extra_boxes` et reporté en une ligne « Carton standard » (volume du catalogue, 0,10 m³, inchangé) dans la pièce « Cartons ». La base refuse l'envoi et la validation tant que l'étape n'est pas remplie.
+2. **Une pièce par onglet** : Salon, Cuisine, Chambre, Salle de bain, Bureau, Entrée / couloir, Garage / cave, Autre pièce, et « Ajouter une pièce » (Chambre 2…, `room_type = 'inv:<catégorie>:<n>'`). Les objets de l'analyse sont rangés selon leur catégorie du catalogue (`src/lib/inventory/rooms.ts`).
+3. **Illustration interactive** par pièce (SVG au trait, mode sombre compris) : chaque meuble est une zone cliquable distincte reliée à un identifiant exact de `furniture_catalog` (`src/lib/inventory/scenes.ts`, dessins dans `src/components/customer/illustrations/`). Un appui ajoute un exemplaire ; la quantité s'affiche sur le meuble. Objet sans volume de référence : taille approximative demandée (règle existante).
+4. Sous l'illustration : liste des objets de la pièce (+, −, saisie directe de la quantité, suppression), liste déroulante de tous les objets de la catégorie, recherche dans tout le catalogue, **objet non référencé** (nom, quantité, taille ou dimensions, description facultative) affiché « Objet à vérifier ».
+
+**Quantités** : un appui sur le nombre permet de le remplacer au clavier (chiffres seulement ; champ vide toléré pendant la saisie et rétabli à la sortie ; 0 retire l'objet).
+
+**Fluidité** : les modifications sont appliquées immédiatement à l'écran puis envoyées une par une en arrière-plan (`SyncEngine`, `src/lib/inventory/sync-queue.ts`) ; les appuis rapides sont regroupés ; l'état renvoyé par la base fait foi une fois tout enregistré. Coupure réseau : trois nouvelles tentatives puis message « Connexion perdue », les modifications restent en attente et repartent au retour de la connexion. Refus de la base : l'écran se recale sur l'état enregistré avec un message. Les actions serveur ne recalculent plus la page (`revalidatePath` supprimé).
+
+## Analyse de l'ensemble du logement
+
+Les images de toutes les vidéos et photos de « Mon logement » sont prises dans l'ordre de prise de vue, 60 au plus, analysées par lots de 20 (`src/lib/analysis/batches.ts`). Les résultats des lots sont réunis comme une seule pièce : un meuble repéré dans deux lots est signalé « doublon possible » (jamais retiré), puis tranché par le client (« Éléments à vérifier ») et le déménageur. Une photo (JPEG réduit à 1 600 px dans le navigateur, `src/lib/video/photo.ts`) est sa propre image d'analyse.
+
+## Prix affichés au client
+
+Le client voit les prestations et options retenues, leur description et le **prix total** ; jamais le prix d'une option ni le montant d'une ligne. La séparation est faite en base : `get_public_quote_view` ne renvoie que libellé et détail sans prix (`private.client_line`), `get_public_company_options` ne renvoie plus le prix ; le PDF client est construit à partir de ces seules données. Le déménageur garde le détail chiffré. Les tarifs ne sont pas modifiés. **À faire valider juridiquement** (information du consommateur sur le prix des prestations).
 
 ## Volume des objets saisis par le client
 

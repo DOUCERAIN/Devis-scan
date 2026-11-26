@@ -17,6 +17,8 @@ export type PdfQuote = {
   facts: [string, string][];
   inventory: { room: string; items: string[] }[];
   lines: { label: string; detail: string; amount: string }[];
+  /** Devis du client : prix par ligne non communiqués (seuls les totaux). */
+  pricesHidden?: boolean;
   totals: [string, string][];
   notes: string[];
   terms: [string, string][];
@@ -125,7 +127,7 @@ export async function renderQuotePdf(q: PdfQuote): Promise<Uint8Array> {
     for (const item of room.items) text(`- ${item}`, { x: margin + 10, w: width - 10, size: 9 });
   }
 
-  heading("Détail du prix (HT)");
+  heading(q.pricesHidden ? "Prestations comprises" : "Détail du prix (HT)");
   for (const l of q.lines) {
     ensure(28);
     const top = y;

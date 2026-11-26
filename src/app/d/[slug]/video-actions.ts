@@ -1,8 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { revalidatePath } from "next/cache";
-import { getPublicCompany, confirmFrames, confirmVideoUpload, discardVideo, prepareFrameUploads, prepareVideoUpload, videoForDraft, InvalidUploadError, type VideoMeta } from "@/lib/public-request/service";
+import { getPublicCompany, confirmFrames, confirmPhotoUpload, confirmVideoUpload, discardVideo, ensureMediaRoom, MAX_PHOTO_BYTES, prepareFrameUploads, prepareVideoUpload, videoForDraft, InvalidUploadError, type VideoMeta } from "@/lib/public-request/service";
 import { isExpiredSession, publicErrorMessage } from "@/lib/public-request/errors";
 import { readDraftToken } from "@/lib/public-request/session";
 import { ACCEPTED_VIDEO_MIME, MAX_VIDEO_BYTES } from "@/lib/video/signature";
@@ -38,19 +37,60 @@ const metaSchema = z.object({
   original_duration_seconds: z.number().nonnegative().max(99999).optional(),
 });
 
-export async function prepareVideoAction(slug: string, input: { roomId: string; mimeType: string; size: number; meta: VideoMeta }):
+/**
+ * Réserve l'envoi d'une vidéo. Sans `roomId` (parcours v3), la vidéo rejoint la pièce technique « Mon logement » :
+ * le client filme ou importe ses vidéos comme il le souhaite, sans déclarer de pièce.
+ */
+export async function prepareVideoAction(slug: string, input: { roomId?: string; mimeType: string; size: number; meta: VideoMeta }):
   Promise<Result<{ videoId: string; path: string; uploadToken: string }>> {
   const token = await tokenFor(slug);
   if (!token) return { ok: false, error: "Votre session a expiré. Rechargez la page.", expired: true };
-  if (!uuid.safeParse(input.roomId).success) return { ok: false, error: "Pièce inconnue." };
+  if (input.roomId !== undefined && !uuid.safeParse(input.roomId).success) return { ok: false, error: "Pièce inconnue." };
   if (!(ACCEPTED_VIDEO_MIME as readonly string[]).includes(input.mimeType)) return { ok: false, error: "Format de vidéo non accepté (MP4, MOV ou WebM)." };
   if (!Number.isInteger(input.size) || input.size <= 0 || input.size > MAX_VIDEO_BYTES) return { ok: false, error: "Cette vidéo est trop lourde (50 Mo maximum)." };
   const meta = metaSchema.safeParse(input.meta);
   if (!meta.success) return { ok: false, error: "Informations de la vidéo invalides." };
   try {
-    return { ok: true, data: await prepareVideoUpload(token, input.roomId, input.mimeType, input.size, meta.data) };
+    const roomId = input.roomId ?? (await ensureMediaRoom(token));
+    return { ok: true, data: await prepareVideoUpload(token, roomId, input.mimeType, input.size, { ...meta.data, media_kind: "video" }) };
   } catch (error) {
     return fail(error, "prepareVideoAction");
+  }
+}
+
+/** Réserve l'envoi d'une photo (JPEG produit dans le navigateur, 10 Mo au plus) dans « Mon logement ». */
+export async function preparePhotoAction(slug: string, input: { size: number; originalMimeType?: string; width?: number; height?: number }):
+  Promise<Result<{ videoId: string; path: string; uploadToken: string }>> {
+  const token = await tokenFor(slug);
+  if (!token) return { ok: false, error: "Votre session a expiré. Rechargez la page.", expired: true };
+  if (!Number.isInteger(input.size) || input.size <= 0 || input.size > MAX_PHOTO_BYTES) return { ok: false, error: "Cette photo est trop lourde (10 Mo maximum)." };
+  try {
+    const roomId = await ensureMediaRoom(token);
+    return {
+      ok: true,
+      data: await prepareVideoUpload(token, roomId, "image/jpeg", input.size, {
+        media_kind: "photo", capture_source: "gallery", processing: "compressed",
+        original_mime_type: typeof input.originalMimeType === "string" ? input.originalMimeType.slice(0, 100) : undefined,
+        original_width: int(input.width), original_height: int(input.height),
+      }),
+    };
+  } catch (error) {
+    return fail(error, "preparePhotoAction");
+  }
+}
+
+/** Vérifie la photo reçue (taille, format JPEG réel) et en fait une image d'analyse. */
+export async function confirmPhotoAction(slug: string, input: { photoId: string; width?: number; height?: number }): Promise<Result<{ size: number }>> {
+  const token = await tokenFor(slug);
+  if (!token) return { ok: false, error: "Votre session a expiré. Rechargez la page.", expired: true };
+  if (!uuid.safeParse(input.photoId).success) return { ok: false, error: "Photo inconnue." };
+  try {
+    const photo = await videoForDraft(token, input.photoId);
+    if (!photo || photo.media_kind !== "photo" || photo.status !== "awaiting_upload") return { ok: false, error: "Photo inconnue ou déjà envoyée." };
+    const size = await confirmPhotoUpload(token, { id: photo.id, path: photo.storage_path, width: int(input.width), height: int(input.height) });
+    return { ok: true, data: { size } };
+  } catch (error) {
+    return fail(error, "confirmPhotoAction");
   }
 }
 
@@ -62,12 +102,11 @@ export async function confirmVideoAction(slug: string, input: { videoId: string;
   try {
     // Chemin et type relus en base pour la demande de ce jeton.
     const video = await videoForDraft(token, input.videoId);
-    if (!video || video.status !== "awaiting_upload" || !video.mime_type) return { ok: false, error: "Vidéo inconnue ou déjà envoyée." };
+    if (!video || video.media_kind !== "video" || video.status !== "awaiting_upload" || !video.mime_type) return { ok: false, error: "Vidéo inconnue ou déjà envoyée." };
     const size = await confirmVideoUpload(token, {
       id: video.id, path: video.storage_path, mimeType: video.mime_type,
       durationSeconds: finite(input.duration), width: int(input.width), height: int(input.height),
     });
-    revalidatePath(`/d/${slug}`, "layout");
     return { ok: true, data: { size } };
   } catch (error) {
     return fail(error, "confirmVideoAction");
@@ -96,7 +135,6 @@ export async function confirmFramesAction(slug: string, videoId: string, frames:
   if (!uuid.safeParse(videoId).success || !parsed.success) return { ok: false, error: "Images invalides." };
   try {
     const count = await confirmFrames(token, videoId, parsed.data);
-    revalidatePath(`/d/${slug}`, "layout");
     return { ok: true, data: { count } };
   } catch (error) {
     return fail(error, "confirmFramesAction");
@@ -109,7 +147,6 @@ export async function discardVideoAction(slug: string, videoId: string): Promise
   if (!uuid.safeParse(videoId).success) return { ok: false, error: "Vidéo inconnue." };
   try {
     await discardVideo(token, videoId);
-    revalidatePath(`/d/${slug}`, "layout");
     return { ok: true, data: null };
   } catch (error) {
     return fail(error, "discardVideoAction");

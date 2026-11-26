@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, useTransition } from "react";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import { validateCustomerInventory } from "./actions";
 import { idleState } from "@/lib/errors";
@@ -16,14 +16,30 @@ export type ReviewDuplicate = ReviewItem & { explanation: string; images: string
  * sont regroupés dans « Éléments à vérifier » : une réponse est obligatoire pour chacun (contrôlée aussi
  * côté serveur et en base), puis l'avertissement doit être accepté.
  */
-export function InventoryReview({ slug, token, duplicates, empty }: { slug: string; token: string; duplicates: ReviewDuplicate[]; empty: boolean }) {
-  const [state, action] = useActionState(validateCustomerInventory, idleState);
+export function InventoryReview({ slug, token, duplicates, empty, blocked = null, beforeSubmit }: {
+  slug: string; token: string; duplicates: ReviewDuplicate[]; empty: boolean;
+  /** Raison d'attendre avant de valider (cartons non renseignés…), affichée sous le bouton. */
+  blocked?: string | null;
+  /** Attend la fin de l'enregistrement de l'inventaire avant l'envoi du formulaire. */
+  beforeSubmit?: () => Promise<void>;
+}) {
+  const [state, action, validating] = useActionState(validateCustomerInventory, idleState);
+  const [flushing, startTransition] = useTransition();
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const remaining = duplicates.filter((d) => !answers[d.id]).length;
   const errorFor = (name: string) => (state.status === "error" ? state.fieldErrors?.[name] : undefined);
 
   return (
-    <form action={action} className="flex flex-col gap-5">
+    <form action={action} className="flex flex-col gap-5" onSubmit={(e) => {
+      if (!beforeSubmit) return;
+      // Les dernières modifications de l'inventaire sont enregistrées avant la validation.
+      e.preventDefault();
+      const data = new FormData(e.currentTarget);
+      startTransition(async () => {
+        await beforeSubmit();
+        action(data);
+      });
+    }}>
       <input type="hidden" name="slug" value={slug} />
       <input type="hidden" name="token" value={token} />
       {duplicates.length > 0 ? (
@@ -82,9 +98,10 @@ export function InventoryReview({ slug, token, duplicates, empty }: { slug: stri
       </section>
 
       <FormMessage state={state} />
-      <SubmitButton pendingLabel="Validation…" disabled={empty}>
-        <CheckCircle2 aria-hidden className="size-4" /> Valider mon inventaire et recevoir mon devis
+      <SubmitButton pendingLabel="Validation…" disabled={empty || Boolean(blocked) || validating || flushing}>
+        {validating || flushing ? "Validation…" : <><CheckCircle2 aria-hidden className="size-4" /> Valider mon inventaire et recevoir mon devis</>}
       </SubmitButton>
+      {blocked ? <p className="text-sm text-ink-secondary" data-testid="validate-blocked">{blocked}</p> : null}
     </form>
   );
 }

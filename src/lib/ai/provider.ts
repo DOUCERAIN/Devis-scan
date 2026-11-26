@@ -9,6 +9,11 @@ export type RoomInput = {
   images: RoomImage[];
   /** Texte du catalogue (stable, mis en cache). */
   catalogText: string;
+  /**
+   * Médias de l'ensemble du logement (parcours v3 : vidéos et photos sans pièce imposée), éventuellement
+   * répartis en plusieurs lots d'images analysés l'un après l'autre.
+   */
+  wholeHome?: { part: number; parts: number };
 };
 
 export type RoomResult =

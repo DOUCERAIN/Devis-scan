@@ -357,14 +357,14 @@ isOneToOne: true
                   ]
                 },"quote_requests": {
                   Row: {
-                    "access_token_expires_at": string | null,"access_token_hash": string | null,"alternative_moving_date": string | null,"alternative_moving_dates": (string)[],"company_id": string,"created_at": string,"customer_acknowledged_at": string | null,"customer_acknowledgement": string | null,"customer_id": string | null,"customer_notes": string | null,"customer_validated_at": string | null,"distance_km": number | null,"distance_method": string | null,"estimated_volume_m3": number | null,"id": string,"internal_notes": string | null,"inventory_method": string | null,"moving_date": string | null,"moving_date_flexible": boolean,"request_number": number,"selected_options": NonNullable<Json>,"source": Database["public"]['Enums']["request_source"],"status": Database["public"]['Enums']["request_status"],"submitted_at": string | null,"updated_at": string,"verification_status": string,"verified_at": string | null,"verified_by": string | null,"view_token_hash": string | null
+                    "access_token_expires_at": string | null,"access_token_hash": string | null,"alternative_moving_date": string | null,"alternative_moving_dates": (string)[],"company_id": string,"created_at": string,"customer_acknowledged_at": string | null,"customer_acknowledgement": string | null,"customer_id": string | null,"customer_notes": string | null,"customer_validated_at": string | null,"distance_km": number | null,"distance_method": string | null,"estimated_volume_m3": number | null,"extra_boxes": number | null,"id": string,"internal_notes": string | null,"inventory_method": string | null,"moving_date": string | null,"moving_date_flexible": boolean,"request_number": number,"selected_options": NonNullable<Json>,"source": Database["public"]['Enums']["request_source"],"status": Database["public"]['Enums']["request_status"],"submitted_at": string | null,"updated_at": string,"verification_status": string,"verified_at": string | null,"verified_by": string | null,"view_token_hash": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "access_token_expires_at"?: string | null,"access_token_hash"?: string | null,"alternative_moving_date"?: string | null,"alternative_moving_dates"?: (string)[],"company_id": string,"created_at"?: string,"customer_acknowledged_at"?: string | null,"customer_acknowledgement"?: string | null,"customer_id"?: string | null,"customer_notes"?: string | null,"customer_validated_at"?: string | null,"distance_km"?: number | null,"distance_method"?: string | null,"estimated_volume_m3"?: number | null,"id"?: string,"internal_notes"?: string | null,"inventory_method"?: string | null,"moving_date"?: string | null,"moving_date_flexible"?: boolean,"request_number": number,"selected_options"?: NonNullable<Json>,"source"?: Database["public"]['Enums']["request_source"],"status"?: Database["public"]['Enums']["request_status"],"submitted_at"?: string | null,"updated_at"?: string,"verification_status"?: string,"verified_at"?: string | null,"verified_by"?: string | null,"view_token_hash"?: string | null
+                    "access_token_expires_at"?: string | null,"access_token_hash"?: string | null,"alternative_moving_date"?: string | null,"alternative_moving_dates"?: (string)[],"company_id": string,"created_at"?: string,"customer_acknowledged_at"?: string | null,"customer_acknowledgement"?: string | null,"customer_id"?: string | null,"customer_notes"?: string | null,"customer_validated_at"?: string | null,"distance_km"?: number | null,"distance_method"?: string | null,"estimated_volume_m3"?: number | null,"extra_boxes"?: number | null,"id"?: string,"internal_notes"?: string | null,"inventory_method"?: string | null,"moving_date"?: string | null,"moving_date_flexible"?: boolean,"request_number": number,"selected_options"?: NonNullable<Json>,"source"?: Database["public"]['Enums']["request_source"],"status"?: Database["public"]['Enums']["request_status"],"submitted_at"?: string | null,"updated_at"?: string,"verification_status"?: string,"verified_at"?: string | null,"verified_by"?: string | null,"view_token_hash"?: string | null
                   }
                   Update: {
-                    "access_token_expires_at"?: string | null,"access_token_hash"?: string | null,"alternative_moving_date"?: string | null,"alternative_moving_dates"?: (string)[],"company_id"?: string,"created_at"?: string,"customer_acknowledged_at"?: string | null,"customer_acknowledgement"?: string | null,"customer_id"?: string | null,"customer_notes"?: string | null,"customer_validated_at"?: string | null,"distance_km"?: number | null,"distance_method"?: string | null,"estimated_volume_m3"?: number | null,"id"?: string,"internal_notes"?: string | null,"inventory_method"?: string | null,"moving_date"?: string | null,"moving_date_flexible"?: boolean,"request_number"?: number,"selected_options"?: NonNullable<Json>,"source"?: Database["public"]['Enums']["request_source"],"status"?: Database["public"]['Enums']["request_status"],"submitted_at"?: string | null,"updated_at"?: string,"verification_status"?: string,"verified_at"?: string | null,"verified_by"?: string | null,"view_token_hash"?: string | null
+                    "access_token_expires_at"?: string | null,"access_token_hash"?: string | null,"alternative_moving_date"?: string | null,"alternative_moving_dates"?: (string)[],"company_id"?: string,"created_at"?: string,"customer_acknowledged_at"?: string | null,"customer_acknowledgement"?: string | null,"customer_id"?: string | null,"customer_notes"?: string | null,"customer_validated_at"?: string | null,"distance_km"?: number | null,"distance_method"?: string | null,"estimated_volume_m3"?: number | null,"extra_boxes"?: number | null,"id"?: string,"internal_notes"?: string | null,"inventory_method"?: string | null,"moving_date"?: string | null,"moving_date_flexible"?: boolean,"request_number"?: number,"selected_options"?: NonNullable<Json>,"source"?: Database["public"]['Enums']["request_source"],"status"?: Database["public"]['Enums']["request_status"],"submitted_at"?: string | null,"updated_at"?: string,"verification_status"?: string,"verified_at"?: string | null,"verified_by"?: string | null,"view_token_hash"?: string | null
                   }
                   Relationships: [
                     {
@@ -435,14 +435,14 @@ isOneToOne: false
                   ]
                 },"room_videos": {
                   Row: {
-                    "capture_source": string | null,"company_id": string,"created_at": string,"delete_after": string | null,"deleted_at": string | null,"duration_seconds": number | null,"encoder": string | null,"failure_reason": string | null,"height": number | null,"id": string,"mime_type": string | null,"original_duration_seconds": number | null,"original_height": number | null,"original_mime_type": string | null,"original_size_bytes": number | null,"original_width": number | null,"processing": string | null,"request_id": string,"room_id": string,"size_bytes": number | null,"status": Database["public"]['Enums']["video_status"],"storage_path": string,"updated_at": string,"uploaded_at": string | null,"width": number | null
+                    "capture_source": string | null,"company_id": string,"created_at": string,"delete_after": string | null,"deleted_at": string | null,"duration_seconds": number | null,"encoder": string | null,"failure_reason": string | null,"height": number | null,"id": string,"media_kind": string,"mime_type": string | null,"original_duration_seconds": number | null,"original_height": number | null,"original_mime_type": string | null,"original_size_bytes": number | null,"original_width": number | null,"processing": string | null,"request_id": string,"room_id": string,"size_bytes": number | null,"status": Database["public"]['Enums']["video_status"],"storage_path": string,"updated_at": string,"uploaded_at": string | null,"width": number | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "capture_source"?: string | null,"company_id": string,"created_at"?: string,"delete_after"?: string | null,"deleted_at"?: string | null,"duration_seconds"?: number | null,"encoder"?: string | null,"failure_reason"?: string | null,"height"?: number | null,"id"?: string,"mime_type"?: string | null,"original_duration_seconds"?: number | null,"original_height"?: number | null,"original_mime_type"?: string | null,"original_size_bytes"?: number | null,"original_width"?: number | null,"processing"?: string | null,"request_id": string,"room_id": string,"size_bytes"?: number | null,"status"?: Database["public"]['Enums']["video_status"],"storage_path": string,"updated_at"?: string,"uploaded_at"?: string | null,"width"?: number | null
+                    "capture_source"?: string | null,"company_id": string,"created_at"?: string,"delete_after"?: string | null,"deleted_at"?: string | null,"duration_seconds"?: number | null,"encoder"?: string | null,"failure_reason"?: string | null,"height"?: number | null,"id"?: string,"media_kind"?: string,"mime_type"?: string | null,"original_duration_seconds"?: number | null,"original_height"?: number | null,"original_mime_type"?: string | null,"original_size_bytes"?: number | null,"original_width"?: number | null,"processing"?: string | null,"request_id": string,"room_id": string,"size_bytes"?: number | null,"status"?: Database["public"]['Enums']["video_status"],"storage_path": string,"updated_at"?: string,"uploaded_at"?: string | null,"width"?: number | null
                   }
                   Update: {
-                    "capture_source"?: string | null,"company_id"?: string,"created_at"?: string,"delete_after"?: string | null,"deleted_at"?: string | null,"duration_seconds"?: number | null,"encoder"?: string | null,"failure_reason"?: string | null,"height"?: number | null,"id"?: string,"mime_type"?: string | null,"original_duration_seconds"?: number | null,"original_height"?: number | null,"original_mime_type"?: string | null,"original_size_bytes"?: number | null,"original_width"?: number | null,"processing"?: string | null,"request_id"?: string,"room_id"?: string,"size_bytes"?: number | null,"status"?: Database["public"]['Enums']["video_status"],"storage_path"?: string,"updated_at"?: string,"uploaded_at"?: string | null,"width"?: number | null
+                    "capture_source"?: string | null,"company_id"?: string,"created_at"?: string,"delete_after"?: string | null,"deleted_at"?: string | null,"duration_seconds"?: number | null,"encoder"?: string | null,"failure_reason"?: string | null,"height"?: number | null,"id"?: string,"media_kind"?: string,"mime_type"?: string | null,"original_duration_seconds"?: number | null,"original_height"?: number | null,"original_mime_type"?: string | null,"original_size_bytes"?: number | null,"original_width"?: number | null,"processing"?: string | null,"request_id"?: string,"room_id"?: string,"size_bytes"?: number | null,"status"?: Database["public"]['Enums']["video_status"],"storage_path"?: string,"updated_at"?: string,"uploaded_at"?: string | null,"width"?: number | null
                   }
                   Relationships: [
                     {
@@ -520,6 +520,9 @@ isOneToOne: false
             "add_public_frames":
 { Args: { "access_token": string,"frames": Json,"video_id": string }; Returns: number
                            },
+"add_public_photo_frame":
+{ Args: { "access_token": string,"height"?: number,"video_id": string,"width"?: number }; Returns: undefined
+                           },
 "add_public_room":
 { Args: { "access_token": string,"room_description"?: string,"room_kind"?: string,"room_name": string }; Returns: string
                            },
@@ -592,7 +595,7 @@ isOneToOne: false
                            },
 "get_public_company_options":
 { Args: { "company_slug": string }; Returns: {
-              "description": string,"id": string,"name": string,"price": number,"pricing_mode": Database["public"]['Enums']["pricing_mode"]
+              "description": string,"id": string,"name": string,"pricing_mode": Database["public"]['Enums']["pricing_mode"]
             }[]
                            },
 "get_public_inventory":
@@ -616,14 +619,23 @@ isOneToOne: false
 "public_inventory_add":
 { Args: { "item": Json,"token": string }; Returns: string
                            },
+"public_inventory_add_room":
+{ Args: { "base_category": string,"room_name": string,"token": string }; Returns: string
+                           },
 "public_inventory_remove":
 { Args: { "item_id": string,"token": string }; Returns: undefined
                            },
 "public_inventory_update":
 { Args: { "item_id": string,"new_quantity": number,"token": string }; Returns: undefined
                            },
+"public_media_room":
+{ Args: { "access_token": string }; Returns: string
+                           },
 "public_resume_manual":
 { Args: { "token": string }; Returns: string
+                           },
+"public_set_extra_boxes":
+{ Args: { "boxes": number,"token": string }; Returns: undefined
                            },
 "register_public_video":
 { Args: { "access_token": string,"meta"?: Json,"mime_type": string,"room_id": string,"size_bytes": number }; Returns: {

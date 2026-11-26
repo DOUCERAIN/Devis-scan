@@ -47,6 +47,9 @@ const ADDRESS_FIXTURE = (q) => ({
   await proClient.from("pricing_settings").update({ price_per_m3: 50, minimum_price: 200, price_per_extra_km: 0, floor_fee_without_elevator: 15 }).eq("company_id", company.id);
   await admin.from("companies").update({ legal_name: "Manuel SARL", siret: "12345678900012", address_line1: "1 rue du Test", postal_code: "69001", city: "Lyon" }).eq("id", company.id);
   const slug = company.slug;
+  // Option payante (prix connu du seul déménageur) : 37,00 € au forfait.
+  const { error: optError } = await admin.from("pricing_options").insert({ company_id: company.id, name: "Emballage de la vaisselle", description: "Fourniture et emballage par nos soins", pricing_mode: "fixed", price: 37, is_active: true });
+  assert.equal(optError, null);
 
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ ...devices["Pixel 7"] });
@@ -98,66 +101,155 @@ const ADDRESS_FIXTURE = (q) => ({
   await page.getByTestId("method-manual").click();
   await page.getByRole("button", { name: "Continuer" }).click();
   await page.waitForURL(/demande\/inventaire$/);
-  await text(page, "Votre inventaire est vide.");
-  for (const label of ["Salon", "Chambres", "Cuisine", "Salle de bain", "Bureau", "Garage et cave", "Autres espaces"]) {
-    assert.ok(await page.getByRole("tab", { name: label }).isVisible(), `catégorie ${label}`);
-  }
-  log("Méthode « Faire mon inventaire manuellement » : sept catégories");
+  const reqRow = async () => (await admin.from("quote_requests").select("id, extra_boxes").eq("company_id", company.id).single()).data;
+  const dbItems = async () => (await admin.from("inventory_items").select("name, catalog_key, quantity, unit_volume_m3, volume_source, volume_note, removed, source, customer_comment, room_id, rooms(name, room_type)")
+    .eq("company_id", company.id).eq("removed", false).order("created_at")).data;
+  const saved = () => page.locator("[data-testid=sync-status][data-status=idle]").waitFor({ timeout: 15000 });
 
-  // 4. Inventaire : catalogue, quantités, taille approximative, recherche, objet personnalisé
-  const total = () => page.getByTestId("inventory-total").innerText();
-  await page.getByRole("button", { name: "Ajouter un Canapé 3 places" }).click();
-  await text(page, "« Canapé 3 places » ajouté.");
-  await page.getByRole("button", { name: "Ajouter un Canapé 3 places" }).click();
-  await page.waitForFunction(() => document.querySelector("[data-testid=inventory-total]")?.textContent?.startsWith("2 objets"));
-  await page.getByRole("tab", { name: "Chambres" }).click();
+  // 4E. Cartons : étape dédiée, obligatoire, zéro accepté, aucun pré-remplissage
+  await text(page, "Commençons par estimer vos cartons");
+  await text(page, "Pensez également aux petits objets et affaires personnelles de taille comparable à un carton");
+  const boxes = page.locator("#extra-boxes");
+  assert.equal(await boxes.inputValue(), "", "aucune valeur pré-remplie");
+  assert.equal(await boxes.getAttribute("placeholder"), "10");
+  await page.getByTestId("boxes-continue").click();
+  await text(page, "Indiquez un nombre de cartons (0 si vous n'en avez pas besoin).");
+  await boxes.fill("1,5");
+  assert.equal(await boxes.inputValue(), "15", "virgule refusée");
+  await text(page, "Chiffres uniquement");
+  await boxes.fill("-3");
+  assert.equal(await boxes.inputValue(), "3", "signe refusé");
+  await boxes.fill("12");
+  await shot(page, "m00-cartons");
+  await page.getByTestId("boxes-continue").click();
+  await page.getByTestId("room-scene").waitFor();
+  await saved();
+  assert.equal((await reqRow()).extra_boxes, 12);
+  assert.deepEqual((await dbItems()).map((i) => [i.catalog_key, i.quantity, i.rooms.room_type]), [["carton-standard", 12, "inv:cartons"]]);
+  log("Cartons (test E) : titre et texte demandés, champ vide (exemple « 10 » en gris), saisie obligatoire, texte/signe/virgule refusés, 12 cartons enregistrés (volume du carton standard du catalogue)");
+
+  // 4D. Onglets des pièces et illustrations
+  const tabs = await page.getByTestId("room-tab").allInnerTexts();
+  assert.deepEqual(tabs, ["Salon", "Cuisine", "Chambre", "Salle de bain", "Bureau", "Entrée / couloir", "Garage / cave", "Autre pièce"]);
+  const sceneObj = (key) => page.locator(`[data-testid=scene-object][data-catalog-key="${key}"]`).first();
+  const row = (name) => page.getByTestId("room-list").getByTestId("inventory-item").filter({ hasText: name }).first();
+
+  // Fluidité (test F) : délai entre l'appui et l'affichage, mesuré dans la page.
+  const tapDelay = (key) => page.evaluate((k) => new Promise((resolve) => {
+    const el = document.querySelector(`[data-testid=scene-object][data-catalog-key="${k}"]`);
+    const before = document.querySelector("[data-testid=room-list]").textContent;
+    const t0 = performance.now();
+    const obs = new MutationObserver(() => {
+      if (document.querySelector("[data-testid=room-list]").textContent !== before) { obs.disconnect(); resolve(performance.now() - t0); }
+    });
+    obs.observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true });
+    el.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  }), key);
+  const delays = [await tapDelay("canape-3-places"), await tapDelay("canape-3-places"), await tapDelay("fauteuil")];
+  assert.ok(delays.every((d) => d < 150), `affichage immédiat (${delays.map((d) => d.toFixed(0)).join(", ")} ms)`);
+  assert.equal(await sceneObj("canape-3-places").getAttribute("data-selected"), "true");
+  assert.match(await sceneObj("canape-3-places").evaluate((el) => el.textContent), /2$/, "quantité affichée sur le meuble");
+  assert.equal(await row("Canapé 3 places").getByTestId("quantity-input").inputValue(), "2");
+  await shot(page, "m01-salon");
+  log(`Inventaire visuel (test D) : 8 pièces, illustration du salon, appui sur le canapé (×2) et le fauteuil ; affichage en ${delays.map((d) => d.toFixed(0)).join(" / ")} ms, sans attendre le serveur`);
+
+  await page.getByTestId("room-tab").filter({ hasText: "Chambre" }).click();
+  await sceneObj("armoire-2-portes").click();
+  await page.getByTestId("room-catalog-toggle").click();
   await page.getByRole("button", { name: "Ajouter un Armoire 3 portes" }).click();
-  await text(page, "Quelle est sa taille, environ ?");
-  await page.getByRole("button", { name: /^Grand/ }).click();
-  await text(page, "« Armoire 3 portes » ajouté.");
-  await page.getByPlaceholder(/Rechercher/).fill("frigo");
-  await page.getByRole("button", { name: /^Ajouter un Réfrigérateur/ }).first().click();
-  await text(page, "ajouté.");
-  await page.getByPlaceholder(/Rechercher/).fill("");
-  await page.getByRole("button", { name: "Ajouter un objet personnalisé." }).click();
+  await text(page, "quelle est sa taille, environ ?");
+  await page.getByTestId("size-chooser").getByRole("button", { name: /^Grand/ }).click();
+  await row("Armoire 3 portes").waitFor();
+  await page.getByTestId("room-tab").filter({ hasText: "Cuisine" }).click();
+  await page.getByTestId("catalog-search").fill("frigo");
+  await page.getByRole("button", { name: /^Ajouter un Réfrigérateur$/ }).click();
+  await row("Réfrigérateur").waitFor();
+  await page.getByTestId("catalog-search").fill("");
+  await page.getByTestId("room-tab").filter({ hasText: "Salle de bain" }).click();
+  await sceneObj("meuble-vasque").click();
+  await page.getByTestId("size-chooser").getByRole("button", { name: /^Moyen/ }).click();
+  await row("Meuble sous-vasque").waitFor();
+  // Pièce supplémentaire
+  await page.getByTestId("add-room").click();
+  await page.getByRole("button", { name: "Ajouter", exact: true }).click();
+  await page.getByTestId("room-tab").filter({ hasText: "Chambre 2" }).waitFor();
+  assert.equal(await page.getByTestId("room-panel").getAttribute("data-room").then((r) => r.startsWith("room:")), true);
+  await sceneObj("lit-double").click();
+  await row("Lit double").waitFor();
+  // Objet non référencé dans le garage
+  await page.getByTestId("room-tab").filter({ hasText: "Garage / cave" }).click();
+  await page.getByTestId("custom-item-open").click();
   const form = page.getByTestId("custom-item-form");
-  await form.getByLabel("Description").fill("");
   await form.getByRole("button", { name: "Ajouter cet objet" }).click();
   await text(page, "Indiquez une taille approximative ou les dimensions");
-  await form.getByLabel("Description").fill("Aquarium 200 L");
-  await form.getByText("Je connais ses dimensions").click();
-  await form.getByLabel("Largeur (cm)").fill("100");
-  await form.getByLabel("Profondeur (cm)").fill("40");
-  await form.getByLabel("Hauteur (cm)").fill("50");
-  await form.getByLabel("Commentaire").fill("Vidé avant le jour J");
-  await shot(page, "m01-objet-personnalise");
+  await form.getByLabel("Nom de l'objet").fill("Statue en bronze");
+  await form.getByText(/^Grand/).click();
+  await form.getByLabel("Description").fill("Très lourde, socle démontable");
   await form.getByRole("button", { name: "Ajouter cet objet" }).click();
-  await text(page, "« Aquarium 200 L » ajouté.");
-  await text(page, "« Vidé avant le jour J »");
-  await text(page, "volume calculé avec vos dimensions");
-  await text(page, "volume d'un objet de taille comparable");
-  // Quantité diminuée puis retrait d'un objet
-  await page.getByRole("button", { name: "Diminuer la quantité : Canapé 3 places" }).click();
-  await page.getByRole("button", { name: /^Retirer : Réfrigérateur/ }).click();
-  await page.waitForFunction(() => document.querySelectorAll("[data-testid=inventory-item]").length === 3);
-  const summary = await total();
-  assert.match(summary, /^3 objets · 2,52 m³$/, summary); // 1,5 + 0,8 + 1,1 × 0,2 = 2,52
-  await shot(page, "m02-inventaire");
-  const { data: items } = await admin.from("inventory_items").select("name, quantity, unit_volume_m3, volume_source, volume_note, removed, source, customer_comment").eq("company_id", company.id).order("created_at");
-  assert.deepEqual(items.map((i) => [i.name, i.quantity, Number(i.unit_volume_m3), i.volume_source, i.removed, i.source]), [
-    ["Canapé 3 places", 1, 1.5, "catalog", false, "customer"],
-    ["Armoire 3 portes", 1, 0.8, "comparable", false, "customer"],
-    [items[2].name, 1, Number(items[2].unit_volume_m3), "catalog", true, "customer"],
-    ["Aquarium 200 L", 1, 0.22, "dimensions", false, "customer"],
-  ]);
-  assert.match(items[1].volume_note, /comparable à « Armoire 2 portes »/);
-  assert.equal(items[3].customer_comment, "Vidé avant le jour J");
-  log("Inventaire : catalogue, quantités, taille approximative (volume d'un objet comparable, justifié), recherche, objet personnalisé avec dimensions, retrait sans effacement");
+  await row("Statue en bronze").getByText("Objet à vérifier").waitFor();
+  await shot(page, "m02-objet-a-verifier");
+  // Les sélections des autres pièces sont conservées
+  await page.getByTestId("room-tab").filter({ hasText: "Salon" }).click();
+  assert.equal(await row("Canapé 3 places").getByTestId("quantity-input").inputValue(), "2");
+  log("Pièces : illustration de la chambre, liste de la pièce (taille demandée pour une armoire sans volume de référence), recherche dans tout le catalogue, « Chambre 2 » ajoutée, objet non référencé « Objet à vérifier », sélections conservées d'un onglet à l'autre");
+
+  // 4F. Saisie directe des quantités
+  const qty = row("Canapé 3 places").getByTestId("quantity-input");
+  await qty.click();
+  await qty.fill("5");
+  assert.equal(await qty.inputValue(), "5");
+  await qty.fill("");
+  await qty.press("Tab");
+  assert.equal(await qty.inputValue(), "5", "champ vide : la valeur précédente est rétablie");
+  await qty.fill("3,5");
+  assert.equal(await qty.inputValue(), "35");
+  await qty.fill("3");
+  await qty.press("Enter");
+  const fauteuil = row("Fauteuil").getByTestId("quantity-input");
+  await fauteuil.fill("0");
+  await fauteuil.press("Enter");
+  await page.getByTestId("room-list").getByText("Fauteuil").waitFor({ state: "detached" });
+  const boxQty = page.getByTestId("boxes-quantity");
+  await boxQty.fill("20");
+  await boxQty.press("Enter");
+  // 3 × 1,5 + 0,8 + 0,8 (taille « grand ») + 0,4 + 0,5 (taille « moyen ») + 1,2 + 0,8 (taille « grand ») + 20 × 0,1 = 11 m³
+  await page.waitForFunction(() => document.querySelector("[data-testid=inventory-volume]")?.textContent === "11 m³");
+  await saved();
+  const items = await dbItems();
+  const byKey = Object.fromEntries(items.map((i) => [i.catalog_key ?? i.name, i]));
+  assert.equal(byKey["canape-3-places"].quantity, 3);
+  assert.equal(byKey["fauteuil"], undefined, "fauteuil retiré");
+  assert.equal(byKey["carton-standard"].quantity, 20);
+  assert.equal((await reqRow()).extra_boxes, 20);
+  assert.equal(byKey["armoire-3-portes"].volume_source, "comparable");
+  assert.match(byKey["armoire-3-portes"].volume_note, /comparable à « Armoire 2 portes »/);
+  assert.equal(byKey["lit-double"].rooms.name, "Chambre 2");
+  assert.match(byKey["lit-double"].rooms.room_type, /^inv:chambres:\d+$/);
+  assert.equal(byKey["meuble-vasque"].rooms.name, "Salle de bain");
+  assert.equal(byKey["Statue en bronze"].customer_comment, "Très lourde, socle démontable");
+  assert.equal(byKey["Statue en bronze"].volume_source, "comparable");
+  const sum = items.reduce((s, i) => s + i.quantity * Number(i.unit_volume_m3), 0);
+  assert.equal(Math.round(sum * 100) / 100, 11, "volume affiché = volume enregistré");
+  log("Quantités (test F) : saisie directe 5 puis 3, champ vide rétabli, virgule refusée, 0 retire l'objet, cartons passés à 20 ; total 11 m³ identique à la base ; chaque objet dans sa pièce (« Chambre 2 » comprise)");
+
+  // Rechargement : tout est conservé, l'étape des cartons n'est plus redemandée
+  await page.reload();
+  await page.getByTestId("room-scene").waitFor();
+  assert.equal(await page.getByTestId("inventory-volume").innerText(), "11 m³");
+  assert.ok(await page.getByTestId("room-tab").filter({ hasText: "Chambre 2" }).isVisible());
+  log("Rechargement de la page : inventaire, pièces et cartons conservés");
+  await shot(page, "m03-inventaire");
 
   // 5. Récapitulatif, avertissement, envoi → devis immédiat
   await page.getByRole("button", { name: "Vérifier et continuer" }).click();
   await page.waitForURL(/recapitulatif$/);
-  await text(page, "Inventaire (3 objets");
+  await text(page, "Inventaire (");
+  const recapText = await page.locator("main").innerText();
+  assert.ok(!/37[,.]00|37\s?€/.test(recapText), "prix de l'option jamais affiché au client");
+  await page.getByLabel("Emballage de la vaisselle").check();
+  await page.getByRole("button", { name: "Enregistrer mes options" }).click();
+  await text(page, "Fourniture et emballage par nos soins");
+  await page.waitForTimeout(800);
   await text(page, "Acme Conseil");
   await page.getByRole("button", { name: "Valider mon inventaire et recevoir mon devis" }).click();
   await text(page, "Confirmez avoir pris connaissance de l'avertissement");
@@ -166,7 +258,7 @@ const ADDRESS_FIXTURE = (q) => ({
   await page.getByRole("button", { name: "Valider mon inventaire et recevoir mon devis" }).click();
   await page.waitForURL(/\/devis\/[0-9a-f]{64}$/, { timeout: 30000 });
   const quoteUrl = page.url();
-  await text(page, "Détail du prix", 30000);
+  await text(page, "Prestations comprises", 30000);
   await text(page, "taille approximative");
   await shot(page, "m04-devis");
   const { data: req } = await admin.from("quote_requests").select("id, status, inventory_method, verification_status, customer_acknowledgement").eq("company_id", company.id).single();
@@ -183,6 +275,34 @@ const ADDRESS_FIXTURE = (q) => ({
   assert.equal((await pdf.body()).subarray(0, 5).toString(), "%PDF-");
   log(`Envoi : devis final V1 calculé immédiatement (${(quotes[0].total_ttc_cents / 100).toFixed(2)} € TTC), sans analyse IA ; PDF`);
 
+  // 4G. Devis côté client : options et prestations sans prix détaillé, total seul (dans la page ET dans les données)
+  const pageText = await page.locator("main").innerText();
+  assert.ok(pageText.includes("Emballage de la vaisselle"), "option retenue affichée");
+  assert.ok(!/37[,.]00\s?€/.test(pageText), "prix de l'option absent du devis client");
+  const euroAmounts = pageText.match(/\d[\d\s ]*,\d{2}\s?€/g) ?? [];
+  assert.ok(euroAmounts.length > 0, "le total reste affiché");
+  assert.ok(await page.getByText("Inclus").first().isVisible(), "lignes « Inclus » sans montant");
+  const anon = createClient(DB_URL, process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, { auth: { persistSession: false } });
+  const { data: view, error: viewError } = await anon.rpc("get_public_quote_view", { token: quoteUrl.split("/").pop() });
+  assert.equal(viewError, null);
+  const leaks = [];
+  const scan = (v, where) => {
+    if (Array.isArray(v)) return v.forEach((x, i) => scan(x, `${where}[${i}]`));
+    if (v && typeof v === "object") for (const [k, x] of Object.entries(v)) {
+      if (/price|amount|unit_cents|per_m3|per_km|fee|cents/i.test(k) && !/^(upper_)?total_(ht|ttc)_cents$|^vat_cents$|^total_(before|after)_cents$|^prices_hidden$/.test(k)) leaks.push(`${where}.${k}`);
+      scan(x, `${where}.${k}`);
+    }
+  };
+  scan(view, "view");
+  assert.deepEqual(leaks, [], `prix détaillés transmis au navigateur : ${leaks.join(", ")}`);
+  assert.ok(view.quotes[0].lines.every((l) => Object.keys(l).sort().join() === "code,detail,label"), JSON.stringify(view.quotes[0].lines));
+  const { data: proQuote } = await admin.from("quotes").select("lines").eq("request_id", req.id).single();
+  assert.ok(proQuote.lines.every((l) => typeof l.amount_cents === "number"), "le déménageur garde le détail chiffré");
+  assert.ok(proQuote.lines.some((l) => l.code === "option" && l.amount_cents === 3700), "option chiffrée 37,00 € côté pro");
+  const pdfText = (await pdf.body()).toString("latin1");
+  assert.ok(!pdfText.includes("37,00"), "prix de l'option absent du PDF client");
+  log(`Devis (test G) : prestations listées « Inclus », total affiché ; aucune donnée de prix détaillé envoyée au navigateur (${view.quotes[0].lines.length} lignes vérifiées), détail conservé côté pro`);
+
   await page.getByRole("button", { name: "Accepter le devis" }).click();
   await text(page, "Vous avez accepté ce devis");
   log("Devis accepté en ligne");
@@ -197,7 +317,7 @@ const ADDRESS_FIXTURE = (q) => ({
   await pro.waitForURL(/\/espace$/);
   await pro.goto(`${APP}/espace/demandes/${req.id}`);
   for (const t of ["Paul Durand", "Inventaire saisi par le client", "Client entreprise", "Acme Conseil", "SIRET non communiqué", "Ajouté par le client",
-    "Commentaire du client : « Vidé avant le jour J »", "comparable à « Armoire 2 portes »", "Dossier de vérification", "Devis accepté par le client"]) {
+    "Commentaire du client : « Très lourde, socle démontable »", "comparable à « Armoire 2 portes »", "Dossier de vérification", "Devis accepté par le client"]) {
     await text(pro, t);
   }
   await shot(pro, "m05-fiche-pro");

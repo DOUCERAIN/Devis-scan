@@ -11,16 +11,16 @@ export const STEPS = [
 ] as const;
 
 export type StepKey = (typeof STEPS)[number]["key"];
-export type PageKey = StepKey | "pieces" | "videos" | "envoyee" | "logements";
+export type PageKey = StepKey | "medias" | "pieces" | "videos" | "envoyee" | "logements";
 export type InventoryMethod = "video" | "manual" | null | undefined;
 
 export function stepIndex(key: StepKey): number {
   return STEPS.findIndex((s) => s.key === key);
 }
 
-/** Adresse d'une page du parcours ; l'étape « inventaire » mène aux pièces à filmer pour la méthode vidéo. */
+/** Adresse d'une page du parcours ; l'étape « inventaire » mène aux médias du logement pour la méthode vidéo. */
 export function stepHref(slug: string, key: PageKey, method?: InventoryMethod): string {
-  const page = key === "inventaire" && method === "video" ? "pieces" : key;
+  const page = key === "inventaire" && method === "video" ? "medias" : key;
   return `/d/${slug}/demande/${page}`;
 }
 

@@ -17,7 +17,8 @@ export default async function SummaryStep({ params }: PageProps<"/d/[slug]/deman
   const manual = draft.inventory_method === "manual";
   const [options, selected, inventory] = await Promise.all([getPublicOptions(slug), getDraftOptions(token), manual ? readInventory(token) : null]);
   const withVideo = draft.rooms.filter((r) => r.videos.length > 0).length;
-  const missing = draft.rooms.length - withVideo;
+  // Pièces de l'ancien parcours restées sans vidéo (la pièce technique « Mon logement » n'en fait pas partie).
+  const missing = draft.rooms.filter((r) => r.room_type !== "logement" && r.videos.length === 0).length;
   const canSubmit = manual ? (inventory?.items.length ?? 0) > 0 : withVideo > 0;
   return (
     <>
@@ -26,8 +27,8 @@ export default async function SummaryStep({ params }: PageProps<"/d/[slug]/deman
         {manual ? "Vérifiez votre inventaire : votre devis est calculé dès l'envoi." : "Vous pouvez encore tout modifier avant l'envoi."}
       </StepTitle>
       {!manual && withVideo === 0 ? (
-        <Alert tone="warning" title="Aucune vidéo pour le moment">
-          Ajoutez au moins une vidéo pour envoyer votre demande. <Link href={stepHref(slug, "videos")} className="font-medium text-brand underline">Filmer mes pièces</Link>
+        <Alert tone="warning" title="Aucune vidéo ni photo pour le moment">
+          Ajoutez au moins une vidéo ou une photo pour envoyer votre demande. <Link href={stepHref(slug, "medias")} className="font-medium text-brand underline">Ajouter mes vidéos ou photos</Link>
         </Alert>
       ) : !manual && missing > 0 ? (
         <Alert tone="warning" title={`${missing} pièce${missing > 1 ? "s" : ""} sans vidéo`}>
@@ -36,7 +37,7 @@ export default async function SummaryStep({ params }: PageProps<"/d/[slug]/deman
       ) : null}
       <DraftSummary slug={slug} draft={draft} editable inventory={inventory?.items} />
       {options.length > 0 ? (
-        <OptionsForm slug={slug} options={options.map((o) => ({ ...o, price: Number(o.price) }) as OptionChoice)} selected={selected} />
+        <OptionsForm slug={slug} options={options as OptionChoice[]} selected={selected} />
       ) : null}
       <SubmitForm slug={slug} notes={draft.customer_notes} canSubmit={canSubmit} companyName={company.name} manual={manual} />
     </>
