@@ -1,0 +1,8 @@
+domaine;rapport_median_sur_demenhouse;nb_sous_categories_communes;convention;detail
+deliverhome.fr;0.83;1;indéterminée (une seule sous-catégorie commune);LIT-ENFANT (0.83)
+devisdemenagement.com;0.93;1;indéterminée (une seule sous-catégorie commune);ARM-4P (0.93)
+formadem.com;0.39;4;différente de Démén'House (plus basse);LIT-DOUBLE (0.31), LIT-SIMPLE (0.38), LIT-ENFANT (0.42), ENF-CHAISE-HAUTE (0.40)
+macalculatriceenligne.com;0.5;5;différente de Démén'House (plus basse);ARM-4P (0.47), LIT-DOUBLE (0.58), LIT-SIMPLE (0.62), COM-NC (0.27), CHV-STD (0.50)
+non attribué;0.62;23;différente de Démén'House (plus basse);ARM-NC (0.43), CAN-3P (0.50), CAN-3P (1.00), FAU-STD (0.86), TAB-BASSE (0.30), RAN-BUFFET (1.25), CHA-REPAS (0.60), LIT-DOUBLE (0.54), LIT-DOUBLE (0.77), COM-NC (0.33), BUR-DROIT (0.57), BUR-DROIT (0.36), FAU-BUR (0.75), ELM-REF (1.00), ELM-CONG (0.37), ELM-CONG (0.94), ELM-LV (0.83), ELM-LV (0.67), MUS-PIANO-DROIT (0.60), MUS-PIANO-DROIT (0.75), MUS-PIANO-QUEUE (0.78), VEL-ADULTE (0.62), JAR-TABLE (0.43)
+simulateurdemenagement.fr;0.55;1;indéterminée (une seule sous-catégorie commune);CAN-3P (0.55)
+un-calcul.fr;0.77;1;indéterminée (une seule sous-catégorie commune);LIT-SIMPLE (0.77)

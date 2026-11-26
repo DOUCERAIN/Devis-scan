@@ -1,4 +1,4 @@
-"""Contrôles du catalogue v6.1 : `python3 -m unittest scripts/catalogue_v6/test_enrichir.py`."""
+"""Contrôles du catalogue v6.2 : `python3 -m unittest scripts/catalogue_v6/test_enrichir.py`."""
 import csv
 import json
 import sys
@@ -13,15 +13,19 @@ from releves_demenageurs import RELEVES, SOURCES  # noqa: E402
 SORTIE = enrichir.SORTIE
 
 
-class CatalogueV61(unittest.TestCase):
+class CatalogueV62(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         (cls.cat, cls.produits, cls.v5, cls.base, cls.variantes, cls.ratios, _, cls.releves, cls.ordre, _) = enrichir.construire()
 
     # --- couverture et identifiants
-    def test_311_sous_categories_identifiants_stables(self):
-        self.assertEqual(len(self.base), 311)
-        self.assertEqual(set(self.base), set(self.v5))
+    def test_313_sous_categories_identifiants_stables(self):
+        """311 sous-catégories de la v5 (identifiants inchangés) + 2 créées en v6.2."""
+        self.assertEqual(len(self.base), 313)
+        v5 = {r["identifiant"] for r in self.cat["references"] if not r.get("variante_de")}
+        self.assertEqual(len(v5), 311)
+        self.assertEqual(set(self.base) - v5, {"CAR-BAC-GRAND", "BAG-VALISE-TRES-GRANDE"})
+        self.assertTrue(v5 <= set(self.base))
 
     def test_volume_ou_exception(self):
         for e in self.base.values():
@@ -46,10 +50,17 @@ class CatalogueV61(unittest.TestCase):
         for i, e in self.base.items():
             dh = [x for x in e["references_pro"] if x["source"] == "demenhouse" and x["valeur_m3"] is not None and not x["aberrant"]]
             if dh and i != "CAR-CARTON":
-                if e["regle"].startswith("1"):
+                if e["regle"].startswith("1 "):
                     self.assertEqual(e["volume_demenagement_m3"], dh[0]["valeur_m3"], i)
                 else:
                     self.assertTrue(e["rejets"], f"{i} : valeur Démén'House non retenue sans motif")
+
+    def test_coherence_des_deux_publications_demenhouse(self):
+        self.assertEqual(self.base["COM-NC"]["volume_demenagement_m3"], 1.0)
+        self.assertEqual(self.base["CHV-STD"]["volume_demenagement_m3"], 0.25)
+        self.assertEqual(self.base["LIT-DOUBLE"]["volume_demenagement_m3"], 2.5)
+        for i in ("COM-NC", "CHV-STD", "LIT-DOUBLE"):
+            self.assertTrue(self.base[i]["regle"].startswith("1b"))
 
     def test_meuble_tv_demenhouse_non_retenu(self):
         self.assertNotEqual(self.base["RAN-MEUBLE-TV"]["volume_demenagement_m3"], 3.2)
@@ -58,7 +69,7 @@ class CatalogueV61(unittest.TestCase):
         """Aucune moyenne : une valeur professionnelle retenue existe telle quelle dans les relevés."""
         for i, e in self.base.items():
             if e["regle"][:1] in "123":
-                publiees = {v for sc, v, *_ in RELEVES if sc == i and v is not None}
+                publiees = {v for sc, v, *_ in RELEVES if sc == i and v is not None} | {x for sc, v, b, h, *_ in RELEVES if sc == i and v is None for x in (b, h)}
                 self.assertIn(e["volume_demenagement_m3"], publiees, i)
 
     def test_fourchettes_jamais_reduites_au_milieu(self):
@@ -78,8 +89,10 @@ class CatalogueV61(unittest.TestCase):
     def test_aucune_valeur_validee_par_un_professionnel(self):
         for e in self.base.values():
             self.assertNotIn("validé par un professionnel", e["statut_validation"])
-            if e["identifiant"] != "CAR-CARTON":
+            if e["identifiant"] not in enrichir.CONVENTIONS_VALIDEES:
                 self.assertTrue(e["statut_validation"].startswith("non validé"), e["identifiant"])
+            else:
+                self.assertIn("pas une mesure", e["statut_validation"])
 
     def test_fiabilite_moyenne_exige_corroboration_attribuee(self):
         for e in self.base.values():
@@ -121,10 +134,76 @@ class CatalogueV61(unittest.TestCase):
                 if pid in self.produits:
                     self.assertIn(pid, ids)
 
-    def test_rigide_jamais_sous_son_volume(self):
+    def test_aucune_valeur_publiee_manifestement_aberrante(self):
+        """La géométrie n'est qu'un indicateur : seules les valeurs hors de [0,25 ; 6] fois le géométrique mesuré sont écartées."""
         for e in self.base.values():
-            if e["classe_manutention"] in ("appareils et objets rigides", "meubles et objets non démontables") and e["statut_geo"] == "mesuré" and e["regle"][:1] in "123":
-                self.assertGreaterEqual(e["volume_demenagement_m3"], 0.8 * e["volume_geometrique_m3"], e["identifiant"])
+            if e["regle"][:1] in "123" and e["statut_geo"] == "mesuré" and e["nb_produits_independants"] >= 3:
+                r = e["volume_demenagement_m3"] / e["volume_geometrique_m3"]
+                self.assertTrue(enrichir.ABERRATION_BASSE <= r <= enrichir.DH_RAPPORT_MAX, (e["identifiant"], r))
+
+    def test_valeur_publiee_sous_le_geometrique_acceptee(self):
+        self.assertEqual(self.base["JAR-TRANSAT"]["volume_demenagement_m3"], 0.55)  # écartée en v6.1, réintégrée en v6.2
+
+    def test_conventions_bacs_et_valises(self):
+        attendu = {"CAR-CARTON": 0.10, "CAR-BAC": 0.10, "CAR-BAC-GRAND": 0.20, "BAG-VALISE": 0.20, "BAG-VALISE-GRANDE": 0.30, "BAG-VALISE-TRES-GRANDE": 0.30}
+        with open(SORTIE / "catalogue_volumes_v6.csv", newline="") as f:
+            csvv = {r["identifiant"]: r for r in csv.DictReader(f, delimiter=";")}
+        for i, v in attendu.items():
+            self.assertEqual(self.base[i]["volume_demenagement_m3"], v, i)
+            self.assertEqual(float(csvv[i]["volume_demenagement_m3"]), v, i)
+            self.assertEqual(self.base[i]["type_reference"], "convention validée par Devis Scan", i)
+        for i in ("CAR-BAC", "CAR-BAC-GRAND", "BAG-VALISE", "BAG-VALISE-GRANDE", "BAG-VALISE-TRES-GRANDE"):  # non assimilés au carton
+            self.assertNotIn(i, enrichir.COMPARABLES)
+            self.assertNotIn("carton", self.base[i]["methode_demenagement"].lower())
+            self.assertFalse(self.base[i]["inclus_dans_cartons"])
+        self.assertTrue(self.base["PEM-AUTRE"]["inclus_dans_cartons"])
+        self.assertTrue(enrichir.verifier_inventaire("t", [("BAG-SET", 1), ("BAG-VALISE", 2)], self.base))
+        # Variantes des valises : petit et courant = valise classique ; grand format rattaché à la grande valise.
+        var = {v["identifiant"]: v for v in self.variantes}
+        self.assertEqual(var["BAG-VALISE-C"]["volume_demenagement_m3"], 0.20)
+        self.assertEqual(var["BAG-VALISE-S"]["volume_demenagement_m3"], 0.20)
+        self.assertEqual(var["BAG-VALISE-L"]["rattachee_a"], "BAG-VALISE-GRANDE")
+        self.assertEqual(var["BAG-VALISE-L"]["volume_demenagement_m3"], 0.30)
+        self.assertTrue(enrichir.verifier_inventaire("t", [("BAG-VALISE-L", 1), ("BAG-VALISE-GRANDE", 1)], self.base))
+        with open(SORTIE / "correspondance_identifiants_v6_2.csv", newline="") as f:
+            c = {r["identifiant_source"]: r for r in csv.DictReader(f, delimiter=";")}
+        self.assertEqual(c["BAG-VALISE-L"]["identifiant_v6_2"], "BAG-VALISE-GRANDE")
+        self.assertEqual(c["valise"]["identifiant_v6_2"], "BAG-VALISE")
+        self.assertEqual(c["caisse-plastique"]["identifiant_v6_2"], "CAR-BAC")
+        for n in ("CAR-BAC-GRAND", "BAG-VALISE-TRES-GRANDE"):
+            self.assertIn(n, c)
+
+    def test_inventaires_types_sans_double_comptage(self):
+        from inventaires_types import INVENTAIRES
+        for nom, inv in INVENTAIRES.items():
+            self.assertEqual(enrichir.verifier_inventaire(nom, inv["objets"], self.base), [], nom)
+
+    def test_controle_de_double_comptage_detecte_les_cas(self):
+        v = enrichir.verifier_inventaire
+        self.assertTrue(v("t", [("LIT-DOUBLE", 1), ("MAT-140", 1)], self.base))
+        self.assertTrue(v("t", [("CAR-CARTON", 10)], self.base))
+        self.assertTrue(v("t", [("CHA-REPAS", 2), ("CHA-REPAS", 4)], self.base))
+        self.assertTrue(v("t", [("JAR-SALON", 1), ("JAR-CHAISE", 4)], self.base))
+        self.assertTrue(v("t", [("LIT-DOUBLE-L", 1)], self.base))
+
+    def test_variantes_bornees(self):
+        for v in self.variantes:
+            p = self.base[v["rattachee_a"]]["volume_demenagement_m3"]
+            if p and v["volume_demenagement_m3"]:
+                lo, hi = round(p * enrichir.VARIANTE_BORNES[0], 3) - 0.0006, round(p * enrichir.VARIANTE_BORNES[1], 3) + 0.0006  # arrondi au litre
+                self.assertTrue(lo <= v["volume_demenagement_m3"] <= hi, v["identifiant"])
+
+    def test_historique_conserve(self):
+        for version in ("v6.0", "v6.1"):
+            self.assertTrue((SORTIE / "historique" / version / "catalogue_volumes_v6.csv").exists(), version)
+        self.assertTrue((SORTIE / "historique" / "v6.1" / "scripts" / "enrichir.py").exists())
+
+    def test_journal_des_corrections(self):
+        with open(SORTIE / "corrections_v6_2.csv", newline="") as f:
+            l = list(csv.DictReader(f, delimiter=";"))
+        self.assertTrue(l)
+        for r in l:
+            self.assertTrue(r["raison"] and r["confiance"] and r["valeur_v6_1_m3"] and r["valeur_v6_2_m3"])
 
     def test_ordres_incoherents_signales(self):
         with open(SORTIE / "anomalies.csv", newline="") as f:
@@ -137,13 +216,14 @@ class CatalogueV61(unittest.TestCase):
     def test_anomalies_ont_un_etat(self):
         with open(SORTIE / "anomalies.csv", newline="") as f:
             for r in csv.DictReader(f, delimiter=";"):
-                self.assertIn(r["etat_resolution"], ("ouverte", "contournée provisoirement", "résolue"))
+                self.assertIn(r["etat_resolution"], ("ouverte", "contournée provisoirement", "choix documenté", "résolue"))
+                self.assertIn(r["impact_commercial"], ("significatif", "mineur"))
                 self.assertTrue(r["id"].startswith("ANO-"))
 
     def test_exports_coherents_avec_les_donnees(self):
         with open(SORTIE / "catalogue_volumes_v6.csv", newline="") as f:
             l = list(csv.DictReader(f, delimiter=";"))
-        self.assertEqual(len(l), 311)
+        self.assertEqual(len(l), 313)
         for r in l:
             e = self.base[r["identifiant"]]
             v = e["volume_demenagement_m3"]
@@ -164,6 +244,8 @@ class CatalogueV61(unittest.TestCase):
         self.assertEqual(len({r["id_devis_scan"] for r in l}), 40)
         for r in l:
             self.assertTrue(r["question_au_professionnel"])
+            self.assertEqual(r["volume_corrige_m3"], "")
+            self.assertEqual(r["commentaire"], "")
 
     def test_v5_non_modifiee(self):
         brut = json.loads((enrichir.V5 / "catalogue_devis_scan.json").read_text())

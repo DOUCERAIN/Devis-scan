@@ -1,0 +1,341 @@
+identifiant_source;type;nom_source;identifiant_v6_2;nom_v6_2;volume_v6_2_m3;regle
+canape-2-places;ancien identifiant du moteur (catalogue v5);Canapé 2 places;CAN-2P;Canapé 2 places;2.5;correspondance v5 (référence normalisée principale)
+canape-3-places;ancien identifiant du moteur (catalogue v5);Canapé 3 places;CAN-3P;Canapé 3 places;3.0;correspondance v5 (référence normalisée principale)
+canape-4-places;ancien identifiant du moteur (catalogue v5);Canapé 4 places;CAN-4P;Canapé 4 places;3.985;correspondance v5 (référence normalisée principale)
+canape-angle;ancien identifiant du moteur (catalogue v5);Canapé d'angle;CAN-ANG;Canapé d'angle;4.207;correspondance v5 (référence normalisée principale)
+canape-convertible;ancien identifiant du moteur (catalogue v5);Canapé convertible;CAN-CONV;Canapé convertible ou canapé-lit;2.517;correspondance v5 (référence normalisée principale)
+canape-panoramique;ancien identifiant du moteur (catalogue v5);Canapé panoramique;CAN-PANO;Canapé panoramique;6.31;correspondance v5 (référence normalisée principale)
+meridienne;ancien identifiant du moteur (catalogue v5);Méridienne;CAN-MERID;Méridienne ou banquette-lit;1.498;correspondance v5 (référence normalisée principale)
+fauteuil;ancien identifiant du moteur (catalogue v5);Fauteuil;FAU-STD;Fauteuil;0.7;correspondance v5 (référence normalisée principale)
+fauteuil-relax;ancien identifiant du moteur (catalogue v5);Fauteuil relax;FAU-RELAX;Fauteuil relax;1.337;correspondance v5 (référence normalisée principale)
+fauteuil-pivotant;ancien identifiant du moteur (catalogue v5);Fauteuil pivotant;FAU-PIVOT;Fauteuil pivotant;0.808;correspondance v5 (référence normalisée principale)
+rocking-chair;ancien identifiant du moteur (catalogue v5);Rocking-chair;FAU-BASCULE;Rocking-chair;1.462;correspondance v5 (référence normalisée principale)
+pouf;ancien identifiant du moteur (catalogue v5);Pouf;POU-STD;Pouf ou repose-pieds;0.1;correspondance v5 (référence normalisée principale)
+pouf-poire;ancien identifiant du moteur (catalogue v5);Pouf poire;FAU-POIRE;Pouf poire;0.2;correspondance v5 (référence normalisée principale)
+table-basse;ancien identifiant du moteur (catalogue v5);Table basse;TAB-BASSE;Table basse;1.0;correspondance v5 (référence normalisée principale)
+bout-de-canape;ancien identifiant du moteur (catalogue v5);Bout de canapé;TAB-APPOINT;Bout de canapé ou table d'appoint;0.205;correspondance v5 (référence normalisée principale)
+console;ancien identifiant du moteur (catalogue v5);Console;TAB-CONSOLE;Console;0.623;correspondance v5 (référence normalisée principale)
+meuble-tv;ancien identifiant du moteur (catalogue v5);Meuble TV;RAN-MEUBLE-TV;Meuble TV;0.4;correspondance v5 (référence normalisée principale)
+buffet-bas;ancien identifiant du moteur (catalogue v5);Buffet bas;RAN-BUFFET;Buffet bas ou enfilade;1.2;correspondance v5 (référence normalisée principale)
+bibliotheque;ancien identifiant du moteur (catalogue v5);Bibliothèque;RAN-BIB-NC;Bibliothèque (hauteur non précisée);2.0;correspondance v5 (référence normalisée principale)
+vitrine;ancien identifiant du moteur (catalogue v5);Vitrine;RAN-VITRINE;Vitrine;1.8;correspondance v5 (référence normalisée principale)
+tapis;ancien identifiant du moteur (catalogue v5);Tapis;DEC-TAPIS-NC;Tapis (taille non précisée);0.2;correspondance v5 (référence normalisée principale)
+lampadaire;ancien identifiant du moteur (catalogue v5);Lampadaire;DEC-LAMPADAIRE;Lampadaire;0.15;correspondance v5 (référence normalisée principale)
+lampe-a-poser;ancien identifiant du moteur (catalogue v5);Lampe à poser;DEC-LAMPE;Lampe à poser;0.033;correspondance v5 (référence normalisée principale)
+miroir-mural;ancien identifiant du moteur (catalogue v5);Miroir;DEC-MIROIR-GRAND;Grand miroir (sur pied ou mural);0.024;correspondance v5 (référence normalisée principale)
+tableau-cadre;ancien identifiant du moteur (catalogue v5);Tableau ou cadre;DEC-TABLEAU;Tableau ou cadre;0.008;correspondance v5 (référence normalisée principale)
+television;ancien identifiant du moteur (catalogue v5);Télévision;TEL-CRT;Téléviseur cathodique ou meuble téléviseur ancien;0.075;correspondance v5 (référence normalisée principale)
+enceinte-colonne;ancien identifiant du moteur (catalogue v5);Enceinte colonne;INF-ENCEINTE;Enceinte colonne ou caisson de basses;0.012;correspondance v5 (référence normalisée principale)
+piano-droit;ancien identifiant du moteur (catalogue v5);Piano droit;MUS-PIANO-DROIT;Piano droit;2.0;correspondance v5 (référence normalisée principale)
+piano-a-queue;ancien identifiant du moteur (catalogue v5);Piano à queue;MUS-PIANO-CARRE;Piano carré;0.741;correspondance v5 (référence normalisée principale)
+piano-numerique;ancien identifiant du moteur (catalogue v5);Piano numérique;MUS-PIANO-NUM;Piano numérique ou clavier;0.415;correspondance v5 (référence normalisée principale)
+aquarium;ancien identifiant du moteur (catalogue v5);Aquarium;DIV-AQUARIUM;Aquarium ou terrarium;0.403;correspondance v5 (référence normalisée principale)
+coffre-fort;ancien identifiant du moteur (catalogue v5);Coffre-fort;DIV-COFFRE-FORT;Coffre-fort;0.082;correspondance v5 (référence normalisée principale)
+horloge-comtoise;ancien identifiant du moteur (catalogue v5);Horloge comtoise;DIV-HORLOGE-COMTOISE;Horloge comtoise ou de parquet;0.511;correspondance v5 (référence normalisée principale)
+plante-grande;ancien identifiant du moteur (catalogue v5);Grande plante en pot;DEC-PLANTE;Grande plante (artificielle ou en pot);0.5;correspondance v5 (référence normalisée principale)
+table-a-manger-4;ancien identifiant du moteur (catalogue v5);Table à manger 4 personnes;TAB-4;Table à manger 2 à 4 personnes;0.965;correspondance v5 (référence normalisée principale)
+table-a-manger-6;ancien identifiant du moteur (catalogue v5);Table à manger 6 personnes;TAB-6;Table à manger 6 personnes;1.624;correspondance v5 (référence normalisée principale)
+table-a-manger-8;ancien identifiant du moteur (catalogue v5);Table à manger 8 personnes et plus;TAB-8+;Table à manger 8 personnes et plus;2.061;correspondance v5 (référence normalisée principale)
+chaise;ancien identifiant du moteur (catalogue v5);Chaise;CHA-REPAS;Chaise de salle à manger;0.25;correspondance v5 (référence normalisée principale)
+tabouret-de-bar;ancien identifiant du moteur (catalogue v5);Tabouret de bar;CHA-BAR;Tabouret de bar;0.27;correspondance v5 (référence normalisée principale)
+tabouret;ancien identifiant du moteur (catalogue v5);Tabouret;CHA-TABOURET;Tabouret bas;0.2;correspondance v5 (référence normalisée principale)
+banc-de-table;ancien identifiant du moteur (catalogue v5);Banc de table;CHA-BANC;Banc;0.18;correspondance v5 (référence normalisée principale)
+desserte-cuisine;ancien identifiant du moteur (catalogue v5);Desserte de cuisine;CUI-DESSERTE;Desserte de cuisine;0.418;correspondance v5 (référence normalisée principale)
+buffet-cuisine;ancien identifiant du moteur (catalogue v5);Buffet de cuisine;CUI-BUFFET;Buffet ou colonne de cuisine;1.218;correspondance v5 (référence normalisée principale)
+etagere-cuisine;ancien identifiant du moteur (catalogue v5);Étagère de cuisine;CUI-ETAGERE;Étagère de cuisine ou micro-ondes;0.605;correspondance v5 (référence normalisée principale)
+refrigerateur;ancien identifiant du moteur (catalogue v5);Réfrigérateur;ELM-REF;Réfrigérateur;1.0;correspondance v5 (référence normalisée principale)
+refrigerateur-americain;ancien identifiant du moteur (catalogue v5);Réfrigérateur américain;ELM-REF-US;Réfrigérateur américain;1.8;correspondance v5 (référence normalisée principale)
+refrigerateur-top;ancien identifiant du moteur (catalogue v5);Réfrigérateur top;ELM-REF-TOP;Réfrigérateur table top ou mini-réfrigérateur;0.243;correspondance v5 (référence normalisée principale)
+congelateur;ancien identifiant du moteur (catalogue v5);Congélateur;ELM-CONG;Congélateur;1.6;correspondance v5 (référence normalisée principale)
+cave-a-vin;ancien identifiant du moteur (catalogue v5);Cave à vin;ELM-CAVE;Cave à vin;0.287;correspondance v5 (référence normalisée principale)
+lave-linge;ancien identifiant du moteur (catalogue v5);Lave-linge;ELM-LL;Lave-linge;0.5;correspondance v5 (référence normalisée principale)
+seche-linge;ancien identifiant du moteur (catalogue v5);Sèche-linge;ELM-SL;Sèche-linge;0.5;correspondance v5 (référence normalisée principale)
+lave-vaisselle;ancien identifiant du moteur (catalogue v5);Lave-vaisselle;ELM-LV;Lave-vaisselle;0.6;correspondance v5 (référence normalisée principale)
+four;ancien identifiant du moteur (catalogue v5);Four;ELM-FOUR;Four;0.368;correspondance v5 (référence normalisée principale)
+cuisiniere;ancien identifiant du moteur (catalogue v5);Cuisinière;ELM-CUISINIERE;Cuisinière (four et plaques);0.4;correspondance v5 (référence normalisée principale)
+micro-ondes;ancien identifiant du moteur (catalogue v5);Micro-ondes;ELM-MO;Micro-ondes ou mini-four;0.051;correspondance v5 (référence normalisée principale)
+petit-electromenager;ancien identifiant du moteur (catalogue v5);Petit électroménager;PEM-AUTRE;Petit électroménager (à mettre en carton);0.012;correspondance v5 (référence normalisée principale)
+lit-simple;ancien identifiant du moteur (catalogue v5);Lit simple;LIT-SIMPLE;Lit simple (90 cm);1.3;correspondance v5 (référence normalisée principale)
+lit-double;ancien identifiant du moteur (catalogue v5);Lit double;LIT-DOUBLE;Lit double (135 à 140 cm);2.5;correspondance v5 (référence normalisée principale)
+lit-queen-size;ancien identifiant du moteur (catalogue v5);Lit queen size;LIT-QUEEN;Lit queen size (150 à 160 cm);2.875;correspondance v5 (référence normalisée principale)
+lit-king-size;ancien identifiant du moteur (catalogue v5);Lit king size;LIT-KING;Lit king size (180 cm et plus);3.306;correspondance v5 (référence normalisée principale)
+lit-superpose;ancien identifiant du moteur (catalogue v5);Lit superposé;LIT-SUPERP;Lit superposé ou mezzanine;1.6;correspondance v5 (référence normalisée principale)
+lit-coffre;ancien identifiant du moteur (catalogue v5);Lit avec rangement;LIT-COFFRE;Lit coffre ou lit à rangements;3.738;correspondance v5 (référence normalisée principale)
+lit-bebe;ancien identifiant du moteur (catalogue v5);Lit bébé;ENF-BERCEAU;Berceau;0.702;correspondance v5 (référence normalisée principale)
+tete-de-lit;ancien identifiant du moteur (catalogue v5);Tête de lit;LIT-TETE;Tête de lit;0.363;correspondance v5 (référence normalisée principale)
+sommier;ancien identifiant du moteur (catalogue v5);Sommier;SOM-STD;Sommier;1.029;correspondance v5 (référence normalisée principale)
+matelas-simple;ancien identifiant du moteur (catalogue v5);Matelas une place;MAT-90;Matelas 80 à 100 cm;0.402;correspondance v5 (référence normalisée principale)
+matelas-double;ancien identifiant du moteur (catalogue v5);Matelas deux places;MAT-140;Matelas 135 à 140 cm;0.7;correspondance v5 (référence normalisée principale)
+table-de-chevet;ancien identifiant du moteur (catalogue v5);Table de chevet;CHV-STD;Table de chevet;0.25;correspondance v5 (référence normalisée principale)
+commode;ancien identifiant du moteur (catalogue v5);Commode;COM-NC;Commode (nombre de tiroirs non précisé);1.0;correspondance v5 (référence normalisée principale)
+armoire-1-porte;ancien identifiant du moteur (catalogue v5);Armoire 1 porte;ARM-1P;Armoire 1 porte;0.723;correspondance v5 (référence normalisée principale)
+armoire-2-portes;ancien identifiant du moteur (catalogue v5);Armoire 2 portes;ARM-2P;Armoire 2 portes;1.25;correspondance v5 (référence normalisée principale)
+armoire-3-portes;ancien identifiant du moteur (catalogue v5);Armoire 3 portes;ARM-3P;Armoire 3 portes;1.8;correspondance v5 (référence normalisée principale)
+armoire-4-portes;ancien identifiant du moteur (catalogue v5);Armoire 4 portes;ARM-4P;Armoire 4 portes;4.3;correspondance v5 (référence normalisée principale)
+armoire-basse;ancien identifiant du moteur (catalogue v5);Armoire basse;ARM-BAS;Armoire basse;0.756;correspondance v5 (référence normalisée principale)
+dressing;ancien identifiant du moteur (catalogue v5);Dressing;ARM-DRESS;Dressing (module ou ensemble);4.0;correspondance v5 (référence normalisée principale)
+portant-vetements;ancien identifiant du moteur (catalogue v5);Portant à vêtements;ARM-PORT;Portant à vêtements;1.024;correspondance v5 (référence normalisée principale)
+coiffeuse;ancien identifiant du moteur (catalogue v5);Coiffeuse;COM-COIFF;Coiffeuse;1.4;correspondance v5 (référence normalisée principale)
+coffre-a-jouets;ancien identifiant du moteur (catalogue v5);Coffre à jouets;ENF-COFFRE;Coffre à jouets;0.3;correspondance v5 (référence normalisée principale)
+bureau-enfant;ancien identifiant du moteur (catalogue v5);Bureau enfant;BUR-ENFANT;Bureau enfant;1.0;correspondance v5 (référence normalisée principale)
+chaise-enfant;ancien identifiant du moteur (catalogue v5);Chaise enfant;CHA-ENF;Chaise ou fauteuil enfant;0.065;correspondance v5 (référence normalisée principale)
+meuble-vasque;ancien identifiant du moteur (catalogue v5);Meuble sous-vasque;SDB-VASQUE;Meuble sous-vasque;0.286;correspondance v5 (référence normalisée principale)
+colonne-salle-de-bain;ancien identifiant du moteur (catalogue v5);Colonne de salle de bain;SDB-COLONNE;Colonne de salle de bain;0.299;correspondance v5 (référence normalisée principale)
+etagere-salle-de-bain;ancien identifiant du moteur (catalogue v5);Étagère de salle de bain;SDB-ETAGERE;Étagère de salle de bain;0.514;correspondance v5 (référence normalisée principale)
+panier-a-linge;ancien identifiant du moteur (catalogue v5);Panier à linge;SDB-PANIER;Panier à linge;0.146;correspondance v5 (référence normalisée principale)
+bureau;ancien identifiant du moteur (catalogue v5);Bureau;BUR-DROIT;Bureau droit;1.4;correspondance v5 (référence normalisée principale)
+bureau-angle;ancien identifiant du moteur (catalogue v5);Bureau d'angle;BUR-ANGLE;Bureau d'angle;1.995;correspondance v5 (référence normalisée principale)
+bureau-assis-debout;ancien identifiant du moteur (catalogue v5);Bureau assis-debout;BUR-ASSIS;Bureau assis-debout;0.666;correspondance v5 (référence normalisée principale)
+chaise-de-bureau;ancien identifiant du moteur (catalogue v5);Chaise de bureau;FAU-BUR;Fauteuil ou chaise de bureau;0.4;correspondance v5 (référence normalisée principale)
+caisson-de-bureau;ancien identifiant du moteur (catalogue v5);Caisson de bureau;BUR-CAISSON;Caisson de bureau;0.222;correspondance v5 (référence normalisée principale)
+armoire-de-bureau;ancien identifiant du moteur (catalogue v5);Armoire de bureau;BUR-CLASSEUR;Armoire ou meuble de classement;0.588;correspondance v5 (référence normalisée principale)
+etagere;ancien identifiant du moteur (catalogue v5);Étagère;ETA-NC;Étagère sur pieds;1.0;correspondance v5 (référence normalisée principale)
+imprimante;ancien identifiant du moteur (catalogue v5);Imprimante;INF-IMPRIMANTE;Imprimante ou multifonction;0.012;correspondance v5 (référence normalisée principale)
+ordinateur-fixe;ancien identifiant du moteur (catalogue v5);Ordinateur fixe et écran;INF-ORDI;Ordinateur fixe, écran ou poste de travail;0.2;correspondance v5 (référence normalisée principale)
+meuble-a-chaussures;ancien identifiant du moteur (catalogue v5);Meuble à chaussures;ENT-CHAUSS;Meuble à chaussures;0.435;correspondance v5 (référence normalisée principale)
+banc-entree;ancien identifiant du moteur (catalogue v5);Banc d'entrée;CHA-BANC;Banc;0.18;correspondance v5 (référence normalisée principale)
+portemanteau;ancien identifiant du moteur (catalogue v5);Portemanteau sur pied;ENT-PORTEMANTEAU;Portemanteau sur pied ou vestiaire;0.687;correspondance v5 (référence normalisée principale)
+meuble-d-entree;ancien identifiant du moteur (catalogue v5);Meuble d'entrée;ENT-MEUBLE;Meuble d'entrée;0.605;correspondance v5 (référence normalisée principale)
+etabli;ancien identifiant du moteur (catalogue v5);Établi;BRI-ETABLI;Établi;1.343;correspondance v5 (référence normalisée principale)
+etagere-metallique;ancien identifiant du moteur (catalogue v5);Étagère métallique;ETA-METAL;Étagère métallique ou rayonnage;0.701;correspondance v5 (référence normalisée principale)
+armoire-de-garage;ancien identifiant du moteur (catalogue v5);Armoire de garage;BRI-ARMOIRE-GARAGE;Armoire de garage ou d'atelier;1.224;correspondance v5 (référence normalisée principale)
+servante-outils;ancien identifiant du moteur (catalogue v5);Servante à outils;BRI-SERVANTE;Servante ou coffre à outils roulant;0.475;correspondance v5 (référence normalisée principale)
+tondeuse;ancien identifiant du moteur (catalogue v5);Tondeuse à gazon;JAR-TONDEUSE;Tondeuse et matériel motorisé de jardin;0.25;correspondance v5 (référence normalisée principale)
+echelle;ancien identifiant du moteur (catalogue v5);Échelle ou escabeau;BRI-ECHELLE;Échelle ou escabeau;0.588;correspondance v5 (référence normalisée principale)
+malle;ancien identifiant du moteur (catalogue v5);Malle;BAG-MALLE;Malle ou coffre;0.331;correspondance v5 (référence normalisée principale)
+valise;ancien identifiant du moteur (catalogue v5);Valise;BAG-VALISE;Valise ou bagage;0.2;correspondance v5 (référence normalisée principale)
+chaise-de-jardin;ancien identifiant du moteur (catalogue v5);Chaise de jardin;JAR-CHAISE;Chaise ou fauteuil de jardin;0.6;correspondance v5 (référence normalisée principale)
+table-de-jardin;ancien identifiant du moteur (catalogue v5);Table de jardin;JAR-TABLE;Table de jardin;2.3;correspondance v5 (référence normalisée principale)
+salon-de-jardin;ancien identifiant du moteur (catalogue v5);Salon de jardin;JAR-SALON;Salon de jardin (ensemble);2.0;correspondance v5 (référence normalisée principale)
+bain-de-soleil;ancien identifiant du moteur (catalogue v5);Bain de soleil;JAR-TRANSAT;Bain de soleil ou transat;0.55;correspondance v5 (référence normalisée principale)
+parasol;ancien identifiant du moteur (catalogue v5);Parasol;JAR-PARASOL;Parasol;0.223;correspondance v5 (référence normalisée principale)
+barbecue;ancien identifiant du moteur (catalogue v5);Barbecue;JAR-BARBECUE;Barbecue ou plancha;0.5;correspondance v5 (référence normalisée principale)
+jardiniere;ancien identifiant du moteur (catalogue v5);Jardinière ou grand pot;JAR-JARDINIERE;Jardinière ou grand pot;0.032;correspondance v5 (référence normalisée principale)
+abri-de-jardin;ancien identifiant du moteur (catalogue v5);Abri ou coffre de jardin;JAR-ABRI;Abri, coffre ou serre de jardin;1.031;correspondance v5 (référence normalisée principale)
+velo;ancien identifiant du moteur (catalogue v5);Vélo;VEL-ANCIEN;Vélocipède ou vélo ancien;1.868;correspondance v5 (référence normalisée principale)
+velo-enfant;ancien identifiant du moteur (catalogue v5);Vélo enfant;VEL-ENFANT;Vélo ou draisienne enfant;0.341;correspondance v5 (référence normalisée principale)
+trottinette;ancien identifiant du moteur (catalogue v5);Trottinette;VEL-TROTTINETTE;Trottinette;0.956;correspondance v5 (référence normalisée principale)
+velo-appartement;ancien identifiant du moteur (catalogue v5);Vélo d'appartement;SPO-VELO-APPART;Vélo d'appartement ou elliptique;0.761;correspondance v5 (référence normalisée principale)
+tapis-de-course;ancien identifiant du moteur (catalogue v5);Tapis de course;SPO-TAPIS-COURSE;Tapis de course;2.977;correspondance v5 (référence normalisée principale)
+banc-de-musculation;ancien identifiant du moteur (catalogue v5);Banc de musculation;SPO-BANC-MUSCU;Banc de musculation ou station;1.155;correspondance v5 (référence normalisée principale)
+rameur;ancien identifiant du moteur (catalogue v5);Rameur;SPO-RAMEUR;Rameur;1.067;correspondance v5 (référence normalisée principale)
+table-de-ping-pong;ancien identifiant du moteur (catalogue v5);Table de ping-pong;SPO-PINGPONG;Table de ping-pong;3.0;correspondance v5 (référence normalisée principale)
+baby-foot;ancien identifiant du moteur (catalogue v5);Baby-foot;SPO-BABYFOOT;Baby-foot;1.614;correspondance v5 (référence normalisée principale)
+billard;ancien identifiant du moteur (catalogue v5);Billard;SPO-BILLARD;Billard;5.0;correspondance v5 (référence normalisée principale)
+planche-de-surf;ancien identifiant du moteur (catalogue v5);Planche de surf ou paddle;SPO-SURF;Planche de surf ou paddle;0.635;correspondance v5 (référence normalisée principale)
+skis;ancien identifiant du moteur (catalogue v5);Skis et équipement de ski;SPO-SKI;Skis, snowboard et équipement de glisse;0.181;correspondance v5 (référence normalisée principale)
+sac-de-golf;ancien identifiant du moteur (catalogue v5);Sac de golf;SPO-GOLF;Sac de golf;0.267;correspondance v5 (référence normalisée principale)
+poussette;ancien identifiant du moteur (catalogue v5);Poussette;ENF-POUSSETTE;Poussette;0.3;correspondance v5 (référence normalisée principale)
+carton-standard;ancien identifiant du moteur (catalogue v5);Carton standard;CAR-CARTON;Carton de déménagement;0.1;correspondance v5 (référence normalisée principale)
+carton-livres;ancien identifiant du moteur (catalogue v5);Carton livres;CAR-CARTON;Carton de déménagement;0.1;correspondance v5 (référence normalisée principale)
+carton-penderie;ancien identifiant du moteur (catalogue v5);Carton penderie;CAR-CARTON;Carton de déménagement;0.1;correspondance v5 (référence normalisée principale)
+lot-10-cartons;ancien identifiant du moteur (catalogue v5);Lot de 10 cartons;CAR-CARTON;Carton de déménagement;0.1;correspondance v5 (référence normalisée principale)
+caisse-plastique;ancien identifiant du moteur (catalogue v5);Caisse ou bac de rangement;CAR-BAC;Caisse ou bac de rangement;0.1;correspondance v5 (référence normalisée principale)
+sac-ou-ballot;ancien identifiant du moteur (catalogue v5);Sac ou ballot;CAR-SAC;Sac, ballot ou housse remplis;0.13;correspondance v5 (référence normalisée principale)
+autre-objet;ancien identifiant du moteur (catalogue v5);Autre objet;DIV-AUTRE;Objet non classé;;correspondance v5 (référence normalisée principale)
+MUS-CLAVECIN-C;variante de taille (non exposée aux devis);Clavecin, épinette ou clavicorde — petit format;MUS-CLAVECIN;Clavecin, épinette ou clavicorde;0.452;sous-catégorie parente
+MUS-CLAVECIN-S;variante de taille (non exposée aux devis);Clavecin, épinette ou clavicorde — format courant;MUS-CLAVECIN;Clavecin, épinette ou clavicorde;0.452;sous-catégorie parente
+MUS-CLAVECIN-L;variante de taille (non exposée aux devis);Clavecin, épinette ou clavicorde — grand format;MUS-CLAVECIN;Clavecin, épinette ou clavicorde;0.452;sous-catégorie parente
+MUS-ORGUE-C;variante de taille (non exposée aux devis);Orgue ou harmonium — petit format;MUS-ORGUE;Orgue ou harmonium;2.14;sous-catégorie parente
+MUS-ORGUE-S;variante de taille (non exposée aux devis);Orgue ou harmonium — format courant;MUS-ORGUE;Orgue ou harmonium;2.14;sous-catégorie parente
+MUS-ORGUE-L;variante de taille (non exposée aux devis);Orgue ou harmonium — grand format;MUS-ORGUE;Orgue ou harmonium;2.14;sous-catégorie parente
+MUS-HARPE-C;variante de taille (non exposée aux devis);Harpe — petit format;MUS-HARPE;Harpe;0.25;sous-catégorie parente
+MUS-HARPE-S;variante de taille (non exposée aux devis);Harpe — format courant;MUS-HARPE;Harpe;0.25;sous-catégorie parente
+MUS-HARPE-L;variante de taille (non exposée aux devis);Harpe — grand format;MUS-HARPE;Harpe;0.25;sous-catégorie parente
+MUS-PETIT-C;variante de taille (non exposée aux devis);Instrument portatif (violon, vent, accordéon…) — petit format;MUS-PETIT;Instrument portatif (violon, vent, accordéon…);0.029;sous-catégorie parente
+MUS-PETIT-S;variante de taille (non exposée aux devis);Instrument portatif (violon, vent, accordéon…) — format courant;MUS-PETIT;Instrument portatif (violon, vent, accordéon…);0.029;sous-catégorie parente
+MUS-PETIT-L;variante de taille (non exposée aux devis);Instrument portatif (violon, vent, accordéon…) — grand format;MUS-PETIT;Instrument portatif (violon, vent, accordéon…);0.029;sous-catégorie parente
+ELM-CUISINIERE-BOIS-C;variante de taille (non exposée aux devis);Cuisinière ancienne (bois ou charbon) — petit format;ELM-CUISINIERE-BOIS;Cuisinière ancienne (bois ou charbon);0.305;sous-catégorie parente
+ELM-CUISINIERE-BOIS-S;variante de taille (non exposée aux devis);Cuisinière ancienne (bois ou charbon) — format courant;ELM-CUISINIERE-BOIS;Cuisinière ancienne (bois ou charbon);0.305;sous-catégorie parente
+ELM-CUISINIERE-BOIS-L;variante de taille (non exposée aux devis);Cuisinière ancienne (bois ou charbon) — grand format;ELM-CUISINIERE-BOIS;Cuisinière ancienne (bois ou charbon);0.305;sous-catégorie parente
+AUD-PHONO-C;variante de taille (non exposée aux devis);Phonographe, gramophone ou platine — petit format;AUD-PHONO;Phonographe, gramophone ou platine;0.02;sous-catégorie parente
+AUD-PHONO-S;variante de taille (non exposée aux devis);Phonographe, gramophone ou platine — format courant;AUD-PHONO;Phonographe, gramophone ou platine;0.02;sous-catégorie parente
+AUD-PHONO-L;variante de taille (non exposée aux devis);Phonographe, gramophone ou platine — grand format;AUD-PHONO;Phonographe, gramophone ou platine;0.02;sous-catégorie parente
+AUD-RADIO-C;variante de taille (non exposée aux devis);Poste de radio ou radio-meuble — petit format;AUD-RADIO;Poste de radio ou radio-meuble;0.014;sous-catégorie parente
+AUD-RADIO-S;variante de taille (non exposée aux devis);Poste de radio ou radio-meuble — format courant;AUD-RADIO;Poste de radio ou radio-meuble;0.014;sous-catégorie parente
+AUD-RADIO-L;variante de taille (non exposée aux devis);Poste de radio ou radio-meuble — grand format;AUD-RADIO;Poste de radio ou radio-meuble;0.014;sous-catégorie parente
+LUM-LUSTRE-C;variante de taille (non exposée aux devis);Lustre ou suspension — petit format;LUM-LUSTRE;Lustre ou suspension;0.117;sous-catégorie parente
+LUM-LUSTRE-S;variante de taille (non exposée aux devis);Lustre ou suspension — format courant;LUM-LUSTRE;Lustre ou suspension;0.117;sous-catégorie parente
+LUM-LUSTRE-L;variante de taille (non exposée aux devis);Lustre ou suspension — grand format;LUM-LUSTRE;Lustre ou suspension;0.117;sous-catégorie parente
+LUM-APPLIQUE-C;variante de taille (non exposée aux devis);Applique ou lanterne — petit format;LUM-APPLIQUE;Applique ou lanterne;0.01;sous-catégorie parente
+LUM-APPLIQUE-S;variante de taille (non exposée aux devis);Applique ou lanterne — format courant;LUM-APPLIQUE;Applique ou lanterne;0.01;sous-catégorie parente
+LUM-APPLIQUE-L;variante de taille (non exposée aux devis);Applique ou lanterne — grand format;LUM-APPLIQUE;Applique ou lanterne;0.01;sous-catégorie parente
+ANI-ARBRE-CHAT-C;variante de taille (non exposée aux devis);Arbre à chat — petit format;ANI-ARBRE-CHAT;Arbre à chat;0.465;sous-catégorie parente
+ANI-ARBRE-CHAT-S;variante de taille (non exposée aux devis);Arbre à chat — format courant;ANI-ARBRE-CHAT;Arbre à chat;0.465;sous-catégorie parente
+ANI-ARBRE-CHAT-L;variante de taille (non exposée aux devis);Arbre à chat — grand format;ANI-ARBRE-CHAT;Arbre à chat;0.465;sous-catégorie parente
+ANI-CAISSE-C;variante de taille (non exposée aux devis);Caisse ou parc pour chien — petit format;ANI-CAISSE;Caisse ou parc pour chien;0.373;sous-catégorie parente
+ANI-CAISSE-S;variante de taille (non exposée aux devis);Caisse ou parc pour chien — format courant;ANI-CAISSE;Caisse ou parc pour chien;0.373;sous-catégorie parente
+ANI-CAISSE-L;variante de taille (non exposée aux devis);Caisse ou parc pour chien — grand format;ANI-CAISSE;Caisse ou parc pour chien;0.373;sous-catégorie parente
+ANI-PANIER-C;variante de taille (non exposée aux devis);Panier, coussin ou litière pour animal — petit format;ANI-PANIER;Panier, coussin ou litière pour animal;0.106;sous-catégorie parente
+ANI-PANIER-S;variante de taille (non exposée aux devis);Panier, coussin ou litière pour animal — format courant;ANI-PANIER;Panier, coussin ou litière pour animal;0.106;sous-catégorie parente
+ANI-PANIER-L;variante de taille (non exposée aux devis);Panier, coussin ou litière pour animal — grand format;ANI-PANIER;Panier, coussin ou litière pour animal;0.106;sous-catégorie parente
+COU-MACHINE-C;variante de taille (non exposée aux devis);Machine à coudre — petit format;COU-MACHINE;Machine à coudre;0.015;sous-catégorie parente
+COU-MACHINE-S;variante de taille (non exposée aux devis);Machine à coudre — format courant;COU-MACHINE;Machine à coudre;0.015;sous-catégorie parente
+COU-MACHINE-L;variante de taille (non exposée aux devis);Machine à coudre — grand format;COU-MACHINE;Machine à coudre;0.015;sous-catégorie parente
+COU-METIER-C;variante de taille (non exposée aux devis);Métier à tisser — petit format;COU-METIER;Métier à tisser;1.732;sous-catégorie parente
+COU-METIER-S;variante de taille (non exposée aux devis);Métier à tisser — format courant;COU-METIER;Métier à tisser;1.732;sous-catégorie parente
+COU-METIER-L;variante de taille (non exposée aux devis);Métier à tisser — grand format;COU-METIER;Métier à tisser;1.732;sous-catégorie parente
+MAC-ECRIRE-C;variante de taille (non exposée aux devis);Machine à écrire — petit format;MAC-ECRIRE;Machine à écrire;0.025;sous-catégorie parente
+MAC-ECRIRE-S;variante de taille (non exposée aux devis);Machine à écrire — format courant;MAC-ECRIRE;Machine à écrire;0.025;sous-catégorie parente
+MAC-ECRIRE-L;variante de taille (non exposée aux devis);Machine à écrire — grand format;MAC-ECRIRE;Machine à écrire;0.025;sous-catégorie parente
+MAC-ORDI-ANCIEN-C;variante de taille (non exposée aux devis);Ordinateur ou terminal ancien — petit format;MAC-ORDI-ANCIEN;Ordinateur ou terminal ancien;0.021;sous-catégorie parente
+MAC-ORDI-ANCIEN-S;variante de taille (non exposée aux devis);Ordinateur ou terminal ancien — format courant;MAC-ORDI-ANCIEN;Ordinateur ou terminal ancien;0.021;sous-catégorie parente
+MAC-ORDI-ANCIEN-L;variante de taille (non exposée aux devis);Ordinateur ou terminal ancien — grand format;MAC-ORDI-ANCIEN;Ordinateur ou terminal ancien;0.021;sous-catégorie parente
+ART-SOCLE-C;variante de taille (non exposée aux devis);Socle, sellette ou colonne — petit format;ART-SOCLE;Socle, sellette ou colonne;0.233;sous-catégorie parente
+ART-SOCLE-S;variante de taille (non exposée aux devis);Socle, sellette ou colonne — format courant;ART-SOCLE;Socle, sellette ou colonne;0.233;sous-catégorie parente
+ART-SOCLE-L;variante de taille (non exposée aux devis);Socle, sellette ou colonne — grand format;ART-SOCLE;Socle, sellette ou colonne;0.233;sous-catégorie parente
+CHF-RADIATEUR-C;variante de taille (non exposée aux devis);Radiateur ou chauffage d'appoint — petit format;CHF-RADIATEUR;Radiateur ou chauffage d'appoint;0.013;sous-catégorie parente
+CHF-RADIATEUR-S;variante de taille (non exposée aux devis);Radiateur ou chauffage d'appoint — format courant;CHF-RADIATEUR;Radiateur ou chauffage d'appoint;0.013;sous-catégorie parente
+CHF-RADIATEUR-L;variante de taille (non exposée aux devis);Radiateur ou chauffage d'appoint — grand format;CHF-RADIATEUR;Radiateur ou chauffage d'appoint;0.013;sous-catégorie parente
+DEC-HORLOGE-C;variante de taille (non exposée aux devis);Horloge murale ou de cheminée — petit format;DEC-HORLOGE;Horloge murale ou de cheminée;0.014;sous-catégorie parente
+DEC-HORLOGE-S;variante de taille (non exposée aux devis);Horloge murale ou de cheminée — format courant;DEC-HORLOGE;Horloge murale ou de cheminée;0.014;sous-catégorie parente
+DEC-HORLOGE-L;variante de taille (non exposée aux devis);Horloge murale ou de cheminée — grand format;DEC-HORLOGE;Horloge murale ou de cheminée;0.014;sous-catégorie parente
+ANC-SECRETAIRE-C;variante de taille (non exposée aux devis);Secrétaire ou bureau-bibliothèque ancien — petit format;ANC-SECRETAIRE;Secrétaire ou bureau-bibliothèque ancien;2.135;sous-catégorie parente
+ANC-SECRETAIRE-S;variante de taille (non exposée aux devis);Secrétaire ou bureau-bibliothèque ancien — format courant;ANC-SECRETAIRE;Secrétaire ou bureau-bibliothèque ancien;2.135;sous-catégorie parente
+ANC-SECRETAIRE-L;variante de taille (non exposée aux devis);Secrétaire ou bureau-bibliothèque ancien — grand format;ANC-SECRETAIRE;Secrétaire ou bureau-bibliothèque ancien;2.135;sous-catégorie parente
+ANC-MERIDIENNE-C;variante de taille (non exposée aux devis);Méridienne ou lit de repos ancien — petit format;ANC-MERIDIENNE;Méridienne ou lit de repos ancien;1.545;sous-catégorie parente
+ANC-MERIDIENNE-S;variante de taille (non exposée aux devis);Méridienne ou lit de repos ancien — format courant;ANC-MERIDIENNE;Méridienne ou lit de repos ancien;1.545;sous-catégorie parente
+ANC-MERIDIENNE-L;variante de taille (non exposée aux devis);Méridienne ou lit de repos ancien — grand format;ANC-MERIDIENNE;Méridienne ou lit de repos ancien;1.545;sous-catégorie parente
+ANC-GUERIDON-C;variante de taille (non exposée aux devis);Guéridon ou table tripode ancienne — petit format;ANC-GUERIDON;Guéridon ou table tripode ancienne;0.311;sous-catégorie parente
+ANC-GUERIDON-S;variante de taille (non exposée aux devis);Guéridon ou table tripode ancienne — format courant;ANC-GUERIDON;Guéridon ou table tripode ancienne;0.311;sous-catégorie parente
+ANC-GUERIDON-L;variante de taille (non exposée aux devis);Guéridon ou table tripode ancienne — grand format;ANC-GUERIDON;Guéridon ou table tripode ancienne;0.311;sous-catégorie parente
+ANC-BIBLIOTHEQUE-C;variante de taille (non exposée aux devis);Bibliothèque ancienne — petit format;ANC-BIBLIOTHEQUE;Bibliothèque ancienne;2.461;sous-catégorie parente
+ANC-BIBLIOTHEQUE-S;variante de taille (non exposée aux devis);Bibliothèque ancienne — format courant;ANC-BIBLIOTHEQUE;Bibliothèque ancienne;2.461;sous-catégorie parente
+ANC-BIBLIOTHEQUE-L;variante de taille (non exposée aux devis);Bibliothèque ancienne — grand format;ANC-BIBLIOTHEQUE;Bibliothèque ancienne;2.461;sous-catégorie parente
+ANC-ETAGERE-C;variante de taille (non exposée aux devis);Étagère ancienne (étagère d'angle, whatnot) — petit format;ANC-ETAGERE;Étagère ancienne (étagère d'angle, whatnot);0.695;sous-catégorie parente
+ANC-ETAGERE-S;variante de taille (non exposée aux devis);Étagère ancienne (étagère d'angle, whatnot) — format courant;ANC-ETAGERE;Étagère ancienne (étagère d'angle, whatnot);0.695;sous-catégorie parente
+ANC-ETAGERE-L;variante de taille (non exposée aux devis);Étagère ancienne (étagère d'angle, whatnot) — grand format;ANC-ETAGERE;Étagère ancienne (étagère d'angle, whatnot);0.695;sous-catégorie parente
+ANC-TABOURET-C;variante de taille (non exposée aux devis);Tabouret ou repose-pieds ancien — petit format;ANC-TABOURET;Tabouret ou repose-pieds ancien;0.085;sous-catégorie parente
+ANC-TABOURET-S;variante de taille (non exposée aux devis);Tabouret ou repose-pieds ancien — format courant;ANC-TABOURET;Tabouret ou repose-pieds ancien;0.085;sous-catégorie parente
+ANC-TABOURET-L;variante de taille (non exposée aux devis);Tabouret ou repose-pieds ancien — grand format;ANC-TABOURET;Tabouret ou repose-pieds ancien;0.085;sous-catégorie parente
+ANC-BANC-C;variante de taille (non exposée aux devis);Banc ancien — petit format;ANC-BANC;Banc ancien;0.942;sous-catégorie parente
+ANC-BANC-S;variante de taille (non exposée aux devis);Banc ancien — format courant;ANC-BANC;Banc ancien;0.942;sous-catégorie parente
+ANC-BANC-L;variante de taille (non exposée aux devis);Banc ancien — grand format;ANC-BANC;Banc ancien;0.942;sous-catégorie parente
+ARM-NC-C;variante de taille (non exposée aux devis);Armoire (nombre de portes non précisé) — petit format;ARM-NC;Armoire (nombre de portes non précisé);2.3;sous-catégorie parente
+ARM-NC-S;variante de taille (non exposée aux devis);Armoire (nombre de portes non précisé) — format courant;ARM-NC;Armoire (nombre de portes non précisé);2.3;sous-catégorie parente
+ARM-NC-L;variante de taille (non exposée aux devis);Armoire (nombre de portes non précisé) — grand format;ARM-NC;Armoire (nombre de portes non précisé);2.3;sous-catégorie parente
+CAN-ANG-C;variante de taille (non exposée aux devis);Canapé d'angle — petit format;CAN-ANG;Canapé d'angle;4.207;sous-catégorie parente
+CAN-ANG-S;variante de taille (non exposée aux devis);Canapé d'angle — format courant;CAN-ANG;Canapé d'angle;4.207;sous-catégorie parente
+CAN-ANG-L;variante de taille (non exposée aux devis);Canapé d'angle — grand format;CAN-ANG;Canapé d'angle;4.207;sous-catégorie parente
+FAU-PIVOT-C;variante de taille (non exposée aux devis);Fauteuil pivotant — petit format;FAU-PIVOT;Fauteuil pivotant;0.808;sous-catégorie parente
+FAU-PIVOT-S;variante de taille (non exposée aux devis);Fauteuil pivotant — format courant;FAU-PIVOT;Fauteuil pivotant;0.808;sous-catégorie parente
+FAU-PIVOT-L;variante de taille (non exposée aux devis);Fauteuil pivotant — grand format;FAU-PIVOT;Fauteuil pivotant;0.808;sous-catégorie parente
+FAU-STD-C;variante de taille (non exposée aux devis);Fauteuil — petit format;FAU-STD;Fauteuil;0.7;sous-catégorie parente
+FAU-STD-S;variante de taille (non exposée aux devis);Fauteuil — format courant;FAU-STD;Fauteuil;0.7;sous-catégorie parente
+FAU-STD-L;variante de taille (non exposée aux devis);Fauteuil — grand format;FAU-STD;Fauteuil;0.7;sous-catégorie parente
+POU-STD-C;variante de taille (non exposée aux devis);Pouf ou repose-pieds — petit format;POU-STD;Pouf ou repose-pieds;0.1;sous-catégorie parente
+POU-STD-S;variante de taille (non exposée aux devis);Pouf ou repose-pieds — format courant;POU-STD;Pouf ou repose-pieds;0.1;sous-catégorie parente
+POU-STD-L;variante de taille (non exposée aux devis);Pouf ou repose-pieds — grand format;POU-STD;Pouf ou repose-pieds;0.1;sous-catégorie parente
+LIT-TETE-C;variante de taille (non exposée aux devis);Tête de lit — petit format;LIT-TETE;Tête de lit;0.363;sous-catégorie parente
+LIT-TETE-S;variante de taille (non exposée aux devis);Tête de lit — format courant;LIT-TETE;Tête de lit;0.363;sous-catégorie parente
+LIT-TETE-L;variante de taille (non exposée aux devis);Tête de lit — grand format;LIT-TETE;Tête de lit;0.363;sous-catégorie parente
+LIT-KING-C;variante de taille (non exposée aux devis);Lit king size (180 cm et plus) — petit format;LIT-KING;Lit king size (180 cm et plus);3.306;sous-catégorie parente
+LIT-KING-S;variante de taille (non exposée aux devis);Lit king size (180 cm et plus) — format courant;LIT-KING;Lit king size (180 cm et plus);3.306;sous-catégorie parente
+LIT-KING-L;variante de taille (non exposée aux devis);Lit king size (180 cm et plus) — grand format;LIT-KING;Lit king size (180 cm et plus);3.306;sous-catégorie parente
+LIT-QUEEN-C;variante de taille (non exposée aux devis);Lit queen size (150 à 160 cm) — petit format;LIT-QUEEN;Lit queen size (150 à 160 cm);2.875;sous-catégorie parente
+LIT-QUEEN-S;variante de taille (non exposée aux devis);Lit queen size (150 à 160 cm) — format courant;LIT-QUEEN;Lit queen size (150 à 160 cm);2.875;sous-catégorie parente
+LIT-QUEEN-L;variante de taille (non exposée aux devis);Lit queen size (150 à 160 cm) — grand format;LIT-QUEEN;Lit queen size (150 à 160 cm);2.875;sous-catégorie parente
+LIT-DOUBLE-C;variante de taille (non exposée aux devis);Lit double (135 à 140 cm) — petit format;LIT-DOUBLE;Lit double (135 à 140 cm);2.5;sous-catégorie parente
+LIT-DOUBLE-S;variante de taille (non exposée aux devis);Lit double (135 à 140 cm) — format courant;LIT-DOUBLE;Lit double (135 à 140 cm);2.5;sous-catégorie parente
+LIT-DOUBLE-L;variante de taille (non exposée aux devis);Lit double (135 à 140 cm) — grand format;LIT-DOUBLE;Lit double (135 à 140 cm);2.5;sous-catégorie parente
+LIT-SIMPLE-C;variante de taille (non exposée aux devis);Lit simple (90 cm) — petit format;LIT-SIMPLE;Lit simple (90 cm);1.3;sous-catégorie parente
+LIT-SIMPLE-S;variante de taille (non exposée aux devis);Lit simple (90 cm) — format courant;LIT-SIMPLE;Lit simple (90 cm);1.3;sous-catégorie parente
+LIT-SIMPLE-L;variante de taille (non exposée aux devis);Lit simple (90 cm) — grand format;LIT-SIMPLE;Lit simple (90 cm);1.3;sous-catégorie parente
+LIT-NC-C;variante de taille (non exposée aux devis);Lit (taille non précisée) — petit format;LIT-NC;Lit (taille non précisée);2.5;sous-catégorie parente
+LIT-NC-S;variante de taille (non exposée aux devis);Lit (taille non précisée) — format courant;LIT-NC;Lit (taille non précisée);2.5;sous-catégorie parente
+LIT-NC-L;variante de taille (non exposée aux devis);Lit (taille non précisée) — grand format;LIT-NC;Lit (taille non précisée);2.5;sous-catégorie parente
+COM-3T-C;variante de taille (non exposée aux devis);Commode 3 tiroirs — petit format;COM-3T;Commode 3 tiroirs;0.68;sous-catégorie parente
+COM-3T-S;variante de taille (non exposée aux devis);Commode 3 tiroirs — format courant;COM-3T;Commode 3 tiroirs;0.68;sous-catégorie parente
+COM-3T-L;variante de taille (non exposée aux devis);Commode 3 tiroirs — grand format;COM-3T;Commode 3 tiroirs;0.68;sous-catégorie parente
+COM-NC-C;variante de taille (non exposée aux devis);Commode (nombre de tiroirs non précisé) — petit format;COM-NC;Commode (nombre de tiroirs non précisé);1.0;sous-catégorie parente
+COM-NC-S;variante de taille (non exposée aux devis);Commode (nombre de tiroirs non précisé) — format courant;COM-NC;Commode (nombre de tiroirs non précisé);1.0;sous-catégorie parente
+COM-NC-L;variante de taille (non exposée aux devis);Commode (nombre de tiroirs non précisé) — grand format;COM-NC;Commode (nombre de tiroirs non précisé);1.0;sous-catégorie parente
+TAB-REPAS-NC-C;variante de taille (non exposée aux devis);Table à manger (capacité non précisée) — petit format;TAB-REPAS-NC;Table à manger (capacité non précisée);1.5;sous-catégorie parente
+TAB-REPAS-NC-S;variante de taille (non exposée aux devis);Table à manger (capacité non précisée) — format courant;TAB-REPAS-NC;Table à manger (capacité non précisée);1.5;sous-catégorie parente
+TAB-REPAS-NC-L;variante de taille (non exposée aux devis);Table à manger (capacité non précisée) — grand format;TAB-REPAS-NC;Table à manger (capacité non précisée);1.5;sous-catégorie parente
+CHA-BANC-C;variante de taille (non exposée aux devis);Banc — petit format;CHA-BANC;Banc;0.18;sous-catégorie parente
+CHA-BANC-S;variante de taille (non exposée aux devis);Banc — format courant;CHA-BANC;Banc;0.18;sous-catégorie parente
+CHA-BANC-L;variante de taille (non exposée aux devis);Banc — grand format;CHA-BANC;Banc;0.18;sous-catégorie parente
+RAN-BIB-NC-C;variante de taille (non exposée aux devis);Bibliothèque (hauteur non précisée) — petit format;RAN-BIB-NC;Bibliothèque (hauteur non précisée);2.0;sous-catégorie parente
+RAN-BIB-NC-S;variante de taille (non exposée aux devis);Bibliothèque (hauteur non précisée) — format courant;RAN-BIB-NC;Bibliothèque (hauteur non précisée);2.0;sous-catégorie parente
+RAN-BIB-NC-L;variante de taille (non exposée aux devis);Bibliothèque (hauteur non précisée) — grand format;RAN-BIB-NC;Bibliothèque (hauteur non précisée);2.0;sous-catégorie parente
+ETA-METAL-C;variante de taille (non exposée aux devis);Étagère métallique ou rayonnage — petit format;ETA-METAL;Étagère métallique ou rayonnage;0.701;sous-catégorie parente
+ETA-METAL-S;variante de taille (non exposée aux devis);Étagère métallique ou rayonnage — format courant;ETA-METAL;Étagère métallique ou rayonnage;0.701;sous-catégorie parente
+ETA-METAL-L;variante de taille (non exposée aux devis);Étagère métallique ou rayonnage — grand format;ETA-METAL;Étagère métallique ou rayonnage;0.701;sous-catégorie parente
+ETA-NC-C;variante de taille (non exposée aux devis);Étagère sur pieds — petit format;ETA-NC;Étagère sur pieds;1.0;sous-catégorie parente
+ETA-NC-S;variante de taille (non exposée aux devis);Étagère sur pieds — format courant;ETA-NC;Étagère sur pieds;1.0;sous-catégorie parente
+ETA-NC-L;variante de taille (non exposée aux devis);Étagère sur pieds — grand format;ETA-NC;Étagère sur pieds;1.0;sous-catégorie parente
+ENT-CHAUSS-C;variante de taille (non exposée aux devis);Meuble à chaussures — petit format;ENT-CHAUSS;Meuble à chaussures;0.435;sous-catégorie parente
+ENT-CHAUSS-S;variante de taille (non exposée aux devis);Meuble à chaussures — format courant;ENT-CHAUSS;Meuble à chaussures;0.435;sous-catégorie parente
+ENT-CHAUSS-L;variante de taille (non exposée aux devis);Meuble à chaussures — grand format;ENT-CHAUSS;Meuble à chaussures;0.435;sous-catégorie parente
+PEM-VENTIL-C;variante de taille (non exposée aux devis);Ventilateur ou radiateur d'appoint — petit format;PEM-VENTIL;Ventilateur ou radiateur d'appoint;0.033;sous-catégorie parente
+PEM-VENTIL-S;variante de taille (non exposée aux devis);Ventilateur ou radiateur d'appoint — format courant;PEM-VENTIL;Ventilateur ou radiateur d'appoint;0.033;sous-catégorie parente
+PEM-VENTIL-L;variante de taille (non exposée aux devis);Ventilateur ou radiateur d'appoint — grand format;PEM-VENTIL;Ventilateur ou radiateur d'appoint;0.033;sous-catégorie parente
+BUR-DROIT-C;variante de taille (non exposée aux devis);Bureau droit — petit format;BUR-DROIT;Bureau droit;1.4;sous-catégorie parente
+BUR-DROIT-S;variante de taille (non exposée aux devis);Bureau droit — format courant;BUR-DROIT;Bureau droit;1.4;sous-catégorie parente
+BUR-DROIT-L;variante de taille (non exposée aux devis);Bureau droit — grand format;BUR-DROIT;Bureau droit;1.4;sous-catégorie parente
+JAR-JARDINIERE-C;variante de taille (non exposée aux devis);Jardinière ou grand pot — petit format;JAR-JARDINIERE;Jardinière ou grand pot;0.032;sous-catégorie parente
+JAR-JARDINIERE-S;variante de taille (non exposée aux devis);Jardinière ou grand pot — format courant;JAR-JARDINIERE;Jardinière ou grand pot;0.032;sous-catégorie parente
+JAR-JARDINIERE-L;variante de taille (non exposée aux devis);Jardinière ou grand pot — grand format;JAR-JARDINIERE;Jardinière ou grand pot;0.032;sous-catégorie parente
+DEC-LAMPADAIRE-C;variante de taille (non exposée aux devis);Lampadaire — petit format;DEC-LAMPADAIRE;Lampadaire;0.15;sous-catégorie parente
+DEC-LAMPADAIRE-S;variante de taille (non exposée aux devis);Lampadaire — format courant;DEC-LAMPADAIRE;Lampadaire;0.15;sous-catégorie parente
+DEC-LAMPADAIRE-L;variante de taille (non exposée aux devis);Lampadaire — grand format;DEC-LAMPADAIRE;Lampadaire;0.15;sous-catégorie parente
+DEC-LAMPE-C;variante de taille (non exposée aux devis);Lampe à poser — petit format;DEC-LAMPE;Lampe à poser;0.033;sous-catégorie parente
+DEC-LAMPE-S;variante de taille (non exposée aux devis);Lampe à poser — format courant;DEC-LAMPE;Lampe à poser;0.033;sous-catégorie parente
+DEC-LAMPE-L;variante de taille (non exposée aux devis);Lampe à poser — grand format;DEC-LAMPE;Lampe à poser;0.033;sous-catégorie parente
+DEC-MIROIR-GRAND-C;variante de taille (non exposée aux devis);Grand miroir (sur pied ou mural) — petit format;DEC-MIROIR-GRAND;Grand miroir (sur pied ou mural);0.024;sous-catégorie parente
+DEC-MIROIR-GRAND-S;variante de taille (non exposée aux devis);Grand miroir (sur pied ou mural) — format courant;DEC-MIROIR-GRAND;Grand miroir (sur pied ou mural);0.024;sous-catégorie parente
+DEC-MIROIR-GRAND-L;variante de taille (non exposée aux devis);Grand miroir (sur pied ou mural) — grand format;DEC-MIROIR-GRAND;Grand miroir (sur pied ou mural);0.024;sous-catégorie parente
+DEC-TAPIS-GRAND-C;variante de taille (non exposée aux devis);Grand tapis (plus de 4 m²) — petit format;DEC-TAPIS-GRAND;Grand tapis (plus de 4 m²);0.123;sous-catégorie parente
+DEC-TAPIS-GRAND-S;variante de taille (non exposée aux devis);Grand tapis (plus de 4 m²) — format courant;DEC-TAPIS-GRAND;Grand tapis (plus de 4 m²);0.123;sous-catégorie parente
+DEC-TAPIS-GRAND-L;variante de taille (non exposée aux devis);Grand tapis (plus de 4 m²) — grand format;DEC-TAPIS-GRAND;Grand tapis (plus de 4 m²);0.123;sous-catégorie parente
+DEC-TAPIS-MOYEN-C;variante de taille (non exposée aux devis);Tapis moyen (1,5 à 4 m²) — petit format;DEC-TAPIS-MOYEN;Tapis moyen (1,5 à 4 m²);0.049;sous-catégorie parente
+DEC-TAPIS-MOYEN-S;variante de taille (non exposée aux devis);Tapis moyen (1,5 à 4 m²) — format courant;DEC-TAPIS-MOYEN;Tapis moyen (1,5 à 4 m²);0.049;sous-catégorie parente
+DEC-TAPIS-MOYEN-L;variante de taille (non exposée aux devis);Tapis moyen (1,5 à 4 m²) — grand format;DEC-TAPIS-MOYEN;Tapis moyen (1,5 à 4 m²);0.049;sous-catégorie parente
+DEC-TAPIS-PETIT-C;variante de taille (non exposée aux devis);Petit tapis ou descente de lit (jusqu'à 1,5 m²) — petit format;DEC-TAPIS-PETIT;Petit tapis ou descente de lit (jusqu'à 1,5 m²);0.022;sous-catégorie parente
+DEC-TAPIS-PETIT-S;variante de taille (non exposée aux devis);Petit tapis ou descente de lit (jusqu'à 1,5 m²) — format courant;DEC-TAPIS-PETIT;Petit tapis ou descente de lit (jusqu'à 1,5 m²);0.022;sous-catégorie parente
+DEC-TAPIS-PETIT-L;variante de taille (non exposée aux devis);Petit tapis ou descente de lit (jusqu'à 1,5 m²) — grand format;DEC-TAPIS-PETIT;Petit tapis ou descente de lit (jusqu'à 1,5 m²);0.022;sous-catégorie parente
+DEC-TAPIS-NC-C;variante de taille (non exposée aux devis);Tapis (taille non précisée) — petit format;DEC-TAPIS-NC;Tapis (taille non précisée);0.2;sous-catégorie parente
+DEC-TAPIS-NC-S;variante de taille (non exposée aux devis);Tapis (taille non précisée) — format courant;DEC-TAPIS-NC;Tapis (taille non précisée);0.2;sous-catégorie parente
+DEC-TAPIS-NC-L;variante de taille (non exposée aux devis);Tapis (taille non précisée) — grand format;DEC-TAPIS-NC;Tapis (taille non précisée);0.2;sous-catégorie parente
+DEC-TABLEAU-C;variante de taille (non exposée aux devis);Tableau ou cadre — petit format;DEC-TABLEAU;Tableau ou cadre;0.008;sous-catégorie parente
+DEC-TABLEAU-S;variante de taille (non exposée aux devis);Tableau ou cadre — format courant;DEC-TABLEAU;Tableau ou cadre;0.008;sous-catégorie parente
+DEC-TABLEAU-L;variante de taille (non exposée aux devis);Tableau ou cadre — grand format;DEC-TABLEAU;Tableau ou cadre;0.008;sous-catégorie parente
+BRI-ECHELLE-C;variante de taille (non exposée aux devis);Échelle ou escabeau — petit format;BRI-ECHELLE;Échelle ou escabeau;0.588;sous-catégorie parente
+BRI-ECHELLE-S;variante de taille (non exposée aux devis);Échelle ou escabeau — format courant;BRI-ECHELLE;Échelle ou escabeau;0.588;sous-catégorie parente
+BRI-ECHELLE-L;variante de taille (non exposée aux devis);Échelle ou escabeau — grand format;BRI-ECHELLE;Échelle ou escabeau;0.588;sous-catégorie parente
+BAG-VALISE-C;variante de taille (non exposée aux devis);Valise ou bagage — petit format;BAG-VALISE;Valise ou bagage;0.2;sous-catégorie parente
+BAG-VALISE-S;variante de taille (non exposée aux devis);Valise ou bagage — format courant;BAG-VALISE;Valise ou bagage;0.2;sous-catégorie parente
+BAG-VALISE-L;variante de taille (non exposée aux devis);Valise ou bagage — grand format;BAG-VALISE-GRANDE;Grande valise (soute);0.3;rattachée à une autre sous-catégorie (même objet)
+DIV-POUBELLE-C;variante de taille (non exposée aux devis);Grande poubelle ou conteneur — petit format;DIV-POUBELLE;Grande poubelle ou conteneur;0.106;sous-catégorie parente
+DIV-POUBELLE-S;variante de taille (non exposée aux devis);Grande poubelle ou conteneur — format courant;DIV-POUBELLE;Grande poubelle ou conteneur;0.106;sous-catégorie parente
+DIV-POUBELLE-L;variante de taille (non exposée aux devis);Grande poubelle ou conteneur — grand format;DIV-POUBELLE;Grande poubelle ou conteneur;0.106;sous-catégorie parente
+PEM-AUTRE-C;variante de taille (non exposée aux devis);Petit électroménager (à mettre en carton) — petit format;PEM-AUTRE;Petit électroménager (à mettre en carton);0.012;sous-catégorie parente
+PEM-AUTRE-S;variante de taille (non exposée aux devis);Petit électroménager (à mettre en carton) — format courant;PEM-AUTRE;Petit électroménager (à mettre en carton);0.012;sous-catégorie parente
+PEM-AUTRE-L;variante de taille (non exposée aux devis);Petit électroménager (à mettre en carton) — grand format;PEM-AUTRE;Petit électroménager (à mettre en carton);0.012;sous-catégorie parente
+ANC-ARMOIRE-C;variante de taille (non exposée aux devis);Armoire ancienne — petit format;ANC-ARMOIRE;Armoire ancienne;2.954;sous-catégorie parente
+ANC-ARMOIRE-S;variante de taille (non exposée aux devis);Armoire ancienne — format courant;ANC-ARMOIRE;Armoire ancienne;2.954;sous-catégorie parente
+ANC-ARMOIRE-L;variante de taille (non exposée aux devis);Armoire ancienne — grand format;ANC-ARMOIRE;Armoire ancienne;2.954;sous-catégorie parente
+ANC-BUFFET-C;variante de taille (non exposée aux devis);Buffet ancien ou cabinet — petit format;ANC-BUFFET;Buffet ancien ou cabinet;1.396;sous-catégorie parente
+ANC-BUFFET-S;variante de taille (non exposée aux devis);Buffet ancien ou cabinet — format courant;ANC-BUFFET;Buffet ancien ou cabinet;1.396;sous-catégorie parente
+ANC-BUFFET-L;variante de taille (non exposée aux devis);Buffet ancien ou cabinet — grand format;ANC-BUFFET;Buffet ancien ou cabinet;1.396;sous-catégorie parente
+ANC-COFFRE-C;variante de taille (non exposée aux devis);Coffre ancien — petit format;ANC-COFFRE;Coffre ancien;0.418;sous-catégorie parente
+ANC-COFFRE-S;variante de taille (non exposée aux devis);Coffre ancien — format courant;ANC-COFFRE;Coffre ancien;0.418;sous-catégorie parente
+ANC-COFFRE-L;variante de taille (non exposée aux devis);Coffre ancien — grand format;ANC-COFFRE;Coffre ancien;0.418;sous-catégorie parente
+ANC-TABLE-C;variante de taille (non exposée aux devis);Table ancienne — petit format;ANC-TABLE;Table ancienne;0.663;sous-catégorie parente
+ANC-TABLE-S;variante de taille (non exposée aux devis);Table ancienne — format courant;ANC-TABLE;Table ancienne;0.663;sous-catégorie parente
+ANC-TABLE-L;variante de taille (non exposée aux devis);Table ancienne — grand format;ANC-TABLE;Table ancienne;0.663;sous-catégorie parente
+ANC-BUREAU-C;variante de taille (non exposée aux devis);Bureau ou secrétaire ancien — petit format;ANC-BUREAU;Bureau ou secrétaire ancien;0.613;sous-catégorie parente
+ANC-BUREAU-S;variante de taille (non exposée aux devis);Bureau ou secrétaire ancien — format courant;ANC-BUREAU;Bureau ou secrétaire ancien;0.613;sous-catégorie parente
+ANC-BUREAU-L;variante de taille (non exposée aux devis);Bureau ou secrétaire ancien — grand format;ANC-BUREAU;Bureau ou secrétaire ancien;0.613;sous-catégorie parente
+ANC-LIT-C;variante de taille (non exposée aux devis);Lit ancien — petit format;ANC-LIT;Lit ancien;3.765;sous-catégorie parente
+ANC-LIT-S;variante de taille (non exposée aux devis);Lit ancien — format courant;ANC-LIT;Lit ancien;3.765;sous-catégorie parente
+ANC-LIT-L;variante de taille (non exposée aux devis);Lit ancien — grand format;ANC-LIT;Lit ancien;3.765;sous-catégorie parente
+ANC-AUTRE-C;variante de taille (non exposée aux devis);Autre meuble ancien — petit format;ANC-AUTRE;Autre meuble ancien;0.427;sous-catégorie parente
+ANC-AUTRE-S;variante de taille (non exposée aux devis);Autre meuble ancien — format courant;ANC-AUTRE;Autre meuble ancien;0.427;sous-catégorie parente
+ANC-AUTRE-L;variante de taille (non exposée aux devis);Autre meuble ancien — grand format;ANC-AUTRE;Autre meuble ancien;0.427;sous-catégorie parente
+TEL-CRT-C;variante de taille (non exposée aux devis);Téléviseur cathodique ou meuble téléviseur ancien — petit format;TEL-CRT;Téléviseur cathodique ou meuble téléviseur ancien;0.075;sous-catégorie parente
+TEL-CRT-S;variante de taille (non exposée aux devis);Téléviseur cathodique ou meuble téléviseur ancien — format courant;TEL-CRT;Téléviseur cathodique ou meuble téléviseur ancien;0.075;sous-catégorie parente
+TEL-CRT-L;variante de taille (non exposée aux devis);Téléviseur cathodique ou meuble téléviseur ancien — grand format;TEL-CRT;Téléviseur cathodique ou meuble téléviseur ancien;0.075;sous-catégorie parente
+CAR-BAC-GRAND;sous-catégorie créée en v6.2;Grand bac de rangement;CAR-BAC-GRAND;Grand bac de rangement;0.2;nouvelle sous-catégorie (convention validée)
+BAG-VALISE-TRES-GRANDE;sous-catégorie créée en v6.2;Très grande valise;BAG-VALISE-TRES-GRANDE;Très grande valise;0.3;nouvelle sous-catégorie (convention validée)

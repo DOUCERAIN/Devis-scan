@@ -13098,3 +13098,5 @@ BRI-SERVANTE;;estimation IA — modèle type (pas une mesure);;;;;90;70;45;0.283
 BRI-ARMOIRE-GARAGE;;estimation IA — modèle type (pas une mesure);;;;;180;90;45;0.729;;"armoire métallique de garage ; fourchette 0.4–1.0 m³"
 DIV-AQUARIUM;;estimation IA — modèle type (pas une mesure);;;;;60;100;40;0.24;;"aquarium de 200 L sans son meuble ; fourchette 0.05–0.8 m³"
 CAR-SAC;;estimation IA — modèle type (pas une mesure);;;;;60;50;40;0.12;;"sac de 100 L ou ballot rempli ; fourchette 0.06–0.2 m³"
+CAR-BAC-GRAND;;estimation IA — modèle type (pas une mesure);;;;;45;80;50;0.18;;"grand bac de rangement de 100 à 150 L ; indication seulement, le volume retenu est la convention de 0,20 m³ ; fourchette 0.12–0.25 m³"
+BAG-VALISE-TRES-GRANDE;;estimation IA — modèle type (pas une mesure);;;;;82;55;34;0.153;;"valise de soute XL ; indication seulement, le volume retenu est la convention de 0,30 m³ ; fourchette 0.12–0.2 m³"

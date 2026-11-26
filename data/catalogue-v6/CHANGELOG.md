@@ -1,5 +1,40 @@
 # Historique du catalogue v6
 
+## v6.2 (version candidate) — 26/11/2026 — non commitée
+
+**Correction finale**
+- **Deux sous-catégories créées**, absentes de la v5 et sans doublon. Le catalogue passe à **313 sous-catégories**, dont 228 prioritaires.
+  - `CAR-BAC-GRAND` (grand bac de rangement) : 0,20 m³ ;
+  - `BAG-VALISE-TRES-GRANDE` (très grande valise) : 0,30 m³.
+- **Variantes des valises corrigées** :
+  - `BAG-VALISE-C` et `BAG-VALISE-S` passent à 0,20 m³ (valise classique) ;
+  - `BAG-VALISE-L` (grand format) est rattachée à `BAG-VALISE-GRANDE` et passe à 0,30 m³.
+- **Nouveau fichier `correspondance_identifiants_v6_2.csv`** : anciens identifiants du moteur, variantes et nouvelles sous-catégories.
+- **Contrôle de double comptage** : une variante rattachée est signalée si elle est comptée avec sa sous-catégorie.
+
+- **Convention définitive** : meubles comptés montés et complets ; ni calage, ni protection, ni vide de chargement.
+- **Démén'House** : quand sa liste sort de la fourchette de son article récent, la borne publiée la plus proche est retenue (commode, chevet, lit double).
+- **Plancher géométrique de 80 % retiré.** Seules les valeurs manifestement aberrantes sont écartées (moins de 0,25 fois ou plus de 6 fois le géométrique mesuré).
+- **Ratio de classe** calculé sur toutes les valeurs professionnelles retenues (v6.1 : Démén'House seul).
+- **Cartons et objets voisins** : champ `inclus_dans_cartons`.
+- **Conventions validées (dernière correction)** :
+  - bac de rangement : 0,10 m³ ;
+  - valise classique : 0,20 m³ ;
+  - grande valise : 0,30 m³.
+
+  Ces objets ne sont pas assimilés aux cartons. 
+- **Variantes** bornées entre 0,6 et 1,6 fois leur parente.
+- **Contrôle automatique des doubles comptages** dans les inventaires ; impact commercial des anomalies ; nouvel état « choix documenté ».
+- **Nouveaux fichiers** :
+  - `corrections_v6_2.csv`
+  - `anomalies_restantes.csv`
+  - `verification_inventaires.csv`
+  - `resultats_tests_v6_2.txt`
+  - `rapport_final_v6_2.md`
+  - `historique/v6.1/` (données et scripts)
+- **Revue des 40** au format simplifié (volume proposé, question, volume corrigé, commentaire).
+- **Tests** : 32 tests, tous réussis.
+
 ## v6.1 — 26/11/2026 (décisions du porteur du projet)
 
 **Décisions appliquées**

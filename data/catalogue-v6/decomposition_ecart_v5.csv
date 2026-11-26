@@ -1,97 +1,97 @@
-inventaire;sous_categorie;quantite;v5_m3;v6_0_m3;v6_1_m3;ecart_v6_1_v5_m3;cause_principale
-studio / T1 meublé simplement;CAN-CONV;1;1.29;2.1;2.517;1.227;comparable
-studio / T1 meublé simplement;TAB-BASSE;1;0.3;0.475;1.0;0.7;valeur Démén'House
-studio / T1 meublé simplement;RAN-MEUBLE-TV;1;0.42;0.55;0.4;-0.02;autre valeur professionnelle
-studio / T1 meublé simplement;INF-TV-43;1;0.2;0.148;0.2;0.0;autre valeur professionnelle
-studio / T1 meublé simplement;LIT-DOUBLE;1;1.2;1.5;2.6;1.4;valeur Démén'House
-studio / T1 meublé simplement;ARM-2P;1;0.8;1.225;1.25;0.45;autre valeur professionnelle
-studio / T1 meublé simplement;CHV-STD;1;0.1;0.225;0.3;0.2;valeur Démén'House
-studio / T1 meublé simplement;TAB-4;1;0.5;0.95;0.965;0.465;v5 inférieure au volume du meuble
-studio / T1 meublé simplement;CHA-REPAS;2;0.3;0.4;0.5;0.2;v5 inférieure au volume du meuble
-studio / T1 meublé simplement;ELM-MO;1;0.05;0.05;0.067;0.017;ratio géométrique
+inventaire;sous_categorie;quantite;v5_m3;v6_1_m3;v6_2_m3;ecart_v6_2_v5_m3;cause_principale
+studio / T1 meublé simplement;CAN-CONV;1;1.29;2.517;2.517;1.227;comparable
+studio / T1 meublé simplement;TAB-BASSE;1;0.3;1.0;1.0;0.7;valeur Démén'House
+studio / T1 meublé simplement;RAN-MEUBLE-TV;1;0.42;0.4;0.4;-0.02;autre valeur professionnelle
+studio / T1 meublé simplement;INF-TV-43;1;0.2;0.2;0.2;0.0;autre valeur professionnelle
+studio / T1 meublé simplement;LIT-DOUBLE;1;1.2;2.6;2.5;1.3;valeur Démén'House
+studio / T1 meublé simplement;ARM-2P;1;0.8;1.25;1.25;0.45;autre valeur professionnelle
+studio / T1 meublé simplement;CHV-STD;1;0.1;0.3;0.25;0.15;valeur Démén'House
+studio / T1 meublé simplement;TAB-4;1;0.5;0.965;0.965;0.465;v5 inférieure au volume du meuble
+studio / T1 meublé simplement;CHA-REPAS;2;0.3;0.5;0.5;0.2;v5 inférieure au volume du meuble
+studio / T1 meublé simplement;ELM-MO;1;0.05;0.067;0.051;0.001;ratio géométrique
 studio / T1 meublé simplement;ELM-LL;1;0.3;0.5;0.5;0.2;v5 inférieure au volume du meuble
-studio / T1 meublé simplement;RAN-BIB-NC;1;0.6;1.2;2.0;1.4;valeur Démén'House
-studio / T1 meublé simplement;BUR-DROIT;1;0.6;0.8;1.4;0.8;valeur Démén'House
-studio / T1 meublé simplement;FAU-BUR;1;0.3;0.526;0.4;0.1;v5 inférieure au volume du meuble
-studio / T1 meublé simplement;DEC-LAMPADAIRE;1;0.14;0.225;0.15;0.01;v5 inférieure au volume du meuble
-studio / T1 meublé simplement;DEC-MIROIR-GRAND;1;0.03;0.166;0.3;0.27;autre valeur professionnelle
-studio / T1 meublé simplement;BAG-VALISE;2;0.08;0.212;0.334;0.254;v5 inférieure au volume du meuble
-studio / T1 meublé simplement;VEL-ADULTE;1;0.5;0.575;0.8;0.3;v5 inférieure au volume du meuble
-T3 familial (2 chambres);CAN-3P;1;1.5;1.65;3.0;1.5;valeur Démén'House
+studio / T1 meublé simplement;RAN-BIB-NC;1;0.6;2.0;2.0;1.4;valeur Démén'House
+studio / T1 meublé simplement;BUR-DROIT;1;0.6;1.4;1.4;0.8;valeur Démén'House
+studio / T1 meublé simplement;FAU-BUR;1;0.3;0.4;0.4;0.1;v5 inférieure au volume du meuble
+studio / T1 meublé simplement;DEC-LAMPADAIRE;1;0.14;0.15;0.15;0.01;v5 inférieure au volume du meuble
+studio / T1 meublé simplement;DEC-MIROIR-GRAND;1;0.03;0.3;0.024;-0.006;ratio géométrique
+studio / T1 meublé simplement;BAG-VALISE;2;0.08;0.334;0.4;0.32;v5 inférieure au volume du meuble
+studio / T1 meublé simplement;VEL-ADULTE;1;0.5;0.8;0.8;0.3;v5 inférieure au volume du meuble
+T3 familial (2 chambres);CAN-3P;1;1.5;3.0;3.0;1.5;valeur Démén'House
 T3 familial (2 chambres);FAU-STD;1;0.5;0.7;0.7;0.2;valeur Démén'House
-T3 familial (2 chambres);TAB-BASSE;1;0.3;0.475;1.0;0.7;valeur Démén'House
-T3 familial (2 chambres);RAN-MEUBLE-TV;1;0.42;0.55;0.4;-0.02;autre valeur professionnelle
+T3 familial (2 chambres);TAB-BASSE;1;0.3;1.0;1.0;0.7;valeur Démén'House
+T3 familial (2 chambres);RAN-MEUBLE-TV;1;0.42;0.4;0.4;-0.02;autre valeur professionnelle
 T3 familial (2 chambres);INF-TV-55;1;0.2;0.3;0.3;0.1;autre valeur professionnelle
-T3 familial (2 chambres);RAN-BUFFET;1;0.56;1.425;1.2;0.64;valeur Démén'House
-T3 familial (2 chambres);RAN-BIB-NC;1;0.6;1.2;2.0;1.4;valeur Démén'House
-T3 familial (2 chambres);TAB-6;1;0.8;1.2;1.624;0.824;v5 inférieure au volume du meuble
-T3 familial (2 chambres);CHA-REPAS;6;0.9;1.2;1.5;0.6;v5 inférieure au volume du meuble
-T3 familial (2 chambres);DEC-LAMPADAIRE;1;0.14;0.225;0.15;0.01;v5 inférieure au volume du meuble
-T3 familial (2 chambres);LIT-QUEEN;1;1.4;1.45;2.99;1.59;v5 inférieure au volume du meuble
-T3 familial (2 chambres);COM-NC;1;0.5;0.45;1.5;1.0;valeur Démén'House
-T3 familial (2 chambres);CHV-STD;2;0.2;0.45;0.6;0.4;valeur Démén'House
-T3 familial (2 chambres);DEC-MIROIR-GRAND;1;0.03;0.166;0.3;0.27;autre valeur professionnelle
-T3 familial (2 chambres);LIT-SIMPLE;1;0.8;0.9;1.3;0.5;valeur Démén'House
-T3 familial (2 chambres);ARM-2P;1;0.8;1.225;1.25;0.45;autre valeur professionnelle
-T3 familial (2 chambres);BUR-DROIT;1;0.6;0.8;1.4;0.8;valeur Démén'House
-T3 familial (2 chambres);FAU-BUR;1;0.3;0.526;0.4;0.1;v5 inférieure au volume du meuble
-T3 familial (2 chambres);ETA-NC;1;0.3;0.659;1.0;0.7;autre valeur professionnelle
-T3 familial (2 chambres);ELM-REF-COMBI;1;0.4;1.166;1.5;1.1;autre valeur professionnelle
+T3 familial (2 chambres);RAN-BUFFET;1;0.56;1.2;1.2;0.64;valeur Démén'House
+T3 familial (2 chambres);RAN-BIB-NC;1;0.6;2.0;2.0;1.4;valeur Démén'House
+T3 familial (2 chambres);TAB-6;1;0.8;1.624;1.624;0.824;v5 inférieure au volume du meuble
+T3 familial (2 chambres);CHA-REPAS;6;0.9;1.5;1.5;0.6;v5 inférieure au volume du meuble
+T3 familial (2 chambres);DEC-LAMPADAIRE;1;0.14;0.15;0.15;0.01;v5 inférieure au volume du meuble
+T3 familial (2 chambres);LIT-QUEEN;1;1.4;2.99;2.875;1.475;v5 inférieure au volume du meuble
+T3 familial (2 chambres);COM-NC;1;0.5;1.5;1.0;0.5;valeur Démén'House
+T3 familial (2 chambres);CHV-STD;2;0.2;0.6;0.5;0.3;valeur Démén'House
+T3 familial (2 chambres);DEC-MIROIR-GRAND;1;0.03;0.3;0.024;-0.006;ratio géométrique
+T3 familial (2 chambres);LIT-SIMPLE;1;0.8;1.3;1.3;0.5;valeur Démén'House
+T3 familial (2 chambres);ARM-2P;1;0.8;1.25;1.25;0.45;autre valeur professionnelle
+T3 familial (2 chambres);BUR-DROIT;1;0.6;1.4;1.4;0.8;valeur Démén'House
+T3 familial (2 chambres);FAU-BUR;1;0.3;0.4;0.4;0.1;v5 inférieure au volume du meuble
+T3 familial (2 chambres);ETA-NC;1;0.3;1.0;1.0;0.7;autre valeur professionnelle
+T3 familial (2 chambres);ELM-REF-COMBI;1;0.4;1.5;1.5;1.1;autre valeur professionnelle
 T3 familial (2 chambres);ELM-LL;1;0.3;0.5;0.5;0.2;v5 inférieure au volume du meuble
-T3 familial (2 chambres);ELM-LV;1;0.3;0.45;0.6;0.3;valeur Démén'House
-T3 familial (2 chambres);ELM-MO;1;0.05;0.05;0.067;0.017;ratio géométrique
-T3 familial (2 chambres);CUI-DESSERTE;1;0.33;0.42;0.661;0.331;ratio géométrique
-T3 familial (2 chambres);ENT-CHAUSS;1;0.23;0.437;0.688;0.458;ratio géométrique
-T3 familial (2 chambres);BAG-VALISE;3;0.12;0.318;0.501;0.381;v5 inférieure au volume du meuble
-T3 familial (2 chambres);VEL-ADULTE;2;1.0;1.15;1.6;0.6;v5 inférieure au volume du meuble
-T3 familial (2 chambres);ETA-METAL;1;0.22;0.656;0.98;0.76;v5 inférieure au volume du meuble
-maison 5 pièces avec garage et jardin;CAN-ANG;1;1.62;3.125;4.207;2.587;v5 inférieure au volume du meuble
+T3 familial (2 chambres);ELM-LV;1;0.3;0.6;0.6;0.3;valeur Démén'House
+T3 familial (2 chambres);ELM-MO;1;0.05;0.067;0.051;0.001;ratio géométrique
+T3 familial (2 chambres);CUI-DESSERTE;1;0.33;0.661;0.418;0.088;ratio géométrique
+T3 familial (2 chambres);ENT-CHAUSS;1;0.23;0.688;0.435;0.205;ratio géométrique
+T3 familial (2 chambres);BAG-VALISE;3;0.12;0.501;0.6;0.48;v5 inférieure au volume du meuble
+T3 familial (2 chambres);VEL-ADULTE;2;1.0;1.6;1.6;0.6;v5 inférieure au volume du meuble
+T3 familial (2 chambres);ETA-METAL;1;0.22;0.98;0.701;0.481;v5 inférieure au volume du meuble
+maison 5 pièces avec garage et jardin;CAN-ANG;1;1.62;4.207;4.207;2.587;v5 inférieure au volume du meuble
 maison 5 pièces avec garage et jardin;FAU-STD;2;1.0;1.4;1.4;0.4;valeur Démén'House
-maison 5 pièces avec garage et jardin;TAB-BASSE;1;0.3;0.475;1.0;0.7;valeur Démén'House
-maison 5 pièces avec garage et jardin;RAN-MEUBLE-TV;1;0.42;0.55;0.4;-0.02;autre valeur professionnelle
-maison 5 pièces avec garage et jardin;INF-TV-75;1;0.2;0.36;0.42;0.22;comparable
-maison 5 pièces avec garage et jardin;RAN-BUFFET;1;0.56;1.425;1.2;0.64;valeur Démén'House
-maison 5 pièces avec garage et jardin;RAN-VITRINE;1;0.48;1.344;1.8;1.32;autre valeur professionnelle
-maison 5 pièces avec garage et jardin;RAN-BIB-NC;2;1.2;2.4;4.0;2.8;valeur Démén'House
-maison 5 pièces avec garage et jardin;TAB-8+;1;1.05;1.523;2.061;1.011;v5 inférieure au volume du meuble
-maison 5 pièces avec garage et jardin;CHA-REPAS;8;1.2;1.6;2.0;0.8;v5 inférieure au volume du meuble
-maison 5 pièces avec garage et jardin;DEC-TABLEAU;6;0.18;0.06;0.132;-0.048;ratio géométrique
-maison 5 pièces avec garage et jardin;DEC-LAMPADAIRE;2;0.28;0.45;0.3;0.02;v5 inférieure au volume du meuble
-maison 5 pièces avec garage et jardin;MUS-PIANO-DROIT;1;2.5;1.5;2.0;-0.5;valeur Démén'House
-maison 5 pièces avec garage et jardin;LIT-KING;1;2.07;1.667;3.438;1.368;v5 inférieure au volume du meuble
-maison 5 pièces avec garage et jardin;ARM-4P;1;1.2;4.0;4.3;3.1;v5 inférieure au volume du meuble
-maison 5 pièces avec garage et jardin;COM-NC;2;1.0;0.9;3.0;2.0;valeur Démén'House
-maison 5 pièces avec garage et jardin;CHV-STD;4;0.4;0.9;1.2;0.8;valeur Démén'House
-maison 5 pièces avec garage et jardin;COM-COIFF;1;0.68;0.968;1.4;0.72;valeur Démén'House
-maison 5 pièces avec garage et jardin;LIT-DOUBLE;1;1.2;1.5;2.6;1.4;valeur Démén'House
-maison 5 pièces avec garage et jardin;ARM-2P;1;0.8;1.225;1.25;0.45;autre valeur professionnelle
-maison 5 pièces avec garage et jardin;LIT-SIMPLE;1;0.8;0.9;1.3;0.5;valeur Démén'House
-maison 5 pièces avec garage et jardin;BUR-DROIT;2;1.2;1.6;2.8;1.6;valeur Démén'House
-maison 5 pièces avec garage et jardin;BUR-ANGLE;1;1.52;1.866;2.787;1.267;ratio géométrique
-maison 5 pièces avec garage et jardin;FAU-BUR;3;0.9;1.578;1.2;0.3;v5 inférieure au volume du meuble
-maison 5 pièces avec garage et jardin;ETA-NC;2;0.6;1.318;2.0;1.4;autre valeur professionnelle
-maison 5 pièces avec garage et jardin;ELM-CONG;1;0.4;1.05;1.6;1.2;valeur Démén'House
+maison 5 pièces avec garage et jardin;TAB-BASSE;1;0.3;1.0;1.0;0.7;valeur Démén'House
+maison 5 pièces avec garage et jardin;RAN-MEUBLE-TV;1;0.42;0.4;0.4;-0.02;autre valeur professionnelle
+maison 5 pièces avec garage et jardin;INF-TV-75;1;0.2;0.42;0.42;0.22;comparable
+maison 5 pièces avec garage et jardin;RAN-BUFFET;1;0.56;1.2;1.2;0.64;valeur Démén'House
+maison 5 pièces avec garage et jardin;RAN-VITRINE;1;0.48;1.8;1.8;1.32;autre valeur professionnelle
+maison 5 pièces avec garage et jardin;RAN-BIB-NC;2;1.2;4.0;4.0;2.8;valeur Démén'House
+maison 5 pièces avec garage et jardin;TAB-8+;1;1.05;2.061;2.061;1.011;v5 inférieure au volume du meuble
+maison 5 pièces avec garage et jardin;CHA-REPAS;8;1.2;2.0;2.0;0.8;v5 inférieure au volume du meuble
+maison 5 pièces avec garage et jardin;DEC-TABLEAU;6;0.18;0.132;0.048;-0.132;ratio géométrique
+maison 5 pièces avec garage et jardin;DEC-LAMPADAIRE;2;0.28;0.3;0.3;0.02;v5 inférieure au volume du meuble
+maison 5 pièces avec garage et jardin;MUS-PIANO-DROIT;1;2.5;2.0;2.0;-0.5;valeur Démén'House
+maison 5 pièces avec garage et jardin;LIT-KING;1;2.07;3.438;3.306;1.236;v5 inférieure au volume du meuble
+maison 5 pièces avec garage et jardin;ARM-4P;1;1.2;4.3;4.3;3.1;v5 inférieure au volume du meuble
+maison 5 pièces avec garage et jardin;COM-NC;2;1.0;3.0;2.0;1.0;valeur Démén'House
+maison 5 pièces avec garage et jardin;CHV-STD;4;0.4;1.2;1.0;0.6;valeur Démén'House
+maison 5 pièces avec garage et jardin;COM-COIFF;1;0.68;1.4;1.4;0.72;valeur Démén'House
+maison 5 pièces avec garage et jardin;LIT-DOUBLE;1;1.2;2.6;2.5;1.3;valeur Démén'House
+maison 5 pièces avec garage et jardin;ARM-2P;1;0.8;1.25;1.25;0.45;autre valeur professionnelle
+maison 5 pièces avec garage et jardin;LIT-SIMPLE;1;0.8;1.3;1.3;0.5;valeur Démén'House
+maison 5 pièces avec garage et jardin;BUR-DROIT;2;1.2;2.8;2.8;1.6;valeur Démén'House
+maison 5 pièces avec garage et jardin;BUR-ANGLE;1;1.52;2.787;1.995;0.475;ratio géométrique
+maison 5 pièces avec garage et jardin;FAU-BUR;3;0.9;1.2;1.2;0.3;v5 inférieure au volume du meuble
+maison 5 pièces avec garage et jardin;ETA-NC;2;0.6;2.0;2.0;1.4;autre valeur professionnelle
+maison 5 pièces avec garage et jardin;ELM-CONG;1;0.4;1.6;1.6;1.2;valeur Démén'House
 maison 5 pièces avec garage et jardin;ELM-LL;1;0.3;0.5;0.5;0.2;v5 inférieure au volume du meuble
-maison 5 pièces avec garage et jardin;ELM-SL;1;0.3;0.525;0.5;0.2;v5 inférieure au volume du meuble
-maison 5 pièces avec garage et jardin;ELM-LV;1;0.3;0.45;0.6;0.3;valeur Démén'House
-maison 5 pièces avec garage et jardin;ELM-MO;1;0.05;0.05;0.067;0.017;ratio géométrique
-maison 5 pièces avec garage et jardin;CUI-DESSERTE;1;0.33;0.42;0.661;0.331;ratio géométrique
-maison 5 pièces avec garage et jardin;CHA-BAR;3;0.54;1.116;0.81;0.27;v5 inférieure au volume du meuble
-maison 5 pièces avec garage et jardin;ENT-CHAUSS;1;0.23;0.437;0.688;0.458;ratio géométrique
-maison 5 pièces avec garage et jardin;JAR-SALON;1;0.66;1.75;2.0;1.34;autre valeur professionnelle
-maison 5 pièces avec garage et jardin;JAR-TRANSAT;2;1.22;1.83;4.03;2.81;ratio géométrique
-maison 5 pièces avec garage et jardin;JAR-JARDINIERE;4;0.56;0.128;0.2;-0.36;ratio géométrique
-maison 5 pièces avec garage et jardin;ETA-METAL;3;0.66;1.968;2.94;2.28;v5 inférieure au volume du meuble
-maison 5 pièces avec garage et jardin;BRI-ECHELLE;1;0.19;0.59;0.929;0.739;v5 inférieure au volume du meuble
-maison 5 pièces avec garage et jardin;VEL-ADULTE;4;2.0;2.3;3.2;1.2;v5 inférieure au volume du meuble
-maison 5 pièces avec garage et jardin;SPO-VELO-APPART;1;1.0;0.764;1.203;0.203;ratio géométrique
-maison 5 pièces avec garage et jardin;BAG-VALISE;4;0.16;0.424;0.668;0.508;v5 inférieure au volume du meuble
-maison 5 pièces avec garage et jardin;CAR-BAC;10;0.4;0.93;1.46;1.06;v5 inférieure au volume du meuble
-pièce réelle « chambre-encombree » (référence provisoire du banc);RAN-BIB-NC;3;1.8;3.6;6.0;4.2;valeur Démén'House
-pièce réelle « chambre-encombree » (référence provisoire du banc);CAR-BAC;2;0.08;0.186;0.292;0.212;v5 inférieure au volume du meuble
-pièce réelle « chambre-encombree » (référence provisoire du banc);CAR-CARTON;1;0.1;0.075;0.1;0.0;ratio géométrique
-pièce réelle « chambre-lits-simples » (référence provisoire du banc);LIT-SIMPLE;2;1.6;1.8;2.6;1.0;valeur Démén'House
-pièce réelle « chambre-lits-simples » (référence provisoire du banc);BUR-DROIT;1;0.6;0.8;1.4;0.8;valeur Démén'House
-pièce réelle « chambre-lits-simples » (référence provisoire du banc);CHA-REPAS;2;0.3;0.4;0.5;0.2;v5 inférieure au volume du meuble
-pièce réelle « salon-canape-jaune » (référence provisoire du banc);CAN-3P;1;1.5;1.65;3.0;1.5;valeur Démén'House
-pièce réelle « salon-canape-jaune » (référence provisoire du banc);TAB-BASSE;1;0.3;0.475;1.0;0.7;valeur Démén'House
+maison 5 pièces avec garage et jardin;ELM-SL;1;0.3;0.5;0.5;0.2;v5 inférieure au volume du meuble
+maison 5 pièces avec garage et jardin;ELM-LV;1;0.3;0.6;0.6;0.3;valeur Démén'House
+maison 5 pièces avec garage et jardin;ELM-MO;1;0.05;0.067;0.051;0.001;ratio géométrique
+maison 5 pièces avec garage et jardin;CUI-DESSERTE;1;0.33;0.661;0.418;0.088;ratio géométrique
+maison 5 pièces avec garage et jardin;CHA-BAR;3;0.54;0.81;0.81;0.27;v5 inférieure au volume du meuble
+maison 5 pièces avec garage et jardin;ENT-CHAUSS;1;0.23;0.688;0.435;0.205;ratio géométrique
+maison 5 pièces avec garage et jardin;JAR-SALON;1;0.66;2.0;2.0;1.34;autre valeur professionnelle
+maison 5 pièces avec garage et jardin;JAR-TRANSAT;2;1.22;4.03;1.1;-0.12;autre valeur professionnelle
+maison 5 pièces avec garage et jardin;JAR-JARDINIERE;4;0.56;0.2;0.128;-0.432;ratio géométrique
+maison 5 pièces avec garage et jardin;ETA-METAL;3;0.66;2.94;2.103;1.443;v5 inférieure au volume du meuble
+maison 5 pièces avec garage et jardin;BRI-ECHELLE;1;0.19;0.929;0.588;0.398;v5 inférieure au volume du meuble
+maison 5 pièces avec garage et jardin;VEL-ADULTE;4;2.0;3.2;3.2;1.2;v5 inférieure au volume du meuble
+maison 5 pièces avec garage et jardin;SPO-VELO-APPART;1;1.0;1.203;0.761;-0.239;ratio géométrique
+maison 5 pièces avec garage et jardin;BAG-VALISE;4;0.16;0.668;0.8;0.64;v5 inférieure au volume du meuble
+maison 5 pièces avec garage et jardin;CAR-BAC;10;0.4;1.46;1.0;0.6;v5 inférieure au volume du meuble
+pièce réelle « chambre-encombree » (référence provisoire du banc);RAN-BIB-NC;3;1.8;6.0;6.0;4.2;valeur Démén'House
+pièce réelle « chambre-encombree » (référence provisoire du banc);CAR-BAC;2;0.08;0.292;0.2;0.12;v5 inférieure au volume du meuble
+pièce réelle « chambre-encombree » (référence provisoire du banc);CAR-CARTON;1;0.1;0.1;0.1;0.0;ratio géométrique
+pièce réelle « chambre-lits-simples » (référence provisoire du banc);LIT-SIMPLE;2;1.6;2.6;2.6;1.0;valeur Démén'House
+pièce réelle « chambre-lits-simples » (référence provisoire du banc);BUR-DROIT;1;0.6;1.4;1.4;0.8;valeur Démén'House
+pièce réelle « chambre-lits-simples » (référence provisoire du banc);CHA-REPAS;2;0.3;0.5;0.5;0.2;v5 inférieure au volume du meuble
+pièce réelle « salon-canape-jaune » (référence provisoire du banc);CAN-3P;1;1.5;3.0;3.0;1.5;valeur Démén'House
+pièce réelle « salon-canape-jaune » (référence provisoire du banc);TAB-BASSE;1;0.3;1.0;1.0;0.7;valeur Démén'House

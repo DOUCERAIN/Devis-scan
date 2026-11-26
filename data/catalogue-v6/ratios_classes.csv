@@ -1,8 +1,8 @@
 classe_manutention;ratio_reference_sur_geometrique;origine;nb_ancres;ancres
-appareils et objets rigides;1.261;moins de 3 ancres Démén'House : ancres de toutes sources professionnelles de la classe (conventions mélangées);5;ELM-LL (0.95), ELM-SL (0.96), ELM-CUISINIERE (1.26), INF-TV-43 (1.96), MUS-PIANO-QUEUE (1.34)
-chaises et tabourets;1.025;moins de 3 ancres Démén'House : ancres de toutes sources professionnelles de la classe (conventions mélangées);3;CHA-TABOURET (3.03), CHA-REPAS (1.02), CHA-BANC (0.77)
-décoration, objets plats ou souples;3.175;moins de 3 ancres Démén'House : ancres de toutes sources professionnelles de la classe (conventions mélangées);4;MAT-160 (1.09), DEC-LAMPADAIRE (0.70), DEC-MIROIR-GRAND (13.64), DEC-TAPIS-NC (5.26)
-meubles démontables;2.139;ancres Démén'House de la classe;6;ARM-4P (1.98), ARM-NC (4.06), LIT-DOUBLE (2.54), LIT-SIMPLE (1.53), TAB-REPAS-NC (1.44), BUR-DROIT (2.30)
-meubles et objets non démontables;2.655;ancres Démén'House de la classe;8;FAU-BUR (0.90), CHV-STD (2.97), COM-NC (3.16), TAB-BASSE (3.47), RAN-BUFFET (2.34), RAN-BIB-NC (5.36), JAR-CHAISE (1.12), VEL-ADULTE (1.04)
-objets transportés pliés ou démontés;1.979;moins de 3 ancres dans la classe : médiane de toutes les ancres Démén'House (19);0;
-sièges rembourrés;1.898;ancres Démén'House de la classe;3;CAN-3P (2.06), CAN-2P (1.90), FAU-STD (1.42)
+appareils et objets rigides;0.96;médiane des valeurs professionnelles retenues de la classe;5;ELM-LL (0.95), ELM-SL (0.96), ELM-CUISINIERE (0.84), INF-TV-43 (1.96), MUS-PIANO-QUEUE (1.34)
+chaises et tabourets;1.025;médiane des valeurs professionnelles retenues de la classe;3;CHA-TABOURET (3.03), CHA-REPAS (1.02), CHA-BANC (0.77)
+décoration, objets plats ou souples;1.087;médiane des valeurs professionnelles retenues de la classe;3;MAT-160 (1.09), DEC-LAMPADAIRE (0.70), DEC-TAPIS-NC (5.26)
+meubles démontables;1.531;médiane des valeurs professionnelles retenues de la classe;11;TAB-RONDE (0.86), ARM-4P (1.98), ARM-3P (1.49), ARM-2P (1.43), ARM-NC (4.06), LIT-SUPERP (0.46), LIT-DOUBLE (2.44), LIT-SIMPLE (1.53), TAB-REPAS-NC (1.44), ETA-NC (4.50), BUR-DROIT (2.30)
+meubles et objets non démontables;1.68;médiane des valeurs professionnelles retenues de la classe;12;FAU-BUR (0.90), CHV-STD (2.48), COM-NC (2.11), TAB-BASSE (3.47), RAN-VITRINE (3.42), RAN-BUFFET (2.34), RAN-MEUBLE-TV (1.25), RAN-BIB-NC (5.36), JAR-TRANSAT (0.72), JAR-CHAISE (1.12), JAR-BARBECUE (1.23), VEL-ADULTE (1.04)
+objets transportés pliés ou démontés;1.433;moins de 3 ancres dans la classe : médiane de toutes les ancres (38);0;
+sièges rembourrés;1.659;médiane des valeurs professionnelles retenues de la classe;4;CAN-3P (2.06), CAN-2P (1.90), FAU-STD (1.42), POU-STD (0.45)

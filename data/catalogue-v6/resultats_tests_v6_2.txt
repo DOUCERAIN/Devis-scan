@@ -1,0 +1,40 @@
+test_14_domaines_attribues (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_14_domaines_attribues) ... ok
+test_313_sous_categories_identifiants_stables (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_313_sous_categories_identifiants_stables)
+311 sous-catégories de la v5 (identifiants inchangés) + 2 créées en v6.2. ... ok
+test_anomalies_ont_un_etat (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_anomalies_ont_un_etat) ... ok
+test_aucune_valeur_publiee_manifestement_aberrante (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_aucune_valeur_publiee_manifestement_aberrante)
+La géométrie n'est qu'un indicateur : seules les valeurs hors de [0,25 ; 6] fois le géométrique mesuré sont écartées. ... ok
+test_aucune_valeur_validee_par_un_professionnel (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_aucune_valeur_validee_par_un_professionnel) ... ok
+test_carton_010 (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_carton_010) ... ok
+test_carton_010_dans_les_exports (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_carton_010_dans_les_exports) ... ok
+test_coherence_des_deux_publications_demenhouse (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_coherence_des_deux_publications_demenhouse) ... ok
+test_controle_de_double_comptage_detecte_les_cas (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_controle_de_double_comptage_detecte_les_cas) ... ok
+test_convention_lit_complet (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_convention_lit_complet) ... ok
+test_conventions_bacs_et_valises (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_conventions_bacs_et_valises) ... ok
+test_demenhouse_prioritaire_quand_il_correspond (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_demenhouse_prioritaire_quand_il_correspond) ... ok
+test_estimations_jamais_presentees_comme_mesures (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_estimations_jamais_presentees_comme_mesures) ... ok
+test_exports_coherents_avec_les_donnees (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_exports_coherents_avec_les_donnees) ... ok
+test_fiabilite_moyenne_exige_corroboration_attribuee (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_fiabilite_moyenne_exige_corroboration_attribuee) ... ok
+test_fourchettes_jamais_reduites_au_milieu (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_fourchettes_jamais_reduites_au_milieu) ... ok
+test_geometrique_v5_inchange_sauf_exclusions (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_geometrique_v5_inchange_sauf_exclusions) ... ok
+test_historique_conserve (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_historique_conserve) ... ok
+test_inventaires_types_sans_double_comptage (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_inventaires_types_sans_double_comptage) ... ok
+test_journal_des_corrections (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_journal_des_corrections) ... ok
+test_mesures_individuelles_toutes_conservees (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_mesures_individuelles_toutes_conservees) ... ok
+test_meuble_tv_demenhouse_non_retenu (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_meuble_tv_demenhouse_non_retenu) ... ok
+test_ordres_incoherents_signales (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_ordres_incoherents_signales) ... ok
+test_produits_mal_classes_exclus_mais_conserves (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_produits_mal_classes_exclus_mais_conserves) ... ok
+test_revue_40 (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_revue_40) ... ok
+test_sources_anonymes_comptent_pour_une (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_sources_anonymes_comptent_pour_une) ... ok
+test_v5_non_modifiee (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_v5_non_modifiee) ... ok
+test_valeur_publiee_sous_le_geometrique_acceptee (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_valeur_publiee_sous_le_geometrique_acceptee) ... ok
+test_valeur_retenue_est_une_valeur_publiee (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_valeur_retenue_est_une_valeur_publiee)
+Aucune moyenne : une valeur professionnelle retenue existe telle quelle dans les relevés. ... ok
+test_variantes_bornees (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_variantes_bornees) ... ok
+test_variantes_heritees_explicites (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_variantes_heritees_explicites) ... ok
+test_volume_ou_exception (scripts.catalogue_v6.test_enrichir.CatalogueV62.test_volume_ou_exception) ... ok
+
+----------------------------------------------------------------------
+Ran 32 tests in 0.260s
+
+OK

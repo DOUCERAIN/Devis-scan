@@ -12,6 +12,7 @@ valider par les déménageurs pilotes.
 """
 
 COMPARABLES = {
+    # v6.2 : bacs et valises ont leurs propres conventions validées (enrichir.py, CONVENTIONS_VALIDEES).
     # v6.1 — alignement sur la convention Démén'House : utilisés quand la seule valeur professionnelle disponible
     # vient d'une source dont la convention est manifestement différente (conventions_sources.csv).
     "LIT-QUEEN": ("LIT-DOUBLE", "facteur", 1.15, "lit 160 au lieu de 140 cm de large (convention « lit complet »)"),
@@ -30,7 +31,7 @@ COMPARABLES = {
     "LIT-COFFRE": ("LIT-QUEEN", "facteur", 1.3, "lit 140/160 à coffre : le coffre ne se démonte pas ; géométrique mesuré (4,36 m³) non représentatif"),
     "LIT-NC": ("LIT-DOUBLE", "facteur", 1.0, "taille non précisée : lit double par défaut ; géométrique mesuré (4,38 m³) non représentatif"),
     "LIT-GIGOGNE": ("LIT-SIMPLE", "facteur", 1.6, "lit simple et second couchage sous le lit"),
-    "LIT-SUPERP": ("LIT-SIMPLE", "facteur", 2.0, "deux lits simples démontés ; le géométrique mesuré (3,47 m³) est celui du lit monté"),
+    "LIT-SUPERP": ("LIT-SIMPLE", "facteur", 2.0, "deux couchages simples complets"),
     "LIT-BALDAQUIN": ("LIT-QUEEN", "facteur", 1.4, "lit double et montants, ciel de lit démontés"),
     "CAN-NC": ("CAN-3P", "facteur", 1.0, "nombre de places non précisé : canapé 3 places par défaut"),
     "CAN-2P": ("CAN-3P", "proportion", None, "même construction, proportion des volumes géométriques mesurés"),

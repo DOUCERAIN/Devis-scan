@@ -1,0 +1,7 @@
+inventaire;nb_lignes;conforme;problemes
+studio / T1 meublé simplement;20;oui;
+T3 familial (2 chambres);35;oui;
+maison 5 pièces avec garage et jardin;58;oui;
+pièce réelle « chambre-encombree » (référence provisoire du banc);3;non;cartons dans l'inventaire de meubles (ils sont déclarés à part par le client)
+pièce réelle « chambre-lits-simples » (référence provisoire du banc);3;oui;
+pièce réelle « salon-canape-jaune » (référence provisoire du banc);2;oui;

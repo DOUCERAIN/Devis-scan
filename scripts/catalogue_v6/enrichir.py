@@ -27,6 +27,7 @@ ICI = Path(__file__).resolve().parent
 sys.path.insert(0, str(ICI))
 from comparables import COMPARABLES  # noqa: E402
 from estimations_ia import E as ESTIM, T as TRANSPORT  # noqa: E402
+from nouvelles_sous_categories import NOUVELLES, references_v62  # noqa: E402
 from inventaires_types import INVENTAIRES  # noqa: E402
 from releves_demenageurs import ABERRANTS, RELEVES, SOURCES  # noqa: E402
 
@@ -34,15 +35,42 @@ RACINE = ICI.parents[1]
 V5 = RACINE / "data" / "catalogue-v5"
 SORTIE = RACINE / "data" / "catalogue-v6"
 HIST = SORTIE / "historique" / "v6.0"
-VERSION = "6.1-preparatoire"
+VERSION = "6.2-candidat"
+HIST61 = SORTIE / "historique" / "v6.1"
 
 # ------------------------------------------------------------------ paramètres documentés
 CARTON = {"id": "CAR-CARTON", "volume": 0.10, "decision": "convention commerciale validée par le porteur du projet le 26/11/2026 : un carton standard = 0,10 m³ (100 L)"}
+# Conventions commerciales validées par Devis Scan (26/11/2026). Les bacs et les valises ne sont PAS assimilés à des
+# cartons : chacun garde sa sous-catégorie, son identifiant et sa propre valeur.
+CONVENTIONS_VALIDEES = {
+    "CAR-CARTON": (0.10, CARTON["decision"]),
+    "CAR-BAC": (0.10, "convention commerciale validée par Devis Scan le 26/11/2026 : bac de rangement standard = 0,10 m³"),
+    "BAG-VALISE": (0.20, "convention commerciale validée par Devis Scan le 26/11/2026 : valise classique = 0,20 m³"),
+    "BAG-VALISE-GRANDE": (0.30, "convention commerciale validée par Devis Scan le 26/11/2026 : grande valise = 0,30 m³"),
+    "CAR-BAC-GRAND": (0.20, "convention commerciale validée par Devis Scan le 26/11/2026 : grand bac de rangement = 0,20 m³"),
+    "BAG-VALISE-TRES-GRANDE": (0.30, "convention commerciale validée par Devis Scan le 26/11/2026 : très grande valise = 0,30 m³"),
+}
+# Variantes de taille rattachées à une autre sous-catégorie (v6.2) : la variante « grand format » de la valise
+# correspond à la grande valise. Elle est rattachée à BAG-VALISE-GRANDE, prend sa convention, et n'est jamais
+# proposée à côté de sa sous-catégorie (correspondance_identifiants_v6_2.csv).
+VARIANTES_RATTACHEES = {"BAG-VALISE-L": "BAG-VALISE-GRANDE"}
+# Conventions validées sans sous-catégorie propre dans le catalogue : enregistrées, non appliquées (aucun identifiant
+# n'est créé sans accord).
+CONVENTIONS_SANS_SOUS_CATEGORIE = {}  # v6.2 : les deux conventions concernées ont désormais leur sous-catégorie
 SEUIL_ELEVEE, SEUIL_MOYENNE, DISPERSION_FORTE = (10, 3), (5, 2), 1.0
 NIVEAUX = ["provisoire", "moyenne", "élevée"]
 # Une valeur Démén'House plus de 6 fois supérieure au géométrique médian mesuré (≥ 3 produits) est jugée ne
 # pas correspondre à l'objet courant de la sous-catégorie (exemple : meuble TV à 3,2 m³ pour 0,32 m³ mesuré).
 DH_RAPPORT_MAX = 6.0
+# v6.2 : une valeur publiée est jugée manifestement aberrante (erreur de catégorie ou de saisie probable) si elle
+# vaut moins de 25 % ou plus de 6 fois le géométrique médian mesuré sur au moins 3 produits. En dehors de ces
+# bornes, la géométrie sert d'indicateur, jamais de plancher (la règle v6.1 « ≥ 80 % du géométrique » est retirée).
+ABERRATION_BASSE = 0.25
+# Bornes des variantes de taille par rapport à leur parente (v6.2) : évite qu'un tiers de modèles extrêmes
+# (ensembles, objets de collection) produise un volume hors de proportion.
+VARIANTE_BORNES = (0.6, 1.6)
+# Objets à ranger en carton : leur volume est déjà compté dans les cartons déclarés par le client.
+INCLUS_DANS_CARTONS = {"PEM-AUTRE": "petit électroménager « à mettre en carton » (nom de la sous-catégorie)"}
 CORROBORATION = 0.35  # une autre source corrobore si sa valeur, ou sa fourchette, tombe à ± 35 % de la valeur retenue
 DIVERGENCE = 1.5      # écart signalé si une autre valeur publiée est 1,5 fois plus grande ou plus petite
 # Conventions incompatibles avec la sous-catégorie : conservées comme références, jamais retenues.
@@ -231,14 +259,15 @@ def valeur_professionnelle(e, refs, ordre):
     utiles = [x for x in refs if not x["aberrant"] and not x["convention_exclue"]]
     rejets = []
     geo_fiable = e["volume_geometrique_m3"] if e["statut_geo"] == "mesuré" and e["nb_produits_independants"] >= 3 else None
-    geo_plancher = e["volume_geometrique_m3"] if e["statut_geo"] in ("mesuré", "partiellement mesuré") else None
-    rigide = e["classe_manutention"] in ("appareils et objets rigides", "meubles et objets non démontables")
     uniques = []
     for x in utiles:
         if x["valeur_m3"] is None:
             continue
-        if rigide and geo_plancher and x["valeur_m3"] < 0.8 * geo_plancher:
-            rejets.append(f"{x['valeur_m3']} m³ ({x['domaine']}) non retenue : inférieure à 80 % du volume de l'objet rigide ({geo_plancher} m³)")
+        if geo_fiable and x["valeur_m3"] < ABERRATION_BASSE * geo_fiable:
+            rejets.append(f"{x['valeur_m3']} m³ ({x['domaine']}) écartée comme manifestement aberrante : moins de 25 % du géométrique médian mesuré ({geo_fiable} m³)")
+            continue
+        if geo_fiable and x["valeur_m3"] > DH_RAPPORT_MAX * geo_fiable and x["source"] != "demenhouse":
+            rejets.append(f"{x['valeur_m3']} m³ ({x['domaine']}) écartée comme manifestement aberrante : plus de 6 fois le géométrique médian mesuré ({geo_fiable} m³)")
             continue
         uniques.append(x)
     choix = None
@@ -249,6 +278,14 @@ def valeur_professionnelle(e, refs, ordre):
             rejets.append(f"valeur Démén'House {x['valeur_m3']} m³ non retenue : {x['valeur_m3'] / geo_fiable:.1f} fois le géométrique médian mesuré ({geo_fiable} m³), ne correspond pas à l'objet courant de la sous-catégorie")
         else:
             choix, regle = x, "1 — valeur unique publiée par Démén'House"
+            # v6.2 : si la liste de Démén'House sort de la fourchette de son propre article récent, on retient la borne
+            # publiée la plus proche (valeur publiée par Démén'House, pas une moyenne).
+            fr = [y for y in utiles if y["source"] == "demenhouse-2" and y["valeur_m3"] is None]
+            if fr and not (fr[0]["bas"] <= x["valeur_m3"] <= fr[0]["haut"]):
+                borne = fr[0]["haut"] if x["valeur_m3"] > fr[0]["haut"] else fr[0]["bas"]
+                rejets.append(f"liste Démén'House {x['valeur_m3']} m³ hors de la fourchette de son article récent ({fr[0]['bas']}–{fr[0]['haut']} m³) : borne {borne} m³ retenue")
+                choix = dict(fr[0], valeur_m3=borne, libelle=fr[0]["libelle"] + f" (borne {'haute' if borne == fr[0]['haut'] else 'basse'})")
+                regle = "1b — Démén'House : borne de la fourchette publiée la plus proche de la liste (cohérence entre ses deux publications)"
     if choix is None:
         attrib = sorted((x for x in uniques if x["attribution"] == "attribuée" and x["source"] not in DH_SRC), key=lambda x: ordre.index(x["source"]))
         if attrib:
@@ -285,7 +322,10 @@ def type_reference(choix):
 # ------------------------------------------------------------------ construction
 def construire():
     cat, produits = charger()
-    refs = cat["references"]
+    familles_v5 = {f["identifiant"]: f["nom"] for f in cat["familles"]}
+    ajouts = references_v62(familles_v5)
+    assert not ({r["identifiant"] for r in ajouts} & {r["identifiant"] for r in cat["references"]}), "sous-catégorie déjà existante"
+    refs = cat["references"] + ajouts
     base_refs = {r["identifiant"]: r for r in refs if not r.get("variante_de")}
     releves = releves_par_sc()
     assert not (set(releves) - set(base_refs)), set(releves) - set(base_refs)
@@ -306,9 +346,10 @@ def construire():
         e["references_pro"] = releves.get(i, [])
         e["rejets"] = []
         e["pro"] = None
-        if i == CARTON["id"]:
-            e.update(volume_demenagement_m3=CARTON["volume"], type_reference="convention validée par Devis Scan", source_principale="Devis Scan (décision du 26/11/2026)",
-                     regle="convention", methode_demenagement=CARTON["decision"], fiabilite_demenagement="élevée (convention validée)",
+        if i in CONVENTIONS_VALIDEES:
+            vol, dec = CONVENTIONS_VALIDEES[i]
+            e.update(volume_demenagement_m3=vol, type_reference="convention validée par Devis Scan", source_principale="Devis Scan (décision du 26/11/2026)",
+                     regle="convention", methode_demenagement=dec, fiabilite_demenagement="élevée (convention validée)",
                      statut_validation="convention commerciale validée par Devis Scan (pas une mesure)")
             continue
         if i == "DIV-AUTRE":
@@ -342,17 +383,17 @@ def construire():
             if e.get("pro") and filtre(e) and e["statut_geo"] == "mesuré" and e["nb_produits_independants"] >= 3 and e["volume_geometrique_m3"]:
                 a[e["classe_manutention"]].append((i, e["volume_demenagement_m3"] / e["volume_geometrique_m3"]))
         return a
-    a_dh = ancres(lambda e: e["pro"]["choix"]["source"] == "demenhouse")
+    # v6.2 : ancres = toutes les valeurs professionnelles retenues (Démén'House et autres), et non plus Démén'House
+    # seul : la v6.1 appliquait aux objets sans référence un rapport de 2,1 à 2,7, qui revenait à ajouter de fortes
+    # marges que le catalogue n'a pas à porter (meubles comptés montés, sans calage ni protection).
     a_pro = ancres(lambda e: True)
-    glob_dh = statistics.median(r for l in a_dh.values() for _, r in l)
+    glob_dh = statistics.median(r for l in a_pro.values() for _, r in l)
     ratios = {}
     for c in sorted({e["classe_manutention"] for e in base.values()}):
-        if len(a_dh.get(c, [])) >= 3:
-            ratios[c] = {"ratio": statistics.median(r for _, r in a_dh[c]), "ancres": a_dh[c], "origine": "ancres Démén'House de la classe"}
-        elif len(a_pro.get(c, [])) >= 3:
-            ratios[c] = {"ratio": statistics.median(r for _, r in a_pro[c]), "ancres": a_pro[c], "origine": "moins de 3 ancres Démén'House : ancres de toutes sources professionnelles de la classe (conventions mélangées)"}
+        if len(a_pro.get(c, [])) >= 3:
+            ratios[c] = {"ratio": statistics.median(r for _, r in a_pro[c]), "ancres": a_pro[c], "origine": "médiane des valeurs professionnelles retenues de la classe"}
         else:
-            ratios[c] = {"ratio": glob_dh, "ancres": a_dh.get(c, []), "origine": f"moins de 3 ancres dans la classe : médiane de toutes les ancres Démén'House ({sum(len(l) for l in a_dh.values())})"}
+            ratios[c] = {"ratio": glob_dh, "ancres": a_pro.get(c, []), "origine": f"moins de 3 ancres dans la classe : médiane de toutes les ancres ({sum(len(l) for l in a_pro.values())})"}
 
     # Étape 3 : comparables puis ratios, pour les sous-catégories sans valeur professionnelle utilisable.
     def comp_val(cid, mode, facteur, e):
@@ -418,20 +459,35 @@ def construire():
         with open(HIST / "catalogue_volumes_v6.csv", newline="") as f:
             for l in csv.DictReader(f, delimiter=";"):
                 hist[l["identifiant"]] = float(l["volume_demenagement_m3"]) if l["volume_demenagement_m3"] else None
+    hist61 = {}
+    if (HIST61 / "catalogue_volumes_v6.csv").exists():
+        with open(HIST61 / "catalogue_volumes_v6.csv", newline="") as f:
+            for l in csv.DictReader(f, delimiter=";"):
+                hist61[l["identifiant"]] = (float(l["volume_demenagement_m3"]) if l["volume_demenagement_m3"] else None, l["type_reference"], l["regle"])
     for i, e in base.items():
         e["volume_v6_0_m3"] = hist.get(i)
+        e["volume_v6_1_m3"], e["type_reference_v6_1"], e["regle_v6_1"] = hist61.get(i, (None, "", ""))
+        e["inclus_dans_cartons"] = INCLUS_DANS_CARTONS.get(i, "")
 
     variantes = []
     for r in refs:
         if not r.get("variante_de"):
             continue
-        p = base[r["variante_de"]]
+        cible = VARIANTES_RATTACHEES.get(r["identifiant"], r["variante_de"])
+        p = base[cible]
         g = r.get("volume_geometrique_median_m3")
-        if p["volume_demenagement_m3"] and g and p["volume_geometrique_m3"] and p["statut_geo"] == "mesuré":
-            dem, meth = r3(p["volume_demenagement_m3"] * g / p["volume_geometrique_m3"]), "hérité : volume retenu de la parente × (géométrique de la variante / géométrique de la parente)"
+        if cible != r["variante_de"]:
+            dem, meth = p["volume_demenagement_m3"], f"rattachée à {cible} (même objet) : convention de {cible} ; jamais proposée à côté de {cible}"
+        elif cible in CONVENTIONS_VALIDEES:
+            dem, meth = p["volume_demenagement_m3"], "hérité : convention validée de la parente, sans ajustement de taille (les grandes tailles ont leur propre sous-catégorie)"
+        elif p["volume_demenagement_m3"] and g and p["volume_geometrique_m3"] and p["statut_geo"] == "mesuré":
+            f = g / p["volume_geometrique_m3"]
+            fb = min(max(f, VARIANTE_BORNES[0]), VARIANTE_BORNES[1])
+            dem = r3(p["volume_demenagement_m3"] * fb)
+            meth = "hérité : volume retenu de la parente × (géométrique de la variante / géométrique de la parente)" + (f" ; rapport {f:.2f} borné à {fb:.2f} (bornes {VARIANTE_BORNES[0]}–{VARIANTE_BORNES[1]}, v6.2)" if fb != f else "")
         else:
             dem, meth = p["volume_demenagement_m3"], "hérité : volume retenu de la parente, sans ajustement (pas de géométrique comparable)"
-        variantes.append({"identifiant": r["identifiant"], "nom": r["nom"], "variante_de": r["variante_de"], "volume_geometrique_m3": g,
+        variantes.append({"identifiant": r["identifiant"], "nom": r["nom"], "variante_de": r["variante_de"], "rattachee_a": cible, "volume_geometrique_m3": g,
                           "geo_p25_m3": r.get("volume_geometrique_q1_m3"), "geo_p75_m3": r.get("volume_geometrique_q3_m3"), "nb_produits_independants": r.get("nb_modeles_independants", 0),
                           "volume_demenagement_m3": dem, "type_reference": "hérité de la sous-catégorie parente", "source_parente": p.get("type_reference", ""),
                           "fiabilite_demenagement": "provisoire", "statut_validation": "non validé", "methode_demenagement": meth})
@@ -441,20 +497,26 @@ def construire():
 # ------------------------------------------------------------------ anomalies
 ANOMALIES_V61 = [
     # (sous-catégories, type, description, priorité, état, action v6.1, décision proposée)
+    ("CAR-BAC-GRAND, BAG-VALISE-TRES-GRANDE", "sous-catégories créées en v6.2", "conventions validées (grand bac 0,20 m³ ; très grande valise 0,30 m³) sans sous-catégorie dans le catalogue v5", "moyenne", "résolue",
+     "sous-catégories créées (nouvelles_sous_categories.py), après vérification de l'absence de doublon", "aucune ; à reprendre dans le catalogue de l'IA lors de l'intégration"),
+    ("BAG-VALISE-L", "variante en doublon", "la variante « Valise — grand format » recoupe la sous-catégorie BAG-VALISE-GRANDE", "faible", "résolue",
+     "variante rattachée à BAG-VALISE-GRANDE (0,30 m³) ; contrôle de double comptage ajouté", "aucune"),
+    ("PEM-AUTRE", "risque de double comptage avec les cartons", "le petit électroménager « à mettre en carton » est déjà compté dans les cartons déclarés par le client", "moyenne", "contournée provisoirement",
+     "colonne inclus_dans_cartons renseignée ; volume conservé pour information", "le moteur de devis ne doit pas l'ajouter quand des cartons sont déclarés (règle à prévoir à l'intégration)"),
     ("CAR-CARTON", "convention du carton", "valeurs publiées 0,05 / 0,1 / 0,2 m³ (Démén'House : carton « medium » 0,2 m³)", "élevée", "résolue",
      "convention validée appliquée : 0,10 m³ ; les autres valeurs restent en références", "aucune (décision prise le 26/11/2026) ; à noter : Démén'House compte 0,2 m³ par carton « medium »"),
-    ("LIT-*, MAT-*, SOM-STD", "convention lit monté, démonté, avec ou sans literie", "les barèmes ne disent pas toujours si le matelas et le sommier sont compris ; la v6.0 ajoutait matelas et sommier à côté des lits dans les inventaires types (literie comptée deux fois)", "élevée", "contournée provisoirement",
-     "convention « lit complet » (cadre, sommier, matelas) ; valeur « cadre et sommier démontés, sans matelas » écartée pour LIT-QUEEN ; inventaires types corrigés", "faire valider la convention par le professionnel"),
+    ("LIT-*, MAT-*, SOM-STD", "convention lit monté, démonté, avec ou sans literie", "les barèmes ne disent pas toujours si le matelas et le sommier sont compris ; la v6.0 ajoutait matelas et sommier à côté des lits dans les inventaires types (literie comptée deux fois)", "élevée", "résolue",
+     "convention « lit complet » validée (v6.2) ; valeur « cadre et sommier démontés, sans matelas » écartée pour LIT-QUEEN ; contrôle automatique des inventaires", "aucune"),
     ("LIT-QUEEN, LIT-KING, LIT-COFFRE, LIT-NC", "géométriques mesurés incohérents entre tailles de lit", "2,93 / 3,21 / 4,36 / 4,38 m³ contre 1,02 m³ pour LIT-DOUBLE : produits mesurés avec tête de lit, coffres ou ensembles", "élevée", "contournée provisoirement",
      "volumes de déménagement par comparables (LIT-QUEEN, LIT-DOUBLE), jamais par le géométrique", "revoir le périmètre des produits mesurés"),
-    ("ARM-4P, ARM-5P+, ARM-NC", "armoires : monté ou démonté ?", "Démén'House 4,3 m³ (4 portes) et 2,3 m³ (armoire « standard »), d'autres sites 2,0 m³ ; mtn-demenagement.com 3 m³ pour une 3 portes « montée » ; une source indique un gain de 30 à 40 % au démontage", "élevée", "ouverte",
-     "valeurs Démén'House retenues, divergences conservées", "question au professionnel : volume retenu pour une armoire démontée par l'équipe"),
-    ("COM-NC, CHV-STD", "Démén'House incohérent avec lui-même", "liste : commode 1,5 m³, chevet 0,3 m³ ; article récent : commode 0,5 à 1 m³, chevet 0,15 à 0,25 m³", "élevée", "ouverte",
-     "valeur de la liste retenue (règle 1), incohérence signalée", "choisir entre les deux séries de Démén'House"),
+    ("ARM-4P, ARM-5P+, ARM-NC", "armoires : monté ou démonté ?", "Démén'House 4,3 m³ (4 portes) et 2,3 m³ (armoire « standard »), d'autres sites 2,0 m³ ; mtn-demenagement.com 3 m³ pour une 3 portes « montée » ; une source indique un gain de 30 à 40 % au démontage", "élevée", "choix documenté",
+     "v6.2 : convention définitive « meubles comptés montés » ; valeurs Démén'House retenues, divergences conservées", "confirmer en revue professionnelle"),
+    ("COM-NC, CHV-STD", "Démén'House incohérent avec lui-même", "liste : commode 1,5 m³, chevet 0,3 m³, lit double 2,6 m³ ; article récent : commode 0,5 à 1 m³, chevet 0,15 à 0,25 m³, lit double avec sommier 1,5 à 2,5 m³", "élevée", "résolue",
+     "v6.2 : borne de la fourchette publiée la plus proche retenue (commode 1,0 ; chevet 0,25 ; lit double 2,5 m³)", "confirmer en revue professionnelle"),
     ("RAN-MEUBLE-TV", "valeur Démén'House ne correspondant pas à l'objet", "meuble TV 3,2 m³ pour un géométrique médian de 0,32 m³ (10 fois plus)", "moyenne", "résolue",
      "valeur Démén'House non retenue (règle de correspondance) ; autre valeur professionnelle retenue", "confirmer avec le professionnel"),
-    ("RAN-BIB-NC, RAN-BUFFET, TAB-BASSE, COM-NC", "valeurs professionnelles très supérieures au géométrique", "2,3 à 5,4 fois le géométrique médian mesuré : barèmes visant peut-être de plus grands modèles, ou comptant la protection et le calage", "moyenne", "ouverte",
-     "valeurs professionnelles retenues (le géométrique n'est jamais substitué)", "question au professionnel"),
+    ("RAN-BIB-NC, RAN-BUFFET, TAB-BASSE, COM-NC", "valeurs professionnelles très supérieures au géométrique", "2,3 à 5,4 fois le géométrique médian mesuré : barèmes visant peut-être de plus grands modèles, ou comptant la protection et le calage", "moyenne", "choix documenté",
+     "v6.2 : la géométrie est un indicateur ; valeurs professionnelles conservées (sous le seuil d'aberration de 6 fois)", "confirmer en revue professionnelle"),
     ("ELM-REF-COMBI, ELM-REF-US, ELM-REF-1P, ELM-REF-TOP, ELM-CAVE", "dimensions du marché nord-américain", "largeurs médianes issues d'ENERGY STAR (combiné de 74,9 cm de large au lieu de 60 cm en France)", "moyenne", "ouverte",
      "sans effet sur les volumes de déménagement retenus quand une valeur professionnelle existe (ELM-REF, ELM-REF-COMBI, ELM-REF-US) ; effet sur ELM-REF-1P et ELM-REF-TOP (comparables en proportion)", "EPREL (démarche à faire par le porteur du projet) ou mesures françaises"),
     ("RES-DISTRIBUTEUR, PRO-COMPTOIR, PRO-PRESENTOIR, ENF-CHAISE-HAUTE", "produits mal classés", "petits distributeurs muraux, micro-ondes, vitrine à drapeau, rehausseur plié", "moyenne", "résolue",
@@ -476,11 +538,11 @@ def anomalies_auto(e):
     geo = e["volume_geometrique_m3"]
     rigide = e["classe_manutention"] in ("appareils et objets rigides", "meubles et objets non démontables")
     if v5 is not None and v and abs(v5 - v) / v > 0.5:
-        a.append(("écart important avec la v5", f"v5 {v5} m³, retenu v6.1 {v} m³ ({(v - v5) / v5:+.0%} par rapport à la v5)", "élevée" if e["prioritaire"] else "moyenne", "ouverte", "", "trancher avec le professionnel"))
+        a.append(("écart avec la v5 (information)", f"v5 {v5} m³, retenu v6.2 {v} m³ ({(v - v5) / v5:+.0%}) ; un écart avec la v5 ne justifie pas à lui seul une correction", "faible", "ouverte", "", "revue professionnelle si la sous-catégorie est dans les 40"))
     if v5 is not None and geo and rigide and v5 < 0.8 * geo and e["statut_geo"] == "mesuré":
         a.append(("v5 inférieure au volume du meuble", f"v5 {v5} m³ pour un objet rigide non démontable de {geo} m³", "élevée", "résolue" if v and v >= 0.8 * geo else "ouverte", "valeur v6.1 au moins égale au volume du meuble" if v and v >= 0.8 * geo else "", "aucune si la valeur retenue est validée"))
     if e.get("divergence"):
-        a.append(("divergence entre sources", e["divergence"] + " : " + e["autres_references"][:300], "élevée" if e["prioritaire"] else "moyenne", "ouverte", "valeurs conservées, aucune moyenne", "question au professionnel"))
+        a.append(("divergence entre sources", e["divergence"] + " : " + e["autres_references"][:300], "élevée" if e["prioritaire"] else "moyenne", "choix documenté", f"valeur retenue selon la règle {e['regle'][:2].strip()} ; autres valeurs conservées, aucune moyenne", "confirmer en revue professionnelle"))
     if e.get("pro") and e["pro"]["incoherence_dh"]:
         x = e["pro"]["incoherence_dh"][0]
         a.append(("Démén'House incohérent avec lui-même", f"liste {e['volume_demenagement_m3']} m³ hors de la fourchette de l'article récent ({x['bas']}–{x['haut']} m³)", "élevée", "ouverte", "valeur de la liste retenue", "choisir la série de référence"))
@@ -534,6 +596,37 @@ def scenario_sans_demenhouse(base, ordre):
 
 
 # ------------------------------------------------------------------ couverture et comparaison des versions
+def verifier_inventaire(nom, objets, base):
+    """Contrôles de double comptage (v6.2). Renvoie la liste des problèmes (vide = conforme)."""
+    pb = []
+    ids = [sc for sc, _ in objets]
+    dupl = [sc for sc, n in Counter(ids).items() if n > 1]
+    if dupl:
+        pb.append(f"sous-catégorie sur plusieurs lignes : {', '.join(dupl)}")
+    if any(i.startswith("LIT-") or i == "ANC-LIT" for i in ids) and any(i.startswith("MAT-") or i == "SOM-STD" for i in ids):
+        pb.append("lit complet et matelas ou sommier comptés ensemble")
+    cartons = [i for i in ids if i in ("CAR-CARTON",)]
+    if cartons:
+        pb.append("cartons dans l'inventaire de meubles (ils sont déclarés à part par le client)")
+    inclus = [i for i in ids if i in INCLUS_DANS_CARTONS]
+    if inclus:
+        pb.append(f"objets déjà comptés dans les cartons : {', '.join(inclus)}")
+    variantes = [i for i in ids if i not in base]
+    if variantes:
+        pb.append(f"identifiants hors sous-catégories (variantes ou inconnus) : {', '.join(variantes)}")
+    for v, sc in VARIANTES_RATTACHEES.items():
+        if v in ids and sc in ids:
+            pb.append(f"variante {v} et sa sous-catégorie de rattachement {sc} comptées ensemble")
+    if "BAG-SET" in ids and ({"BAG-VALISE", "BAG-VALISE-GRANDE", "BAG-VALISE-TRES-GRANDE"} & set(ids)):
+        pb.append("ensemble de valises et valises comptées ensemble")
+    bacs_cartons = [i for i in ids if i in ("CAR-BAC", "CAR-BAC-GRAND", "BAG-VALISE", "BAG-VALISE-GRANDE", "BAG-VALISE-TRES-GRANDE") and i in INCLUS_DANS_CARTONS]
+    if bacs_cartons:
+        pb.append(f"bacs ou valises assimilés aux cartons : {', '.join(bacs_cartons)}")
+    if "JAR-SALON" in ids and ({"JAR-TABLE", "JAR-CHAISE"} & set(ids)):
+        pb.append("salon de jardin (ensemble) et ses composants comptés ensemble")
+    return pb
+
+
 def couverture(base, alt=None):
     corr = {}
     with open(V5 / "correspondance_catalogue_existant.csv", newline="") as f:
@@ -544,11 +637,13 @@ def couverture(base, alt=None):
         d = json.loads((RACINE / "tests" / "ai-eval" / "dataset" / cas / "case.json").read_text())
         items = [(corr.get(x["key"]) or x["key"], x["quantity"]) for x in d["reference"]["items"] if not x.get("optional")]
         invs[f"pièce réelle « {cas} » (référence provisoire du banc)"] = {"nature": "pièce réelle du jeu de test, référence non validée", "objets": items}
-    res, decomp = [], []
+    res, decomp, verif = [], [], []
     for nom, inv in invs.items():
+        pb = verifier_inventaire(nom, inv["objets"], base)
+        verif.append({"inventaire": nom, "nb_lignes": len(inv["objets"]), "conforme": "oui" if not pb else "non", "problemes": " ; ".join(pb)})
         tot = defaultdict(float)
-        sans = []
-        v5_tot = v61_tot = v60_tot = 0.0
+        sans, sans_v5 = [], []
+        v5_tot = v61_tot = v62_tot = 0.0
         sans_dh = sum((alt[sc] or 0) * q for sc, q in inv["objets"] if sc in base and alt) if alt else None
         for sc, q in inv["objets"]:
             e = base.get(sc)
@@ -558,25 +653,31 @@ def couverture(base, alt=None):
             v = e["volume_demenagement_m3"] * q
             tot["total"] += v
             tot[e["regle"][:1]] += v
-            if e["volume_v5_m3"] is not None:
-                v5_tot += e["volume_v5_m3"] * q
-                v61_tot += v
-                v60_tot += (e["volume_v6_0_m3"] or 0) * q
-                cause = ("v5 inférieure au volume du meuble" if (e["volume_v5_m3"] < 0.8 * (e["volume_geometrique_m3"] or 0) and e["statut_geo"] == "mesuré")
-                         else "valeur Démén'House" if e["regle"].startswith("1") else "autre valeur professionnelle" if e["regle"][:1] in "23"
-                         else "comparable" if e["regle"].startswith("4") else "ratio géométrique")
-                decomp.append({"inventaire": nom, "sous_categorie": sc, "quantite": q, "v5_m3": round(e["volume_v5_m3"] * q, 3), "v6_0_m3": round((e["volume_v6_0_m3"] or 0) * q, 3),
-                               "v6_1_m3": round(v, 3), "ecart_v6_1_v5_m3": round(v - e["volume_v5_m3"] * q, 3), "cause_principale": cause})
+            if e["volume_v5_m3"] is None:
+                sans_v5.append(sc)
+                continue
+            v5 = e["volume_v5_m3"] * q
+            v61 = (e["volume_v6_1_m3"] or 0) * q
+            v5_tot += v5
+            v61_tot += v61
+            v62_tot += v
+            cause = ("v5 inférieure au volume du meuble" if (e["volume_v5_m3"] < 0.8 * (e["volume_geometrique_m3"] or 0) and e["statut_geo"] == "mesuré")
+                     else "valeur Démén'House" if e["regle"].startswith("1") else "autre valeur professionnelle" if e["regle"][:1] in "23"
+                     else "comparable" if e["regle"].startswith("4") else "ratio géométrique")
+            decomp.append({"inventaire": nom, "sous_categorie": sc, "quantite": q, "v5_m3": round(v5, 3), "v6_1_m3": round(v61, 3), "v6_2_m3": round(v, 3),
+                           "ecart_v6_2_v5_m3": round(v - v5, 3), "cause_principale": cause})
         t = tot["total"]
         pc = lambda k: round(100 * tot[k] / t, 1) if t else 0.0  # noqa: E731
-        res.append({"inventaire": nom, "nature": inv["nature"], "nb_lignes": len(inv["objets"]), "volume_total_m3": round(t, 2),
+        res.append({"inventaire": nom, "nature": inv["nature"], "nb_lignes": len(inv["objets"]), "volume_total_v6_2_m3": round(t, 2),
                     "part_lignes_avec_reference_pct": round(100 * (len(inv["objets"]) - len(sans)) / len(inv["objets"]), 1),
-                    "part_valeur_demenhouse_pct": pc("1"), "part_autre_pro_attribuee_pct": pc("2"), "part_pro_non_attribuee_pct": pc("3"),
-                    "part_comparable_pct": pc("4"), "part_ratio_geometrique_pct": pc("5"), "part_convention_validee_pct": pc("c"),
-                    "comparable_v5_m3": round(v5_tot, 2), "comparable_v6_0_m3": round(v60_tot, 2), "comparable_v6_1_m3": round(v61_tot, 2),
-                    "ecart_v6_1_v5_pct": round(100 * (v61_tot - v5_tot) / v5_tot, 1) if v5_tot else None,
-                    "scenario_sans_demenhouse_m3": round(sans_dh, 2) if sans_dh is not None else None, "sans_reference": sans})
-    return res, decomp
+                    "part_valeur_publiee_demenhouse_pct": round(pc("1"), 1), "part_autre_valeur_publiee_pct": round(pc("2") + pc("3"), 1),
+                    "part_analogie_pct": pc("4"), "part_estimation_dimensions_pct": pc("5"), "part_convention_validee_pct": pc("c"),
+                    "lignes_comparees_avec_v5": len(inv["objets"]) - len(sans) - len(sans_v5), "lignes_sans_valeur_v5": ", ".join(sans_v5),
+                    "comparable_v5_m3": round(v5_tot, 2), "comparable_v6_1_m3": round(v61_tot, 2), "comparable_v6_2_m3": round(v62_tot, 2),
+                    "ecart_v6_2_v5_m3": round(v62_tot - v5_tot, 2), "ecart_v6_2_v5_pct": round(100 * (v62_tot - v5_tot) / v5_tot, 1) if v5_tot else None,
+                    "scenario_sans_demenhouse_m3": round(sans_dh, 2) if sans_dh is not None else None, "doubles_comptages": "aucun" if not pb else " ; ".join(pb),
+                    "sans_reference": ", ".join(sans)})
+    return res, decomp, verif
 
 
 # ------------------------------------------------------------------ écriture
@@ -589,7 +690,7 @@ def ecrire_csv(chemin, lignes, colonnes):
 
 
 COLONNES = ["identifiant", "nom", "famille_id", "niveau_pertinence", "prioritaire", "classe_manutention",
-            "volume_v5_m3", "volume_v6_0_m3", "volume_demenagement_m3", "type_reference", "regle", "source_principale", "autres_references",
+            "volume_v5_m3", "volume_v6_0_m3", "volume_v6_1_m3", "volume_demenagement_m3", "inclus_dans_cartons", "type_reference", "regle", "source_principale", "autres_references",
             "nb_references_pro", "nb_sources_independantes_pro", "divergence", "fiabilite_demenagement", "statut_validation", "methode_demenagement",
             "volume_geometrique_m3", "geo_p25_m3", "geo_p75_m3", "geo_dispersion", "statut_geo", "fiabilite_geo", "nb_produits_independants",
             "nb_sources_distinctes", "nb_exclus_aberrants", "methode_geo", "volume_transport_m3", "commentaires"]
@@ -631,14 +732,14 @@ def main():
     pro_json = lambda e: [{k: x[k] for k in ("valeur_m3", "bas", "haut", "domaine", "attribution", "libelle", "convention", "aberrant")} for x in e["references_pro"]]  # noqa: E731
     (SORTIE / "catalogue_volumes_v6.json").write_text(json.dumps({
         "version": VERSION, "genere_le": "2026-11-26",
-        "regles": {"carton": CARTON, "priorite": "Démén'House (valeur unique) > autre source attribuée (barème le plus couvrant) > valeur non attribuée > comparable > ratio géométrique de classe",
+        "regles": {"carton": CARTON, "conventions_validees": {k: v[0] for k, v in CONVENTIONS_VALIDEES.items()}, "conventions_sans_sous_categorie": CONVENTIONS_SANS_SOUS_CATEGORIE, "priorite": "Démén'House (valeur unique) > autre source attribuée (barème le plus couvrant) > valeur non attribuée > comparable > ratio géométrique de classe",
                    "dh_rapport_max": DH_RAPPORT_MAX, "corroboration": CORROBORATION, "divergence": DIVERGENCE, "conventions_exclues": CONVENTIONS_EXCLUES,
                    "ordre_sources_attribuees": ordre, "convention_lit": "lit complet : cadre, sommier et matelas"},
         "sous_categories": [{**{k: e.get(k) for k in COLONNES}, "references_pro": pro_json(e), "estimation_ia": e.get("estimation_ia"), "transport_ia": e.get("transport_ia"),
                              "produits_exclus_v6_1": e.get("produits_exclus_v6_1")} for e in lignes],
         "variantes": variantes,
         "ratios_classes": {c: {"ratio": round(v["ratio"], 3), "origine": v["origine"], "ancres": [[i, round(x, 3)] for i, x in v["ancres"]]} for c, v in ratios.items()},
-        "ratio_global_demenhouse": round(glob_dh, 3)}, ensure_ascii=False, indent=1))
+        "ratio_global": round(glob_dh, 3)}, ensure_ascii=False, indent=1))
     ecrire_csv(SORTIE / "variantes_v6.csv", variantes, list(variantes[0].keys()))
 
     # Mesures individuelles : produits retenus, exclus (v5 et v6.1), mesures partielles, estimations de l'IA.
@@ -696,12 +797,27 @@ def main():
             ano.append({"sous_categories": e["identifiant"], "niveau_pertinence": e["niveau_pertinence"], "type": typ, "description": desc, "priorite": prio,
                         "etat_resolution": etat, "action_v6_1": action, "decision_proposee": dec, "origine": "contrôle automatique v6.1"})
     ano.extend(anomalies_ordre(base))
+    # v6.2 : impact commercial (objet fréquent des inventaires types, ou volume unitaire ≥ 0,5 m³ pour une prioritaire).
+    frequents = {sc for inv in INVENTAIRES.values() for sc, _ in inv["objets"]}
+    for a in ano:
+        scs = [x.strip() for x in a["sous_categories"].replace("*", "").split(",")]
+        sig = any(sc in frequents or (sc in base and base[sc]["prioritaire"] and (base[sc]["volume_demenagement_m3"] or 0) >= 0.5) for sc in scs)
+        if a["origine"] == "revue v6.1" or a["type"] in ("ordre incohérent entre variantes",):
+            sig = sig or a["priorite"] == "élevée"
+        if a["type"] == "aucune référence professionnelle":
+            sig = any(sc in frequents or (sc in base and (base[sc]["volume_demenagement_m3"] or 0) >= 1.0) for sc in scs)
+        if a["type"].startswith("écart avec la v5") or a["priorite"] == "faible":
+            sig = False
+        a["impact_commercial"] = "significatif" if sig else "mineur"
     ordre_p = {"élevée": 0, "moyenne": 1, "faible": 2}
-    ordre_e = {"ouverte": 0, "contournée provisoirement": 1, "résolue": 2}
+    ordre_e = {"ouverte": 0, "contournée provisoirement": 1, "choix documenté": 2, "résolue": 3}
     ano.sort(key=lambda a: (ordre_e[a["etat_resolution"]], ordre_p[a["priorite"]], str(a["niveau_pertinence"]), a["sous_categories"]))
     for k, a in enumerate(ano, 1):
         a["id"] = f"ANO-{k:03d}"
-    ecrire_csv(SORTIE / "anomalies.csv", ano, ["id", "sous_categories", "niveau_pertinence", "type", "description", "priorite", "etat_resolution", "action_v6_1", "decision_proposee", "origine"])
+    cols_ano = ["id", "sous_categories", "niveau_pertinence", "type", "description", "priorite", "impact_commercial", "etat_resolution", "action_v6_1", "decision_proposee", "origine"]
+    ecrire_csv(SORTIE / "anomalies.csv", ano, cols_ano)
+    restantes = sorted((a for a in ano if a["etat_resolution"] not in ("résolue",)), key=lambda a: (a["impact_commercial"] != "significatif", ordre_p[a["priorite"]], a["id"]))
+    ecrire_csv(SORTIE / "anomalies_restantes.csv", restantes, cols_ano)
 
     # Suivi des anomalies de la v6.0.
     suivi = []
@@ -733,12 +849,72 @@ def main():
         ecrire_csv(SORTIE / "suivi_anomalies_v6_0.csv", suivi, list(suivi[0].keys()))
 
     alt = scenario_sans_demenhouse(base, ordre)
-    cov, decomp = couverture(base, alt)
+    # Règles de correspondance des identifiants (v6.2) : anciens identifiants du moteur (v5) → sous-catégorie v6.2,
+    # variantes → sous-catégorie à utiliser, nouvelles sous-catégories.
+    corresp = []
+    with open(V5 / "correspondance_catalogue_existant.csv", newline="") as f:
+        for l in csv.DictReader(f, delimiter=";"):
+            cible = l["reference_normalisee_principale"]
+            corresp.append({"identifiant_source": l["id_existant"], "type": "ancien identifiant du moteur (catalogue v5)", "nom_source": l["nom_existant"],
+                            "identifiant_v6_2": cible, "nom_v6_2": base[cible]["nom"] if cible in base else "", "volume_v6_2_m3": base[cible]["volume_demenagement_m3"] if cible in base else "",
+                            "regle": "correspondance v5 (référence normalisée principale)"})
+    for v in variantes:
+        corresp.append({"identifiant_source": v["identifiant"], "type": "variante de taille (non exposée aux devis)", "nom_source": v["nom"],
+                        "identifiant_v6_2": v["rattachee_a"], "nom_v6_2": base[v["rattachee_a"]]["nom"], "volume_v6_2_m3": base[v["rattachee_a"]]["volume_demenagement_m3"],
+                        "regle": "rattachée à une autre sous-catégorie (même objet)" if v["rattachee_a"] != v["variante_de"] else "sous-catégorie parente"})
+    for n in NOUVELLES:
+        corresp.append({"identifiant_source": n["identifiant"], "type": "sous-catégorie créée en v6.2", "nom_source": n["nom"], "identifiant_v6_2": n["identifiant"],
+                        "nom_v6_2": n["nom"], "volume_v6_2_m3": base[n["identifiant"]]["volume_demenagement_m3"], "regle": "nouvelle sous-catégorie (convention validée)"})
+    ecrire_csv(SORTIE / "correspondance_identifiants_v6_2.csv", corresp, list(corresp[0].keys()))
+
+    cov, decomp, verif = couverture(base, alt)
     ecrire_csv(SORTIE / "couverture_inventaires.csv", cov, list(cov[0].keys()))
+    ecrire_csv(SORTIE / "verification_inventaires.csv", verif, list(verif[0].keys()))
+
+    # Journal des corrections v6.1 → v6.2 (sous-catégories).
+    corr = []
+    for e in lignes:
+        a, b = e["volume_v6_1_m3"], e["volume_demenagement_m3"]
+        if a is None or b is None or abs(a - b) < 0.0005:
+            continue
+        rg = e["regle"]
+        if rg.startswith("1b"):
+            raison, conf = "Démén'House incohérent avec son article récent : la borne publiée la plus proche est retenue (cohérence entre ses deux publications)", "moyenne"
+        elif e["identifiant"] in CONVENTIONS_VALIDEES:
+            raison, conf = f"convention commerciale validée par Devis Scan (26/11/2026) : {e['methode_demenagement'].split(' : ')[-1]} ; non assimilé au carton", "élevée (convention validée)"
+        elif rg[:1] in "23" and e["regle_v6_1"][:1] != rg[:1] or (rg[:1] in "23" and e["type_reference_v6_1"] != e["type_reference"]):
+            raison, conf = "valeur publiée réintégrée : la règle v6.1 « au moins 80 % du volume géométrique » est retirée (la géométrie sert d'indicateur, pas de plancher)", "moyenne"
+        elif rg[:1] in "23":
+            raison, conf = "valeur publiée réintégrée (retrait du plancher géométrique de la v6.1)", "moyenne"
+        elif rg.startswith("4"):
+            raison, conf = f"suit la sous-catégorie comparable ({e['methode_demenagement'][:60]}…)", "faible"
+        else:
+            raison, conf = "estimation par les dimensions : ratio de classe recalculé sur toutes les valeurs professionnelles retenues (v6.1 : Démén'House seul, rapports de 2,1 à 2,7 qui ajoutaient des marges)", "faible"
+        corr.append({"identifiant": e["identifiant"], "nom": e["nom"], "niveau_pertinence": e["niveau_pertinence"], "valeur_v6_1_m3": a, "valeur_v6_2_m3": b,
+                     "ecart_m3": r3(b - a), "ecart_pct": round(100 * (b - a) / a, 1) if a else "", "raison": raison, "source_ou_methode": e["source_principale"] + " — " + e["methode_demenagement"],
+                     "type_reference_v6_2": e["type_reference"], "confiance": conf})
+    for n in NOUVELLES:
+        e = base[n["identifiant"]]
+        corr.append({"identifiant": n["identifiant"], "nom": n["nom"], "niveau_pertinence": n["niveau_pertinence"], "valeur_v6_1_m3": "absente (sous-catégorie créée en v6.2)",
+                     "valeur_v6_2_m3": e["volume_demenagement_m3"], "ecart_m3": "", "ecart_pct": "", "raison": "sous-catégorie créée en v6.2 après vérification de l'absence de doublon ; " + e["methode_demenagement"],
+                     "source_ou_methode": e["source_principale"], "type_reference_v6_2": e["type_reference"], "confiance": "élevée (convention validée)"})
+    var61 = {}
+    if (HIST61 / "variantes_v6.csv").exists():
+        with open(HIST61 / "variantes_v6.csv", newline="") as f:
+            var61 = {l["identifiant"]: l for l in csv.DictReader(f, delimiter=";")}
+    for v in variantes:
+        if v["variante_de"] in ("BAG-VALISE", "CAR-BAC") and v["identifiant"] in var61:
+            a61 = float(var61[v["identifiant"]]["volume_demenagement_m3"])
+            if abs(a61 - v["volume_demenagement_m3"]) >= 0.0005:
+                corr.append({"identifiant": v["identifiant"], "nom": v["nom"], "niveau_pertinence": "variante", "valeur_v6_1_m3": a61, "valeur_v6_2_m3": v["volume_demenagement_m3"],
+                             "ecart_m3": r3(v["volume_demenagement_m3"] - a61), "ecart_pct": round(100 * (v["volume_demenagement_m3"] - a61) / a61, 1),
+                             "raison": v["methode_demenagement"], "source_ou_methode": f"convention de {v['rattachee_a']}", "type_reference_v6_2": v["type_reference"], "confiance": "élevée (convention validée)"})
+    ecrire_csv(SORTIE / "corrections_v6_2.csv", corr, list(corr[0].keys()))
     ecrire_csv(SORTIE / "decomposition_ecart_v5.csv", decomp, list(decomp[0].keys()))
     comp = [{"identifiant": e["identifiant"], "nom": e["nom"], "niveau_pertinence": e["niveau_pertinence"], "volume_v5_m3": e["volume_v5_m3"], "volume_v6_0_m3": e["volume_v6_0_m3"],
-             "volume_v6_1_m3": e["volume_demenagement_m3"], "ecart_v6_1_v6_0_m3": r3(e["volume_demenagement_m3"] - e["volume_v6_0_m3"]) if e["volume_demenagement_m3"] is not None and e["volume_v6_0_m3"] is not None else "",
-             "type_reference_v6_1": e["type_reference"], "scenario_sans_demenhouse_m3": r3(alt[e["identifiant"]]) if alt[e["identifiant"]] is not None else ""} for e in lignes]
+             "volume_v6_1_m3": e["volume_v6_1_m3"], "volume_v6_2_m3": e["volume_demenagement_m3"],
+             "ecart_v6_2_v6_1_m3": r3(e["volume_demenagement_m3"] - e["volume_v6_1_m3"]) if e["volume_demenagement_m3"] is not None and e["volume_v6_1_m3"] is not None else "",
+             "type_reference_v6_2": e["type_reference"], "scenario_sans_demenhouse_m3": r3(alt[e["identifiant"]]) if alt[e["identifiant"]] is not None else ""} for e in lignes]
     ecrire_csv(SORTIE / "comparatif_versions.csv", comp, list(comp[0].keys()))
 
     # Synthèse.
@@ -751,6 +927,7 @@ def main():
            "type_reference_prioritaires": dict(Counter(e["type_reference"].split(" — ")[0] if e["type_reference"].startswith("attribuée") else e["type_reference"] for e in prio)),
            "fiabilite_demenagement": dict(Counter(e["fiabilite_demenagement"] for e in tous)), "fiabilite_demenagement_prioritaires": dict(Counter(e["fiabilite_demenagement"] for e in prio)),
            "valides_par_professionnel": 0, "conventions_validees": c(tous, lambda e: e["type_reference"] == "convention validée par Devis Scan"),
+           "conventions_sans_sous_categorie": CONVENTIONS_SANS_SOUS_CATEGORIE,
            "geo": dict(Counter(e["statut_geo"] for e in tous)), "fiabilite_geo_mesures": dict(Counter(e["fiabilite_geo"] for e in tous if e["statut_geo"] == "mesuré")),
            "prioritaires_reference_documentee": c(prio, lambda e: e["statut_geo"] in ("mesuré", "partiellement mesuré") or e["regle"][:1] in "123"),
            "prioritaires_valeur_pro": c(prio, lambda e: e["regle"][:1] in "123"), "divergences": c(tous, lambda e: bool(e.get("divergence"))),
@@ -761,7 +938,7 @@ def main():
            "anomalies": len(ano), "anomalies_par_etat": dict(Counter(a["etat_resolution"] for a in ano)), "anomalies_par_priorite": dict(Counter(a["priorite"] for a in ano)),
            "anomalies_ouvertes_elevees": c(ano, lambda a: a["etat_resolution"] == "ouverte" and a["priorite"] == "élevée"),
            "mesures_individuelles": len(mes), "mesures_par_statut": dict(Counter(m["statut_mesure"] for m in mes)),
-           "variantes": len(variantes), "ratios_classes": {k: round(v["ratio"], 2) for k, v in ratios.items()}, "ratio_global_demenhouse": round(glob_dh, 2),
+           "variantes": len(variantes), "ratios_classes": {k: round(v["ratio"], 2) for k, v in ratios.items()}, "ratio_global": round(glob_dh, 2), "anomalies_restantes_significatives": sum(1 for a in ano if a["etat_resolution"] != "résolue" and a["impact_commercial"] == "significatif"),
            "couverture_inventaires": cov}
     (SORTIE / "synthese.json").write_text(json.dumps(syn, ensure_ascii=False, indent=1))
     print(json.dumps({k: v for k, v in syn.items() if k != "couverture_inventaires"}, ensure_ascii=False, indent=1))
