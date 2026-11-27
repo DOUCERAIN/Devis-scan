@@ -25,6 +25,7 @@ export async function countPendingRequests(companyId: string): Promise<number> {
     .from("quote_requests")
     .select("id", { count: "exact", head: true })
     .eq("company_id", companyId)
+    .eq("is_test", false)
     .in("status", PENDING);
   if (error) throw new DataError(dbErrorMessage(error, "countPendingRequests"));
   return count ?? 0;
@@ -38,6 +39,8 @@ export type RequestListItem = {
   moving_date: string | null;
   created_at: string;
   estimated_volume_m3: number | null;
+  /** Demande créée par « Nouvelle simulation » (démonstration ou test). */
+  is_test: boolean;
   customer: { full_name: string; email: string | null; phone: string | null } | null;
   origin_city: string | null;
   destination_city: string | null;
@@ -48,7 +51,7 @@ export async function listRequests(companyId: string, filter: StatusFilter = "to
   let query = supabase
     .from("quote_requests")
     .select(
-      "id, request_number, status, source, moving_date, created_at, estimated_volume_m3, customer:customers(full_name, email, phone), dwellings(kind, city)",
+      "id, request_number, status, source, moving_date, created_at, estimated_volume_m3, is_test, customer:customers(full_name, email, phone), dwellings(kind, city)",
     )
     .eq("company_id", companyId)
     .neq("status", "draft")
@@ -66,6 +69,7 @@ export async function listRequests(companyId: string, filter: StatusFilter = "to
     moving_date: r.moving_date,
     created_at: r.created_at,
     estimated_volume_m3: r.estimated_volume_m3,
+    is_test: r.is_test,
     customer: r.customer,
     origin_city: r.dwellings.find((d) => d.kind === "origin")?.city ?? null,
     destination_city: r.dwellings.find((d) => d.kind === "destination")?.city ?? null,
@@ -76,7 +80,7 @@ export type DashboardStats = { total: number; byStatus: Record<RequestStatus, nu
 
 export async function dashboardStats(companyId: string): Promise<DashboardStats> {
   const supabase = await createClient();
-  const { data, error } = await supabase.from("quote_requests").select("status").eq("company_id", companyId).neq("status", "draft");
+  const { data, error } = await supabase.from("quote_requests").select("status").eq("company_id", companyId).eq("is_test", false).neq("status", "draft");
   if (error) throw new DataError(dbErrorMessage(error, "dashboardStats"));
   const byStatus = Object.fromEntries(
     (["draft", "submitted", "analyzing", "awaiting_customer", "customer_validated", "to_review", "quote_sent", "accepted", "refused", "cancelled", "archived"] as const).map((s) => [s, 0]),

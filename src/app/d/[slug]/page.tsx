@@ -2,7 +2,9 @@ import { ClipboardCheck, MapPin, Smartphone, Video } from "lucide-react";
 import { ButtonLink } from "@/components/ui/Button";
 import { Alert } from "@/components/ui/Alert";
 import { stepHref } from "@/lib/public-request/steps";
-import { restartRequest } from "./actions";
+import { NewRequestButton, RestartButton, SimulationButton } from "@/components/customer/NewRequestForms";
+import { testToolsEnabled } from "@/lib/public-request/test-tools";
+import { formatDate } from "@/lib/requests/labels";
 import { loadContext } from "./load";
 
 const STEPS = [
@@ -13,9 +15,10 @@ const STEPS = [
 
 export default async function CustomerHome({ params }: PageProps<"/d/[slug]">) {
   const { slug } = await params;
-  const { company, draft } = await loadContext(slug);
-  const inProgress = draft?.status === "draft";
-  const sent = draft && draft.status !== "draft";
+  const { company, draft, lastSent } = await loadContext(slug);
+  // Demande en cours (non envoyée) : reprise possible. Demande envoyée : conservée, ne bloque rien.
+  const inProgress = draft !== null;
+  const testTools = await testToolsEnabled(company.id);
 
   return (
     <>
@@ -25,23 +28,22 @@ export default async function CustomerHome({ params }: PageProps<"/d/[slug]">) {
         <p className="text-[17px] leading-7 text-ink-secondary">
           Décrivez votre déménagement, puis filmez vos pièces ou indiquez vos meubles vous-même. Vous recevez votre devis {company.name} dès votre inventaire validé, sans visite préalable.
         </p>
-        {sent ? (
-          <Alert tone="success" title="Votre demande a bien été envoyée">
-            {company.name} l&apos;a reçue et reviendra vers vous rapidement.
+        {lastSent ? (
+          <Alert tone="success" title={`Votre demande${lastSent.submitted_at ? ` du ${formatDate(lastSent.submitted_at)}` : ""} a bien été envoyée`}>
+            {company.name} l&apos;a reçue. <a href={stepHref(slug, "envoyee")} className="font-semibold underline" data-testid="see-last-request">Voir ma demande</a>
           </Alert>
-        ) : inProgress ? (
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <ButtonLink href={stepHref(slug, "trajet")} size="lg" block className="sm:w-auto">Reprendre ma demande</ButtonLink>
-            <form action={restartRequest}>
-              <input type="hidden" name="slug" value={slug} />
-              <button type="submit" className="inline-flex h-12 w-full items-center justify-center rounded-md px-4 text-sm font-medium text-ink-secondary hover:bg-surface-subtle sm:w-auto">
-                Commencer une nouvelle demande
-              </button>
-            </form>
+        ) : null}
+        {inProgress ? (
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+            <ButtonLink href={stepHref(slug, "trajet")} size="lg" block className="sm:w-auto" data-testid="resume-request">Reprendre ma demande en cours</ButtonLink>
+            <RestartButton slug={slug} label="Commencer une nouvelle demande" />
           </div>
+        ) : lastSent ? (
+          <NewRequestButton slug={slug} />
         ) : (
-          <ButtonLink href={stepHref(slug, "trajet")} size="lg" block className="sm:w-auto">Commencer ma demande</ButtonLink>
+          <ButtonLink href={stepHref(slug, "trajet")} size="lg" block className="sm:w-auto" data-testid="start-request">Commencer ma demande</ButtonLink>
         )}
+        {testTools ? <SimulationButton slug={slug} /> : null}
         <p className="flex items-center gap-2 text-sm text-ink-muted">
           <Smartphone aria-hidden className="size-4" />Environ 10 minutes · sans création de compte
         </p>

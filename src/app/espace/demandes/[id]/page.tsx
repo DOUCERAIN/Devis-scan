@@ -135,6 +135,7 @@ export default async function RequestDetailPage({ params, searchParams }: PagePr
           <h1 className="text-[26px] leading-[34px] font-bold sm:text-[30px] sm:leading-[38px]">{request.customer?.full_name ?? "Client sans nom"}</h1>
           <div className="flex flex-wrap items-center gap-2">
             <RequestStatusBadge status={request.status} />
+            {request.is_test ? <Badge tone="warning">Simulation (démonstration ou test)</Badge> : null}
             <Badge>{request.source === "mover_manual" ? "Saisie manuelle" : "Lien client"}</Badge>
             {request.inventory_method ? <Badge>{request.inventory_method === "manual" ? "Inventaire saisi par le client" : "Inventaire par vidéo"}</Badge> : null}
             {request.customer?.customer_type === "company" ? <Badge>Client entreprise</Badge> : null}

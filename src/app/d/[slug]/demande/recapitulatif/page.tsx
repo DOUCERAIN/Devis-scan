@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { RestartButton } from "@/components/customer/NewRequestForms";
 import { Stepper, StepTitle } from "@/components/customer/Stepper";
 import { DraftSummary } from "@/components/customer/DraftSummary";
 import { Alert } from "@/components/ui/Alert";
@@ -40,6 +41,7 @@ export default async function SummaryStep({ params }: PageProps<"/d/[slug]/deman
         <OptionsForm slug={slug} options={options as OptionChoice[]} selected={selected} />
       ) : null}
       <SubmitForm slug={slug} notes={draft.customer_notes} canSubmit={canSubmit} companyName={company.name} manual={manual} />
+      <RestartButton slug={slug} />
     </>
   );
 }

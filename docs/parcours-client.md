@@ -19,6 +19,26 @@ Le particulier ouvre le lien de son déménageur, `/d/<identifiant-de-l-entrepri
 
 Chaque étape exige les précédentes (`reachableStep`, `src/lib/public-request/steps.ts`) : un lien direct vers une étape non accessible renvoie vers la première étape à compléter. Rien n'est perdu en revenant en arrière.
 
+## Demandes successives depuis le même appareil (27/11/2026)
+
+Trois états bien distincts, chacun dans son cookie httpOnly limité à `/d/<slug>` (`src/lib/public-request/session.ts`) :
+
+| État | Cookie | Comportement |
+| --- | --- | --- |
+| Demande **en cours** (brouillon) | `dsr_` | Reprise depuis l'accueil (« Reprendre ma demande en cours ») si le client quitte le parcours |
+| Dernière demande **envoyée** | `dsl_` | Lecture seule : « Voir ma demande » (écran de confirmation) ; ne bloque jamais une nouvelle demande |
+| **Nouvelle** demande | — | Créée à l'enregistrement de l'étape 1 : nouvel identifiant, nouveau jeton, nouvelle fiche client, formulaire vierge |
+
+- À l'envoi, la demande quitte l'état « en cours » (`markDraftSent`). Le lien public propose alors « Nouvelle demande de devis ».
+- Ce bouton apparaît sur l'accueil, l'écran de confirmation et la page de suivi du devis.
+- « Recommencer depuis le début » (accueil, étape 1, récapitulatif) demande une confirmation, puis repart d'un formulaire vierge.
+- **Rien n'est supprimé.** Une demande envoyée reste chez le déménageur, inchangée. Un brouillon jamais envoyé suit la règle habituelle des abandons : purge après 30 jours.
+- Un ancien cookie qui désignerait encore une demande envoyée est traité comme « dernière demande envoyée » (`loadContext`, `load.ts`).
+
+**Nouvelle simulation** : nouvelle demande marquée `quote_requests.is_test` (migration `20261203090000_nouvelles_demandes.sql`), affichée « Simulation » dans l'espace pro et exclue des compteurs du tableau de bord.
+- Elle n'est proposée que pour une entreprise de démonstration (`companies.is_demo`, réglable seulement côté serveur), ou hors production avec `DEVIS_SCAN_TEST_TOOLS=1` (`src/lib/public-request/test-tools.ts`). Jamais en production pour une entreprise réelle.
+- Le marquage est posé par le serveur avec la clé secrète ; aucune fonction publique ne le permet.
+
 ## Inventaire visuel (parcours v3)
 
 Utilisé pour l'inventaire manuel et pour corriger l'inventaire de l'analyse (`/devis/<jeton>`) : `src/components/customer/VisualInventory.tsx`.

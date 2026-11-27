@@ -9,6 +9,8 @@ import type { ReviewDuplicate } from "./InventoryReview";
 import { ReviewInventory } from "./ReviewInventory";
 import { FollowUp, analysisPending } from "@/components/quote/FollowUp";
 import { loadContext } from "../../load";
+import { ButtonLink } from "@/components/ui/Button";
+import { NewRequestButton } from "@/components/customer/NewRequestForms";
 import { AutoRefresh } from "./AutoRefresh";
 import { RespondForm } from "./RespondForm";
 
@@ -20,7 +22,7 @@ export const metadata: Metadata = { referrer: "no-referrer", robots: { index: fa
  */
 export default async function QuotePage({ params }: PageProps<"/d/[slug]/devis/[token]">) {
   const { slug, token } = await params;
-  const { company } = await loadContext(slug);
+  const { company, draft: current } = await loadContext(slug);
   const view = await getQuoteView(token);
   if (!view) notFound();
   const pending = analysisPending(view);
@@ -81,6 +83,14 @@ export default async function QuotePage({ params }: PageProps<"/d/[slug]/devis/[
         resumeManually={view.status === "to_review" && !hasQuote ? <ResumeManualForm slug={slug} token={token} /> : undefined}
       />
       )}
+      <section aria-label="Autre demande" className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-ink-secondary">Un autre déménagement à prévoir ? Cette demande reste conservée.</p>
+        {current ? (
+          <ButtonLink href={`/d/${slug}/demande/trajet`} variant="secondary">Reprendre ma demande en cours</ButtonLink>
+        ) : (
+          <NewRequestButton slug={slug} variant="secondary" block={false} />
+        )}
+      </section>
     </>
   );
 }

@@ -7,7 +7,10 @@ import { runRequestAnalysis } from "@/lib/analysis/run";
 import { failure, success, validationFailure, type ActionState } from "@/lib/errors";
 import { formToObject, nestDotted } from "@/lib/form-data";
 import { isExpiredSession, publicErrorMessage } from "@/lib/public-request/errors";
-import { clearDraftToken, readDraftToken, saveDraftToken } from "@/lib/public-request/session";
+import {
+  clearDraftToken, markDraftSent, readDraftToken, readLastSentToken, readSimulationFlag, saveDraftToken, setSimulationFlag,
+} from "@/lib/public-request/session";
+import { markRequestAsTest, testToolsEnabled } from "@/lib/public-request/test-tools";
 import {
   createDraft, getDraft, getPublicCompany, requestIdForViewToken, setDraftOptions, submitDraft, submitManualDraft, updateDraft,
 } from "@/lib/public-request/service";
@@ -61,12 +64,19 @@ export async function saveTrip(_prev: ActionState, formData: FormData): Promise<
     }
   }
   const payload = tripPayload(parsed.data, alt.dates);
+  // Une demande déjà envoyée n'est jamais modifiée : on en crée une nouvelle, indépendante.
+  const editable = token ? await getDraft(token).then((d) => d.status === "draft").catch(() => true) : false;
   try {
-    if (token) {
+    if (token && editable) {
       await updateDraft(token, payload);
     } else {
       const newToken = await createDraft(slug, payload);
       await saveDraftToken(company.id, slug, newToken);
+      // « Nouvelle simulation » : la demande est marquée comme test (contrôle refait côté serveur).
+      if (await readSimulationFlag(company.id)) {
+        if (await testToolsEnabled(company.id)) await markRequestAsTest(newToken);
+        await setSimulationFlag(company.id, slug, false);
+      }
     }
   } catch (error) {
     if (token && isExpiredSession(error)) {
@@ -119,8 +129,12 @@ export async function continueToSummary(formData: FormData) {
 }
 
 export async function submitRequest(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  const { slug, token } = await context(formData);
-  if (!token) expired(slug);
+  const { slug, company, token } = await context(formData);
+  if (!token) {
+    // Second envoi arrivé après le premier : la demande est déjà partie.
+    if (await readLastSentToken(company.id)) redirect(stepHref(slug, "envoyee"));
+    expired(slug);
+  }
   const raw = formToObject(formData);
   const parsed = finalNotesSchema.safeParse(raw);
   if (!parsed.success) return validationFailure(parsed.error, raw);
@@ -137,9 +151,15 @@ export async function submitRequest(_prev: ActionState, formData: FormData): Pro
   } catch (error) {
     if (isExpiredSession(error)) expired(slug);
     // Double envoi : la demande est déjà partie, on affiche simplement la confirmation.
-    if (/already submitted/i.test(String((error as { message?: string })?.message))) redirect(stepHref(slug, "envoyee"));
+    if (/already submitted/i.test(String((error as { message?: string })?.message))) {
+      await markDraftSent(company.id, slug, token);
+      redirect(stepHref(slug, "envoyee"));
+    }
     return failure(publicErrorMessage(error, "submitRequest"), undefined, raw);
   }
+  // La demande envoyée cesse d'être « en cours » sur cet appareil : le lien de l'entreprise permet
+  // aussitôt d'en commencer une nouvelle ; elle reste consultable (« Voir ma demande »).
+  await markDraftSent(company.id, slug, token);
   const sentToken = viewToken;
   if (manual) {
     // Inventaire saisi et validé par le client : devis final calculé immédiatement (grille de l'entreprise).
@@ -177,10 +197,26 @@ export async function saveOptions(_prev: ActionState, formData: FormData): Promi
   return success(options.length ? "Options enregistrées." : "Aucune option retenue.");
 }
 
-/** Abandonne la demande en cours sur cet appareil et en commence une nouvelle. */
-export async function restartRequest(formData: FormData) {
+/**
+ * Nouvelle demande de devis (ou « Recommencer depuis le début ») : la demande en cours est simplement
+ * oubliée sur cet appareil et une nouvelle, vierge et indépendante, commence à l'étape 1. Rien n'est
+ * supprimé : une demande envoyée reste chez le déménageur ; un brouillon jamais envoyé suit la règle
+ * habituelle des abandons (purge après 30 jours).
+ */
+export async function startNewRequest(formData: FormData) {
   const { slug, company } = await context(formData);
   await clearDraftToken(company.id, slug);
+  await setSimulationFlag(company.id, slug, false);
+  refresh(slug);
+  redirect(stepHref(slug, "trajet"));
+}
+
+/** « Nouvelle simulation » (démonstration ou test uniquement) : nouvelle demande marquée comme test. */
+export async function startSimulation(formData: FormData) {
+  const { slug, company } = await context(formData);
+  if (!(await testToolsEnabled(company.id))) redirect(`/d/${slug}`);
+  await clearDraftToken(company.id, slug);
+  await setSimulationFlag(company.id, slug, true);
   refresh(slug);
   redirect(stepHref(slug, "trajet"));
 }

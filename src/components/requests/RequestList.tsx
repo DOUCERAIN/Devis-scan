@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Badge } from "@/components/ui/Badge";
 import { ChevronRight } from "lucide-react";
 import { RequestStatusBadge } from "./RequestStatusBadge";
 import { requestReference } from "@/lib/requests/status";
@@ -22,7 +23,10 @@ export function RequestList({ items, prefix }: { items: RequestListItem[]; prefi
               <div className="flex min-w-0 flex-1 flex-col gap-1">
                 <div className="flex items-center justify-between gap-2">
                   <span className="truncate font-medium text-ink">{item.customer?.full_name ?? "Client sans nom"}</span>
-                  <RequestStatusBadge status={item.status} />
+                  <span className="flex shrink-0 items-center gap-1">
+                    {item.is_test ? <SimulationBadge /> : null}
+                    <RequestStatusBadge status={item.status} />
+                  </span>
                 </div>
                 <span className="truncate text-[13px] text-ink-secondary">{route(item)}</span>
                 <span className="text-xs text-ink-muted tabular-nums">
@@ -58,7 +62,9 @@ export function RequestList({ items, prefix }: { items: RequestListItem[]; prefi
                 </td>
                 <td className="border-b border-border px-4 py-3 text-ink-secondary">{route(item)}</td>
                 <td className="border-b border-border px-4 py-3 text-ink-secondary">{formatDate(item.moving_date)}</td>
-                <td className="border-b border-border px-4 py-3"><RequestStatusBadge status={item.status} /></td>
+                <td className="border-b border-border px-4 py-3">
+                  <span className="flex flex-wrap items-center gap-1">{item.is_test ? <SimulationBadge /> : null}<RequestStatusBadge status={item.status} /></span>
+                </td>
                 <td className="border-b border-border px-4 py-3 text-right text-ink">
                   {item.estimated_volume_m3 === null ? <span className="text-ink-muted">—</span> : formatVolume(Number(item.estimated_volume_m3))}
                 </td>
@@ -75,4 +81,9 @@ export function RequestList({ items, prefix }: { items: RequestListItem[]; prefi
       </div>
     </>
   );
+}
+
+/** Demande créée par « Nouvelle simulation » : conservée, exclue des compteurs. */
+export function SimulationBadge() {
+  return <Badge tone="warning">Simulation</Badge>;
 }
