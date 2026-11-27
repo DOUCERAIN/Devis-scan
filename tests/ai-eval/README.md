@@ -11,6 +11,7 @@ Comparaison de Claude Haiku 5.5, Sonnet 5.5 et Opus 5.5 **sur les mêmes images*
 | --- | --- |
 | `bench.ts` | Banc de comparaison. Sans `--confirm`, contrôle seulement le jeu de données et le budget (aucun appel). |
 | `ping.ts` | Appel de test unique et minimal (clé et réseau). |
+| `preflight-photos.ts` | Vérification **hors ligne** de l'analyse par photos (requête préparée pour Haiku 5.5, lots, lecture de la réponse, volumes du catalogue, coût estimé) : aucune requête ne quitte la machine. Voir `docs/test-analyse-reelle-preview.md`. |
 | `dataset/<cas>/` | Une pièce : `case.json` (inventaire de référence) et `frames/` (images envoyées aux modèles). |
 | `images/`, `make-videos.sh`, `videos/` | Photos réelles sous licence libre, et vidéos panoramiques créées à partir de ces photos. |
 | `prepare-frames.e2e.cjs` | Fait passer chaque vidéo par le **vrai parcours client** (navigateur, compression, extraction des images) et remplit `dataset/<cas>/frames/`. |
@@ -21,6 +22,7 @@ Comparaison de Claude Haiku 5.5, Sonnet 5.5 et Opus 5.5 **sur les mêmes images*
 
 ```bash
 node --conditions=react-server tests/ai-eval/ping.ts --check     # présence de la clé, sans appel
+node --conditions=react-server tests/ai-eval/preflight-photos.ts 30  # analyse par photos simulée hors ligne + coût estimé, sans appel
 node --conditions=react-server tests/ai-eval/bench.ts            # contrôle du jeu de données + coût maximal, SANS appel
 node --conditions=react-server tests/ai-eval/bench.ts --confirm  # appels réels, uniquement après accord explicite
 node --conditions=react-server tests/ai-eval/bench.ts --rescore tests/ai-eval/results/<passage>/resultats.json   # renotation sans appel
